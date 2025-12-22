@@ -973,6 +973,11 @@ class Character(LiveEntity):
             raise InvalidAction("%r can't attack %r." % (self, target))
         self.game.attack(self, target)
 
+    def _set_zone(self, zone):
+        if self.zone == Zone.PLAY and zone != Zone.PLAY:
+            self.damage = 0
+        return super()._set_zone(zone)
+
     @property
     def health(self):
         return self.max_health - self.damage
@@ -1231,6 +1236,9 @@ class Minion(Character):
         return super().zone_position
 
     def _set_zone(self, value):
+        if self.zone == value:
+            return
+
         if value == Zone.PLAY:
             if self._summon_index is not None:
                 self.controller.field.insert(self._summon_index, self)
@@ -1242,9 +1250,13 @@ class Minion(Character):
         if self.zone == Zone.PLAY:
             self.log("%r is removed from the field", self)
             self.controller.field.remove(self)
-            if self.damage:
-                self.damage = 0
-
+            for attr in self.silenceable_attributes:
+                if attr in self.data.tags:
+                    setattr(self, attr, self.data.tags[attr])
+            if self.data.tags[GameTag.DORMANT]:
+                self.dormant = True
+            if getattr(self.data.scripts, "dormant_turns"):
+                self.dormant_turns = getattr(self.data.scripts, "dormant_turns")
         super()._set_zone(value)
 
     def _hit(self, amount):

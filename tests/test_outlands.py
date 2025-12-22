@@ -44,3 +44,17 @@ def test_imprisoned_antaen():
     assert not antaen.dormant
     assert antaen.dormant_turns == 0
     assert game.player2.hero.health == 20
+    game.end_turn()
+    sap = game.player2.give("EX1_581")
+    sap.play(target=antaen)
+    game.end_turn()
+    antaen.play()
+    assert antaen.dormant
+    assert antaen.dormant_turns == 2
+    game.skip_turn()
+    assert antaen.dormant
+    assert antaen.dormant_turns == 1
+    game.skip_turn()
+    assert not antaen.dormant
+    assert antaen.dormant_turns == 0
+    assert game.player2.hero.health == 10
