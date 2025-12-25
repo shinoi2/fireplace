@@ -25,6 +25,12 @@ class DS1h_292_H3(HERO_05bp):
     pass
 
 
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Warsong Rexxar)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -45,5 +51,11 @@ class DS1h_292_H1_AT_132(HERO_05bp2):
 
 class DS1h_292_H3_AT_132(HERO_05bp2):
     """Steady Shot (Sylvanas Windrunner)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Warsong Rexxar)"""
 
     pass

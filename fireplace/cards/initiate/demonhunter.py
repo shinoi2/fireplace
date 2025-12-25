@@ -180,7 +180,7 @@ class BT_801:
     # <b>Lifesteal</b>. Deal $3 damage to a minion. <b>Outcast:</b> This costs
     # (1).
     class Hand:
-        update = Find(SELF + OUTERMOST_HAND) & Refresh(SELF, {GameTag.COST: SET(1)})
+        update = Find(SELF + OUTERMOST(FRIENDLY_HAND)) & Refresh(SELF, {GameTag.COST: SET(1)})
 
     play = Hit(TARGET, 3)
 

@@ -90,30 +90,8 @@ class LOOT_541:
 
     # [x]<b>Battlecry:</b> Swap decks with your opponent. Give them a Ransom spell to swap
     # back.
-    def play(self):
-        controller = self.controller
-        opponent = self.controller.opponent
-        controller_deck = controller.deck
-        opponent_deck = opponent.deck
-        controller.deck = opponent_deck
-        opponent.deck = controller_deck
-        for card in controller.deck:
-            card.controller = controller
-        for card in opponent.deck:
-            card.controller = opponent
-        yield Give(OPPONENT, "LOOT_541t")
+    play = SwapDecks(), Give(OPPONENT, "LOOT_541t")
 
 
 class LOOT_541t:
-    def play(self):
-        controller = self.controller
-        opponent = self.controller.opponent
-        controller_deck = controller.deck
-        opponent_deck = opponent.deck
-        controller.deck = opponent_deck
-        opponent.deck = controller_deck
-        for card in controller.deck:
-            card.controller = controller
-        for card in opponent.deck:
-            card.controller = opponent
-        yield Give(OPPONENT, "LOOT_541t")
+    play = SwapDecks()

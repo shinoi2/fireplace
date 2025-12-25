@@ -9,7 +9,7 @@ class DRG_089:
     """Dragonqueen Alexstrasza"""
 
     # [x]<b>Battlecry:</b> If your deck has no duplicates, add 2 other random Dragons to
-    # your hand. They cost (0).
+    # your hand. They cost (1).
     powered_up = -FindDuplicates(FRIENDLY_DECK)
     play = (
         powered_up

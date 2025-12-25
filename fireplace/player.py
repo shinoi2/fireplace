@@ -100,6 +100,7 @@ class Player(Entity, TargetableByAuras):
         self.hero_power_damage_this_game = 0
         self.spent_mana_on_spells_this_game = 0
         self.healed_this_game = 0
+        self.hero_health_changed_this_turn = 0
         self.cthun = None
         self.invoke_counter = 0
 

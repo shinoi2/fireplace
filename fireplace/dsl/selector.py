@@ -374,8 +374,40 @@ class RandomShuffle(RandomSelector):
         return source.game.random.sample(child_entities, len(child_entities))
 
 
+class PositionSelector(Selector):
+    def __init__(self, child: SelectorLike):
+        if isinstance(child, LazyValue):
+            child = LazyValueSelector(child)
+        self.child = child
+
+
+class LeftmostSelector(PositionSelector):
+    def eval(self, entities, source):
+        child_entities = self.child.eval(entities, source)
+        min_position = min(e.zone_position for e in child_entities)
+        return [e for e in child_entities if e.zone_position == min_position]
+
+
+class RightmostSelector(PositionSelector):
+    def eval(self, entities, source):
+        child_entities = self.child.eval(entities, source)
+        max_position = max(e.zone_position for e in child_entities)
+        return [e for e in child_entities if e.zone_position == max_position]
+
+
+class OutermostSelector(PositionSelector):
+    def eval(self, entities, source):
+        child_entities = self.child.eval(entities, source)
+        min_position = min(e.zone_position for e in child_entities)
+        max_position = max(e.zone_position for e in child_entities)
+        return [e for e in child_entities if e.zone_position == min_position or e.zone_position == max_position]
+
+
 RANDOM = RandomSelector
 SHUFFLE = RandomShuffle
+LEFTMOST = LeftmostSelector
+RIGHTMOST = RightmostSelector
+OUTERMOST = OutermostSelector
 
 DEAD = FuncSelector(
     lambda entities, source: [e for e in entities if hasattr(e, "dead") and e.dead]
@@ -394,6 +426,13 @@ HIGHEST_COST = lambda sel: (
 )
 LOWEST_COST = lambda sel: (
     RANDOM(sel + (AttrValue(GameTag.COST) == OpAttr(sel, GameTag.COST, min)))
+)
+
+HIGHEST_HEALTH = lambda sel: (
+    RANDOM(sel + (AttrValue("health") == OpAttr(sel, "health", max)))
+)
+LOWEST_HEALTH = lambda sel: (
+    RANDOM(sel + (AttrValue("health") == OpAttr(sel, "health", min)))
 )
 
 
@@ -475,6 +514,7 @@ CHOOSE_ONE = EnumSelector(GameTag.CHOOSE_ONE)
 HAS_DISCOVER = EnumSelector(GameTag.DISCOVER)
 LACKEY = EnumSelector(GameTag.MARK_OF_EVIL)
 LIBRAM = EnumSelector(GameTag.LIBRAM)
+OUTCAST = EnumSelector(GameTag.OUTCAST)
 
 ALWAYS_WINS_BRAWLS = AttrValue(enums.ALWAYS_WINS_BRAWLS) == True
 KILLED_THIS_TURN = AttrValue(enums.KILLED_THIS_TURN) == True
@@ -599,28 +639,6 @@ OTHER_CLASS_CHARACTER = FuncSelector(
 
 NEUTRAL = AttrValue(GameTag.CLASS) == CardClass.NEUTRAL
 
-LEFTMOST_FIELD = FuncSelector(
-    lambda entities, source: (
-        source.game.player1.field.filter(dormant=False)[:1]
-        + source.game.player2.field.filter(dormant=False)[:1]
-    )
-)
-RIGTHMOST_FIELD = FuncSelector(
-    lambda entities, source: (
-        source.game.player1.field.filter(dormant=False)[-1:]
-        + source.game.player2.field.filter(dormant=False)[-1:]
-    )
-)
-LEFTMOST_HAND = FuncSelector(
-    lambda entities, source: source.game.player1.hand[:1]
-    + source.game.player2.hand[-1:]
-)
-RIGTHMOST_HAND = FuncSelector(
-    lambda entities, source: source.game.player1.hand[:1]
-    + source.game.player2.hand[-1:]
-)
-OUTERMOST_HAND = LEFTMOST_HAND + RIGTHMOST_HAND
-
 NUM_CARDS_PLAYED_THIS_TURN = Attr(CONTROLLER, GameTag.NUM_CARDS_PLAYED_THIS_TURN)
 CARDS_PLAYED_THIS_TURN = AttrValue("played_this_turn") == True
 
@@ -698,7 +716,7 @@ def _main_galakorn_func(entities, source):
 
 MAIN_GALAKROND = FuncSelector(_main_galakorn_func)
 
-STORE_CARD = FuncSelector(lambda entities, source: [source.store_card])
+STORE_CARD = FuncSelector(lambda entities, source: source.store_card)
 
 UPGRADED_HERO_POWER = FuncSelector(
     lambda entities, source: (
@@ -711,8 +729,6 @@ UPGRADED_HERO_POWER = FuncSelector(
         else []
     )
 )
-
-STORE_CARD = FuncSelector(lambda entities, source: [source.store_card])
 
 UPGRADED_HERO_POWER = FuncSelector(
     lambda entities, source: (

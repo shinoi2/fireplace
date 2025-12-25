@@ -21,6 +21,7 @@ standard_board_skins = [
     BoardEnum.ULDUM_CITY,
     BoardEnum.DRAGONBLIGHT,
     BoardEnum.OUTLAND,
+    BoardEnum.SCHOLOMANCE,
 ]
 
 
@@ -89,6 +90,7 @@ class CardDB(dict[str, cardxml.CardXML]):
             "secret_deathrattles",
             "magnetic",
             "overkill",
+            "spellburst",
         )
 
         for script in scriptnames:

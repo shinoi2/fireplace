@@ -30,6 +30,12 @@ class HERO_08ebp(HERO_08bp):
     pass
 
 
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Scholar Jaina)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -55,5 +61,11 @@ class CS2_034_H2_AT_132(HERO_08bp2):
 
 class HERO_08ebp2(HERO_08bp2):
     """Fireblast Rank 2 (Kel'Thuzad)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Scholar Jaina)"""
 
     pass

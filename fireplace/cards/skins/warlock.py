@@ -23,6 +23,12 @@ class CS2_056_H2(HERO_07bp):
     pass
 
 
+class HERO_07dbp(HERO_07bp):
+    """Life Tap (N'Zoth)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -41,5 +47,11 @@ class AT_132_WARLOCKa(HERO_07bp2):
 
 class AT_132_WARLOCKb(HERO_07bp2):
     """Soul Tap (Mecha-Jaraxxus)"""
+
+    pass
+
+
+class HERO_07dbp2(HERO_07bp2):
+    """Soul Tap (N'Zoth)"""
 
     pass

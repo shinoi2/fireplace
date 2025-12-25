@@ -390,6 +390,7 @@ class BaseGame(Entity):
         player.overloaded = 0
         player.elemental_played_last_turn = player.elemental_played_this_turn
         player.elemental_played_this_turn = 0
+        player.hero_health_changed_this_turn = 0
 
         for entity in self.live_entities:
             if entity.type != CardType.PLAYER:

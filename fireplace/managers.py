@@ -159,6 +159,7 @@ class PlayerManager(Manager):
         GameTag.TURN_START: "turn_start",
         enums.CANT_OVERLOAD: "cant_overload",
         enums.ELEMENTAL_PLAYED_LAST_TURN: "elemental_played_last_turn",
+        enums.HERO_HEALTH_CHANGED_THIS_TURN: "hero_health_changed_this_turn",
     }
 
 
@@ -233,6 +234,7 @@ CARD_ATTRIBUTE_MAP = {
     GameTag.TAG_SCRIPT_DATA_ENT_2: "entity_2",
     GameTag.TWINSPELL: "twinspell",
     GameTag.TWINSPELL_COPY: "twinspell_copy",
+    GameTag.OUTCAST: "has_outcast",
     GameTag.OVERLOAD: "overload",
     GameTag.OVERKILL: "has_overkill",
     GameTag.PARENT_CARD: "parent_card",

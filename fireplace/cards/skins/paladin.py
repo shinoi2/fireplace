@@ -30,6 +30,12 @@ class CS2_101_H3(HERO_04bp):
     pass
 
 
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Horseman Uther)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -55,5 +61,11 @@ class CS2_101_H2_AT_132(HERO_04bp2):
 
 class CS2_101_H3_AT_132(HERO_04bp2):
     """The Silver Hand (Sir Annoy-O)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Horseman Uther)"""
 
     pass

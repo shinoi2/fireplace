@@ -5,7 +5,7 @@ from utils import *
 from fireplace import cards
 
 
-VERSION = "17.6.0.53261"
+VERSION = "18.6.1.65000"
 WIKI_HOST = "https://hearthstone.wiki.gg/wiki"
 
 CARD_SET_NAME = {
@@ -36,6 +36,7 @@ CARD_SET_NAME = {
     CardSet.YEAR_OF_THE_DRAGON: "Galakrond's Awakening",
     CardSet.SCHOLOMANCE: "Scholomance Academy",
     CardSet.DEMON_HUNTER_INITIATE: "Demon Hunter Initiate",
+    CardSet.DARKMOON_FAIRE: "Madness at the Darkmoon Faire",
 }
 
 

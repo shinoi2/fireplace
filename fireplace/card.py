@@ -295,6 +295,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         self.entourage = CardList(data.entourage)
         self.has_battlecry = False
         self.has_combo = False
+        self.has_outcast = False
         self.overload = 0
         self.rarity = Rarity.INVALID
         self.choose_cards = CardList()
@@ -755,6 +756,7 @@ class LiveEntity(PlayableCard, Entity):
         self.turn_killed = -1
         self.damaged_this_turn = 0
         self.healed_this_turn = 0
+        self.spellburst = False
         self.additional_deathrattles = []
 
     def dump(self):
@@ -1141,6 +1143,7 @@ class Minion(Character):
         "secret_deathrattle",
         "has_overkill",
         "reborn",
+        "spellburst",
     )
 
     def __init__(self, data):
@@ -1161,6 +1164,7 @@ class Minion(Character):
         data["silenced"] = self.silenced
         data["dormant"] = self.dormant
         data["reborn"] = self.reborn
+        data["spellburst"] = self.spellburst
         return data
 
     @property

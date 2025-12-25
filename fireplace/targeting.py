@@ -6,6 +6,7 @@ from hearthstone.enums import CardType, Rarity
 
 from .enums import PlayReq
 
+from .cards.utils import SOUL_FRAGMENT
 
 TARGETING_PREREQUISITES = (
     PlayReq.REQ_TARGET_TO_PLAY,
@@ -27,8 +28,9 @@ TARGETING_PREREQUISITES = (
     PlayReq.REQ_TARGET_IF_AVAILABLE_AND_COST_5_OR_MORE_SPELL_IN_HAND,
     PlayReq.REQ_TARGET_IF_AVAILABLE_AND_MIN_MANA_CRYSTAL,
     PlayReq.REQ_TARGET_IF_AVAILABLE_AND_FRIENDLY_LACKEY,
-    # PlayReq.REQ_TARGET_IF_AVAILABLE_AND_PLAYER_HEALTH_CHANGED_THIS_TURN,
-    # PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SOUL_FRAGMENT_IN_DECK,
+    PlayReq.REQ_TARGET_IF_AVAILABLE_AND_PLAYER_HEALTH_CHANGED_THIS_TURN,
+    PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SOUL_FRAGMENT_IN_DECK,
+    PlayReq.REQ_DAMAGED_TARGET_UNLESS_COMBO,
     # PlayReq.REQ_TARGET_IF_AVAILABLE_AND_BOUGHT_RACE_THIS_TURN,
     # PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SOLD_RACE_THIS_TURN,
 )
@@ -130,6 +132,15 @@ def is_valid_target(self, target, requirements=None):
                 target.type != CardType.MINION
                 and target != self.controller.opponent.hero
             ):
+                return False
+        elif req == PlayReq.REQ_TARGET_IF_AVAILABLE_AND_PLAYER_HEALTH_CHANGED_THIS_TURN:
+            if not target.hero_health_changed_this_turn:
+                return False
+        elif req == PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SOUL_FRAGMENT_IN_DECK:
+            if SOUL_FRAGMENT not in target.controller.deck:
+                return False
+        elif req == PlayReq.REQ_DAMAGED_TARGET_UNLESS_COMBO:
+            if not target.damage and not self.controller.combo:
                 return False
 
     return True

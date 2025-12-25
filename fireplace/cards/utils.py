@@ -122,6 +122,8 @@ LACKEY_CARDS = [
     "DRG_052",
 ]
 
+SOUL_FRAGMENT = "SCH_307t"
+
 RandomBasicTotem = lambda *args, **kw: RandomID(*BASIC_TOTEMS, **kw)
 RandomBasicHeroPower = lambda *args, **kw: RandomID(*BASIC_HERO_POWERS, **kw)
 RandomUpgradedHeroPower = lambda *args, **kw: RandomID(*UPGRADED_HERO_POWERS, **kw)

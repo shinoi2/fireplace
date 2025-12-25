@@ -42,7 +42,7 @@ class TRL_309:
             SummonCustomMinion(
                 CONTROLLER,
                 "TRL_309t",
-                COST(Play.CARD),
+                Min(COST(Play.CARD), 10),
                 COST(Play.CARD),
                 COST(Play.CARD),
             )

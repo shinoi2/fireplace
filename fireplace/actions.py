@@ -15,7 +15,7 @@ from hearthstone.enums import (
 from .dsl import LazyNum, LazyValue, Selector
 from .dsl.copy import Copy, RebornCopy
 from .dsl.random_picker import RandomMinion
-from .dsl.selector import SELF
+from .dsl.selector import *
 from .entity import Entity
 from .enums import DISCARDED
 from .exceptions import InvalidAction
@@ -514,9 +514,7 @@ class Play(GameAction):
 
         # "Can't Play" (aka Counter) means triggers don't happen either
         if not card.cant_play:
-            if card.play_outcast and card.get_actions("outcast"):
-                source.game.trigger(card, card.get_actions("outcast"), event_args=None)
-            elif trigger_battlecry:
+            if trigger_battlecry:
                 source.game.queue_actions(
                     card, [Battlecry(battlecry_card, card.target)]
                 )
@@ -755,14 +753,14 @@ class StoringBuff(TargetedAction):
 
     def get_target_args(self, source, target):
         buff = self._args[1]
-        card = _eval_card(source, self._args[2])[0]
+        card = _eval_card(source, self._args[2])
         buff = source.controller.card(buff, source=source)
         buff.source = source
         return [buff, card]
 
-    def do(self, source, target, buff, card):
-        log.info("%r store card %r", buff, card)
-        buff.store_card = card
+    def do(self, source, target, buff, cards):
+        log.info("%r store card %r", buff, cards)
+        buff.store_card = cards
         return buff.apply(target)
 
 
@@ -925,9 +923,6 @@ class PutOnTop(TargetedAction):
         if not isinstance(cards, list):
             cards = [cards]
 
-        if cards:
-            target.shuffle_deck()
-
         for card in cards:
             if card.controller != target:
                 card.zone = Zone.SETASIDE
@@ -936,7 +931,35 @@ class PutOnTop(TargetedAction):
                 log.info("Put(%r) fails because %r's deck is full", card, target)
                 continue
             card.zone = Zone.DECK
-            card, card.controller.deck[-1] = card.controller.deck[-1], card
+            index = card.zone_position - 1
+            target.deck = target.deck[0:index] + target.deck[index + 1 :] + [card]
+            source.game.manager.targeted_action(self, source, target, card)
+
+
+class PutOnBottom(TargetedAction):
+    """
+    Put card on deck bottom
+    """
+
+    TARGET = ActionArg()
+    CARD = CardArg()
+
+    def do(self, source, target, cards):
+        log.info("%r put on %s's deck bottom", cards, target)
+        if not isinstance(cards, list):
+            cards = [cards]
+
+        for card in cards:
+            if card.controller != target:
+                card.zone = Zone.SETASIDE
+                card.controller = target
+            if card.zone != Zone.DECK and len(target.deck) >= target.max_deck_size:
+                log.info("Put(%r) fails because %r's deck is full", card, target)
+                continue
+            card._summon_index = 0
+            card.zone = Zone.DECK
+            index = card.zone_position - 1
+            target.deck = [card] + target.deck[0:index] + target.deck[index + 1 :]
             source.game.manager.targeted_action(self, source, target, card)
 
 
@@ -990,6 +1013,8 @@ class Damage(TargetedAction):
                 if actions:
                     source.game.trigger(source, actions, event_args=None)
             target.damaged_this_turn += amount
+            if target.type == CardType.HERO:
+                target.controller.hero_health_changed_this_turn += 1
             if source.type == CardType.HERO_POWER:
                 source.controller.hero_power_damage_this_game += amount
         return amount
@@ -1060,6 +1085,9 @@ class Battlecry(TargetedAction):
         if card.has_combo and player.combo:
             log.info("Activating %r combo targeting %r", card, target)
             actions = card.get_actions("combo")
+        elif card.has_outcast and card.play_outcast:
+            log.info("Activating %r outcast targeting %r", card, target)
+            actions = card.get_actions("outcast")
         else:
             log.info("Activating %r action targeting %r", card, target)
             actions = card.get_actions("play")
@@ -1077,6 +1105,13 @@ class Battlecry(TargetedAction):
 
         if card.overload:
             source.game.queue_actions(card, [Overload(player, card.overload)])
+
+        if card.type == CardType.SPELL:
+            for entity in player.live_entities:
+                if entity.spellburst:
+                    entity.spellburst = False
+                    actions = entity.get_actions("spellburst")
+                    source.game.queue_actions(card, actions)
 
 
 class ExtraBattlecry(Battlecry):
@@ -1458,6 +1493,8 @@ class Heal(TargetedAction):
             self.queue_broadcast(self, (source, EventListener.ON, target, amount))
             target.healed_this_turn += amount
             source.controller.healed_this_game += amount
+            if target.type == CardType.HERO:
+                source.controller.hero_health_changed_this_turn += 1
 
 
 class ManaThisTurn(TargetedAction):
@@ -1940,6 +1977,13 @@ class CastSpellTargetsEnemiesIfPossible(CastSpell):
         return source.game.random.choice(card.targets)
 
 
+class CastSpellTargetsSelfIfPossible(CastSpell):
+    def choose_target(self, source, card):
+        if source in card.targets:
+            return source
+        return source.game.random.choice(card.targets)
+
+
 class Evolve(TargetedAction):
     """
     Transform your minions into random minions that cost (\a amount) more
@@ -2250,3 +2294,33 @@ class Dormant(TargetedAction):
         target.dormant = True
         target.dormant_turns += amount
         source.game.manager.targeted_action(self, source, target, amount)
+
+
+class SwapDecks(GameAction):
+    """
+    Swap decks between two players
+    """
+
+    def do(self, source):
+        game = source.game
+        player1 = game.player1
+        player2 = game.player2
+        player1.deck, player2.deck = player2.deck, player1.deck
+        for card in player1.deck:
+            card.controller = player1
+        for card in player2.deck:
+            card.controller = player2
+
+
+class SwapHands(GameAction):
+    """
+    Swap hands between two players
+    """
+
+    def do(self, source):
+        game = source.game
+        player1 = game.player1
+        player2 = game.player2
+        player1.hand, player2.hand = player2.hand, player1.hand
+        for card in player1.hand:
+            card.controller = player1

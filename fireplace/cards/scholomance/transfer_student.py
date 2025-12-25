@@ -32,7 +32,7 @@ TRANSFER_STUDENT_EFFECT = Switch(
         BoardEnum.ULDUM_CITY: Morph(SELF, "SCH_199t25"),
         BoardEnum.DRAGONBLIGHT: Morph(SELF, "SCH_199t21"),
         BoardEnum.OUTLAND: Morph(SELF, "SCH_199t22"),
-        # BoardEnum.SCHOLOMANCE: Morph(SELF, "SCH_199t23"),
+        BoardEnum.SCHOLOMANCE: Morph(SELF, "SCH_199t23"),
         None: Morph(SELF, "SCH_199t"),
     },
 )

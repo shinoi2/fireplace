@@ -105,7 +105,7 @@ class LOOT_522:
     """Crushing Walls"""
 
     # Destroy your opponent's left and right-most minions.
-    play = Destroy(ENEMY_MINIONS + (LEFTMOST_FIELD | RIGTHMOST_FIELD))
+    play = Destroy(OUTERMOST(ENEMY_MINIONS))
 
 
 ##
