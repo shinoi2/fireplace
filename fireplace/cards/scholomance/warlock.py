@@ -28,8 +28,12 @@ class SCH_343:
 
     # [x]<b>Taunt</b>. <b>Battlecry:</b> Destroy a Soul Fragment in your deck
     # to gain +3/+3.
-    powered_up = Find(FRIENDLY_DECK + SOUL_FRAGMENT)
-    play = powered_up & Destroy(RANDOM(FRIENDLY_DECK + SOUL_FRAGMENT)) & Buff(SELF, "SCH_343e")
+    powered_up = Find(FRIENDLY_DECK + ID(SOUL_FRAGMENT))
+    play = (
+        powered_up
+        & Destroy(RANDOM(FRIENDLY_DECK + ID(SOUL_FRAGMENT)))
+        & Buff(SELF, "SCH_343e")
+    )
 
 
 SCH_343e = buff(+3, +3)
@@ -42,8 +46,8 @@ class SCH_517:
     requirements = {
         PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SOUL_FRAGMENT_IN_DECK: 0,
     }
-    powered_up = Find(FRIENDLY_DECK + SOUL_FRAGMENT)
-    play = Destroy(RANDOM(FRIENDLY_DECK + SOUL_FRAGMENT)), Hit(TARGET, 3)
+    powered_up = Find(FRIENDLY_DECK + ID(SOUL_FRAGMENT))
+    play = Destroy(RANDOM(FRIENDLY_DECK + ID(SOUL_FRAGMENT))), Hit(TARGET, 3)
 
 
 class SCH_700:
@@ -58,7 +62,9 @@ class SCH_703:
 
     # <b>Battlecry:</b> For each Soul Fragment in your deck, summon a 3/3 Soul
     # with <b>Rush</b>.@ <i>(@)</i>
-    play = SummonBothSides(CONTROLLER, "SCH_703t") * Count(FRIENDLY_DECK + SOUL_FRAGMENT)
+    play = SummonBothSides(CONTROLLER, "SCH_703t") * Count(
+        FRIENDLY_DECK + ID(SOUL_FRAGMENT)
+    )
 
 
 ##

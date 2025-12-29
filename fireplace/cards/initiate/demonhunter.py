@@ -126,7 +126,7 @@ class BT_427:
     """Feast of Souls"""
 
     # Draw a card for each friendly minion that died this turn.
-    play = Draw(CONTROLLER) * Attr(CONTROLLER, GameTag.NUM_MINIONS_KILLED_THIS_TURN)
+    play = Draw(CONTROLLER) * Attr(CONTROLLER, GameTag.NUM_MINIONS_PLAYER_KILLED_THIS_TURN)
 
 
 class BT_488:
@@ -171,7 +171,7 @@ class BT_753:
 
 
 class BT_753e:
-    events = BeginTurn(OPPONENT).on(ManaThisTurn(OWNER, -2)), Destroy(SELF)
+    events = BeginTurn(OPPONENT).on(ManaThisTurn(OWNER, -2), Destroy(SELF))
 
 
 class BT_801:
@@ -180,7 +180,9 @@ class BT_801:
     # <b>Lifesteal</b>. Deal $3 damage to a minion. <b>Outcast:</b> This costs
     # (1).
     class Hand:
-        update = Find(SELF + OUTERMOST(FRIENDLY_HAND)) & Refresh(SELF, {GameTag.COST: SET(1)})
+        update = Find(SELF + OUTERMOST(FRIENDLY_HAND)) & Refresh(
+            SELF, {GameTag.COST: SET(1)}
+        )
 
     play = Hit(TARGET, 3)
 

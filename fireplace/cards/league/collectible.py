@@ -371,7 +371,7 @@ class LOE_115b:
 class LOE_021:
     """Dart Trap"""
 
-    secret = Activate(OPPONENT, HERO_POWER).on(
+    secret = Activate(ENEMY_HERO_POWER).on(
         Reveal(SELF), Hit(RANDOM_ENEMY_CHARACTER, 5)
     )
 

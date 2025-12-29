@@ -8,7 +8,7 @@ from ..utils import *
 class ICC_068:
     """Ice Walker"""
 
-    events = Activate(CONTROLLER, FRIENDLY_HERO_POWER).after(Freeze(Activate.TARGET))
+    events = Activate(FRIENDLY_HERO_POWER).after(Freeze(Activate.TARGET))
 
 
 class ICC_069:

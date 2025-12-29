@@ -11,9 +11,7 @@ class SCH_317:
     # [x]After you play a <b>Rush</b> minion, summon a copy _with 1 Health
     # remaining.
     events = Play(CONTROLLER, RUSH + MINION).after(
-        Summon(CONTROLLER, ExactCopy(Play.CARD)).then(
-            SetCurrentHealth(Summon.CARD, 1)
-        )
+        Summon(CONTROLLER, ExactCopy(Play.CARD)).then(SetCurrentHealth(Summon.CARD, 1))
     )
 
 
@@ -25,7 +23,8 @@ class SCH_337:
     events = OWN_TURN_END.on(
         Summon(CONTROLLER, "SCH_337t").then(
             Attack(Summon.CARD, RANDOM(ENEMY_CHARACTERS))
-        ) * 2
+        )
+        * 2
     )
 
 
@@ -34,7 +33,9 @@ class SCH_621:
 
     # <b>Deathrattle:</b> Resummon this with -1/-1.
     deathrattle = Summon(CONTROLLER, ExactCopy(SELF)).then(
-        SummonCustomMinion(CONTROLLER, "SCH_621t", 9, ATK(SELF) - 1, MAX_HEALTH(SELF) - 1)
+        SummonCustomMinion(
+            CONTROLLER, "SCH_621", 9, ATK(SELF) - 1, MAX_HEALTH(SELF) - 1
+        )
     )
 
 

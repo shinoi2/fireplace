@@ -9,7 +9,7 @@ class ULD_262:
     """High Priest Amet"""
 
     # [x]Whenever you summon a minion, set its Health equal to this minion's.
-    events = Summon(CONTROLLER, MINION).on(SetStateBuff(Summon.CARD, "ULD_262e"))
+    events = Summon(CONTROLLER, MINION).on(SetStateBuff(Summon.CARD, SELF, "ULD_262e"))
 
 
 class ULD_262e:

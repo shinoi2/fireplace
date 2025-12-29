@@ -35,18 +35,23 @@ class SCH_351:
 
     # TODO need to be tested
     play = (
-        SetTags(SELF, {
-            GameTag.TAG_SCRIPT_DATA_ENT_1: RandomMinion(cost=5),
-            GameTag.TAG_SCRIPT_DATA_ENT_2: RandomMinion(cost=5)
-        }),
+        SetTags(
+            SELF,
+            {
+                GameTag.TAG_SCRIPT_DATA_ENT_1: RandomMinion(cost=5),
+                GameTag.TAG_SCRIPT_DATA_ENT_2: RandomMinion(cost=5),
+            },
+        ),
         Summon(CONTROLLER, GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_1)),
         Summon(CONTROLLER, GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_2)),
-        Choice(CONTROLLER, (
-            GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_1), GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_2)
-        )).then(
-            Buff(Choice.CARD, "SCH_351e")
-        ),
-        UnsetTags(SELF, (GameTag.TAG_SCRIPT_DATA_ENT_1, GameTag.TAG_SCRIPT_DATA_ENT_2))
+        Choice(
+            CONTROLLER,
+            (
+                GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_1),
+                GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_2),
+            ),
+        ).then(Buff(Choice.CARD, "SCH_351e")),
+        UnsetTags(SELF, (GameTag.TAG_SCRIPT_DATA_ENT_1, GameTag.TAG_SCRIPT_DATA_ENT_2)),
     )
 
 
@@ -58,23 +63,27 @@ class SCH_352:
     """Potion of Illusion"""
 
     # Add 1/1 copies of your minions to your hand. They cost (1).
-    play = Give(CONTROLLER, Buff(Copy(FRIENDLY_MINIONS), "SCH_352e"))
+    play = Give(CONTROLLER, MultiBuff(Copy(FRIENDLY_MINIONS), ["SCH_352e", "SCH_352e2"]))
 
 
 class SCH_352e:
-    cost = SET(1)
     atk = SET(1)
     max_health = SET(1)
+
+
+class SCH_352e2:
+    cost = SET(1)
+    events = REMOVED_IN_PLAY
 
 
 class SCH_400:
     """Mozaki, Master Duelist"""
 
     # After you cast a spell, gain <b>Spell Damage +1</b>.
-    events = Play(CONTROLLER, SPELL).after(Buff(SELF, "SCH_400e"))
+    events = Play(CONTROLLER, SPELL).after(Buff(SELF, "SCH_400e2"))
 
 
-class SCH_400e:
+class SCH_400e2:
     tags = {GameTag.SPELLPOWER: 1}
 
 

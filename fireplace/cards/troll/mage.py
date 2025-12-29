@@ -18,7 +18,7 @@ class TRL_315:
     """Pyromaniac"""
 
     # Whenever your Hero Power_kills a minion, draw a card.
-    events = Activate(CONTROLLER, FRIENDLY_HERO_POWER).after(
+    events = Activate(FRIENDLY_HERO_POWER).after(
         Dead(Activate.TARGET) & Draw(CONTROLLER)
     )
 
@@ -55,7 +55,7 @@ class TRL_319:
 
 
 class TRL_319e:
-    events = Activate(CONTROLLER, FRIENDLY_HERO_POWER).on(
+    events = Activate(FRIENDLY_HERO_POWER).on(
         PlayHeroPower(FRIENDLY_HERO_POWER, ADJACENT(Activate.TARGET))
     )
 
@@ -69,7 +69,7 @@ class TRL_390:
 
 class TRL_390e:
     update = Refresh(CONTROLLER, {GameTag.HEROPOWER_DAMAGE: 2})
-    events = Activate(CONTROLLER, FRIENDLY_HERO_POWER).after(Destroy(SELF))
+    events = Activate(FRIENDLY_HERO_POWER).after(Destroy(SELF))
 
 
 ##

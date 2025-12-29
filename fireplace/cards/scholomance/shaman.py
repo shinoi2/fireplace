@@ -24,9 +24,7 @@ class SCH_507:
 
 class SCH_507e:
     events = Play(CONTROLLER, OWNER).after(
-        DISCOVER(RandomSpell(cost=range(1, 100))).then(
-            Buff(Discover.CARD, "SCH_507e")
-        )
+        DISCOVER(RandomSpell(cost=range(1, 100))).then(Buff(Discover.CARD, "SCH_507e"))
     )
 
 
@@ -34,7 +32,7 @@ class SCH_537:
     """Trick Totem"""
 
     # At the end of your turn, cast a random spell that costs (3) or less.
-    events = OWN_TURN_END.on(CastSpell(CONTROLLER, RandomSpell(cost=range(0, 4))))
+    events = OWN_TURN_END.on(CastSpell(RandomSpell(cost=range(0, 4))))
 
 
 class SCH_615:
@@ -61,7 +59,7 @@ class SCH_270:
 
     # <b>Discover</b> a <b>Spell Damage</b> minion. Your next one costs (1)
     # less.
-    play = DISCOVER(RandomMinion(spellpower=True)), Buff(CONTROLLER, "SCH_270e")
+    play = DISCOVER(RandomMinion(spell_damage=True)), Buff(CONTROLLER, "SCH_270e")
 
 
 class SCH_270e:
@@ -81,10 +79,7 @@ class SCH_271:
     requirements = {
         PlayReq.REQ_TARGET_TO_PLAY: 0,
     }
-    play = (
-        Hit(TARGET, 2), 
-        Summon(CONTROLLER, "CS2_050") * SPELL_DAMAGE(2)
-    )
+    play = (Hit(TARGET, 2), Summon(CONTROLLER, "CS2_050") * SPELL_DAMAGE(2))
 
 
 class SCH_273:

@@ -80,7 +80,7 @@ class SCH_312:
 
 class SCH_312e:
     update = Refresh(FRIENDLY_HERO_POWER, {GameTag.COST: SET(0)})
-    events = Activate(CONTROLLER, HERO_POWER).after(Destroy(SELF))
+    events = Activate(HERO_POWER).after(Destroy(SELF))
 
 
 class SCH_313:

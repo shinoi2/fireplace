@@ -75,4 +75,4 @@ class AT_115:
 
 class AT_115e:
     update = Refresh(FRIENDLY_HERO_POWER, {GameTag.COST: -2})
-    events = Activate(CONTROLLER, HERO_POWER).on(Destroy(SELF))
+    events = Activate(FRIENDLY_HERO_POWER).on(Destroy(SELF))

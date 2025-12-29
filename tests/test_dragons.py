@@ -262,3 +262,17 @@ def test_zzeraku_the_warpe():
     game.player1.give("DRG_209").play()
     assert game.player1.hero.health == 5
     assert game.player1.field == [WISP, "CFM_900", "DRG_209"] + ["DRG_209t"] * 4
+
+
+def test_cleric_of_scales():
+    game = prepare_empty_game()
+    scales = game.player1.give("YOD_013")
+    dragon = game.player1.give("EX1_043")
+    assert scales.powered_up
+    scales.play()
+    assert not game.player1.choice
+
+
+def test_wyrmrest_purifier():
+    game = prepare_game(CardClass.DRUID, CardClass.DRUID)
+    game.player1.give("DRG_062").play()

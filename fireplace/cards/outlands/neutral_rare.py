@@ -27,4 +27,4 @@ class BT_731:
     """Infectious Sporeling"""
 
     # After this damages a minion, turn it into an Infectious_Sporeling.
-    events = Damage(source=SELF).on(Morph(Damage.TARGET, "BT_731"))
+    events = Damage(MINION - SELF, source=SELF).on(Morph(Damage.TARGET, "BT_731"))

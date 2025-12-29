@@ -50,8 +50,13 @@ class SCH_717:
     )
 
 
+@custom_card
 class SCH_717e:
-    tags = {GameTag.COST: SET(1)}
+    tags = {
+        GameTag.CARDNAME: "Keymaster Alabaster Buff",
+        GameTag.CARDTYPE: CardType.ENCHANTMENT,
+    }
+    cost = SET(1)
     events = REMOVED_IN_PLAY
 
 
@@ -64,18 +69,13 @@ class SCH_259:
 
     # [x]At the start of your turn, look at your top card. You can put it on
     # the bottom _and lose 1 Durability.
-
-    # TODO: need to be tested
     events = OWN_TURN_BEGIN.on(
-        Choice(CONTROLLER, ["SCH_259t", FRIENDLY_DECK[-1]]).then(
-            Switch(
-                Choice.CARD,
-                {
-                    "SCH_259t": (
-                        PutOnBottom(CONTROLLER, FRIENDLY_DECK[-1]),
-                        Hit(SELF, 1),
-                    ),
-                },
+        Find(FRIENDLY_DECK) & (
+            Choice(CONTROLLER, ["SCH_259t", FRIENDLY_DECK[-1:]]).then(
+                Find(Choice.CARD + ID("SCH_259t")) & (
+                    PutOnBottom(CONTROLLER, FRIENDLY_DECK[-1:]),
+                    Hit(SELF, 1),
+                )
             )
         )
     )

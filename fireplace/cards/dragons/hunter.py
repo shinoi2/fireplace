@@ -27,7 +27,7 @@ class DRG_252:
     """Phase Stalker"""
 
     # [x]After you use your Hero Power, cast a <b>Secret</b> from your deck.
-    events = Activate(CONTROLLER, FRIENDLY_HERO_POWER).after(
+    events = Activate(FRIENDLY_HERO_POWER).after(
         Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + SECRET))
     )
 
@@ -50,7 +50,7 @@ class DRG_256:
     """Dragonbane"""
 
     # After you use your Hero Power, deal 5 damage to a random enemy.
-    events = Activate(CONTROLLER, FRIENDLY_HERO_POWER).after(Hit(ENEMY_HERO, 5))
+    events = Activate(FRIENDLY_HERO_POWER).after(Hit(ENEMY_HERO, 5))
 
 
 ##
@@ -83,7 +83,7 @@ class DRG_255:
     # [x]<b>Sidequest:</b> Use your Hero Power three times. <b>Reward:</b> Summon three 1/1
     # Leper Gnomes.
     progress_total = 3
-    sidequest = Activate(CONTROLLER, FRIENDLY_HERO_POWER).after(
+    sidequest = Activate(FRIENDLY_HERO_POWER).after(
         AddProgress(SELF, FRIENDLY_HERO_POWER)
     )
     reward = Summon(CONTROLLER, "DRG_251t") * 3

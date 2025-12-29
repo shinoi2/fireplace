@@ -1257,7 +1257,7 @@ class Minion(Character):
             for attr in self.silenceable_attributes:
                 if attr in self.data.tags:
                     setattr(self, attr, self.data.tags[attr])
-            if self.data.tags[GameTag.DORMANT]:
+            if self.data.tags.get(GameTag.DORMANT, False):
                 self.dormant = True
             if getattr(self.data.scripts, "dormant_turns"):
                 self.dormant_turns = getattr(self.data.scripts, "dormant_turns")

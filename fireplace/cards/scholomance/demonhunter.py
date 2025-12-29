@@ -43,9 +43,9 @@ class SCH_355:
 
     # <b>Battlecry:</b> Destroy a Soul Fragment in your deck to deal 3 damage
     # to all other minions.
-    powered_up = Find(FRIENDLY_DECK + SOUL_FRAGMENT)
+    powered_up = Find(FRIENDLY_DECK + ID(SOUL_FRAGMENT))
     play = powered_up & (
-        Destroy(RANDOM(FRIENDLY_DECK + SOUL_FRAGMENT)),
+        Destroy(RANDOM(FRIENDLY_DECK + ID(SOUL_FRAGMENT))),
         Hit(ALL_MINIONS - SELF, 3),
     )
 
@@ -83,7 +83,7 @@ class SCH_704:
 
     # [x]<b>Battlecry:</b> Destroy a Soul Fragment in your deck to give your
     # hero +5 Attack this turn.
-    powered_up = Find(FRIENDLY_DECK + SOUL_FRAGMENT)
+    powered_up = Find(FRIENDLY_DECK + ID(SOUL_FRAGMENT))
     play = powered_up & Buff(FRIENDLY_HERO, "SCH_074e")
 
 

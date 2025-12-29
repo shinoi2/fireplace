@@ -27,7 +27,9 @@ class SCH_426:
 
     # [x]<b>Stealth</b> <b>Deathrattle:</b> Summon a 4/2 Forsaken Lilian that
     # attacks a random enemy.
-    deathrattle = Summon(CONTROLLER, "SCH_426t").then(Attack(Summon.CARD, RANDOM(ENEMY_CHARACTERS)))
+    deathrattle = Summon(CONTROLLER, "SCH_426t").then(
+        Attack(Summon.CARD, RANDOM(ENEMY_CHARACTERS))
+    )
 
 
 class SCH_519:
@@ -81,7 +83,9 @@ class SCH_522:
 
     # [x]<b>Battlecry:</b> Summon a random minion with Cost equal to your
     # weapon's Attack.
-    play = Find(FRIENDLY_WEAPON + MINION) & Summon(CONTROLLER, RandomMinion(cost=COST(FRIENDLY_WEAPON)))
+    play = Find(FRIENDLY_WEAPON + MINION) & Summon(
+        CONTROLLER, RandomMinion(cost=COST(FRIENDLY_WEAPON))
+    )
 
 
 class SCH_623:
@@ -112,4 +116,3 @@ class SCH_622:
 
 
 SCH_622e = buff(atk=1)
-

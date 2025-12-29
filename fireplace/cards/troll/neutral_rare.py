@@ -24,7 +24,7 @@ class TRL_407:
 
 class TRL_407e:
     update = Refresh(FRIENDLY_HERO_POWER, {GameTag.COST: SET(0)})
-    events = Activate(CONTROLLER, HERO_POWER).on(Destroy(SELF))
+    events = Activate(FRIENDLY_HERO_POWER).on(Destroy(SELF))
 
 
 class TRL_504:

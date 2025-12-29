@@ -23,7 +23,7 @@ class SCH_713:
     """Cult Neophyte"""
 
     # <b>Battlecry:</b> Your opponent's spells cost (1) more next_turn.
-    events = OWN_TURN_END.on(Buff(OPPONENT, "SCH_713e"))
+    play = Buff(OPPONENT, "SCH_713e")
 
 
 class SCH_713e:

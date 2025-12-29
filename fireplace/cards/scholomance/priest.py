@@ -17,7 +17,9 @@ class SCH_126:
     """Disciplinarian Gandling"""
 
     # [x]After you play a minion, destroy it and summon a 4/4 Failed Student.
-    events = Play(CONTROLLER, MINION).after(Destroy(Play.CARD), Summon(CONTROLLER, "SCH_126t"))
+    events = Play(CONTROLLER, MINION).after(
+        Destroy(Play.CARD), Summon(CONTROLLER, "SCH_126t")
+    )
 
 
 class SCH_140:
@@ -37,9 +39,7 @@ class SCH_159:
 
 
 class SCH_159e:
-    events = OWN_TURN_BEGIN.on(
-        SwapDecks(), SwapHands(), Destroy(SELF)
-    )
+    events = OWN_TURN_BEGIN.on(SwapDecks(), SwapHands(), Destroy(SELF))
 
 
 class SCH_513:
@@ -69,10 +69,7 @@ SCH_136e = buff(+2, +2)
 
 
 class SCH_136e2:
-    events = OWN_TURN_END.on(
-        FullHeal(OWNER),
-        Destroy(SELF)
-    )
+    events = OWN_TURN_END.on(FullHeal(OWNER), Destroy(SELF))
 
 
 class SCH_233:
@@ -108,4 +105,6 @@ class SCH_514:
 
     # Deal $3 damage to your hero. Return two friendly minions that died this
     # game to your hand.
-    play = Hit(FRIENDLY_HERO, 3), Give(CONTROLLER, RANDOM(FRIENDLY + KILLED + MINION, 2))
+    play = Hit(FRIENDLY_HERO, 3), Give(
+        CONTROLLER, RANDOM(FRIENDLY + KILLED + MINION, 2)
+    )

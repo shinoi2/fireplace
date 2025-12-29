@@ -95,4 +95,4 @@ class DRG_403:
 
 class DRG_403e:
     update = Refresh(ENEMY_HERO_POWER, {GameTag.COST: SET(3)})
-    events = Activate(None, OWNER).on(Destroy(SELF))
+    events = Activate(OWNER).on(Destroy(SELF))

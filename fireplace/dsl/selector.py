@@ -384,6 +384,8 @@ class PositionSelector(Selector):
 class LeftmostSelector(PositionSelector):
     def eval(self, entities, source):
         child_entities = self.child.eval(entities, source)
+        if len(child_entities) == 0:
+            return []
         min_position = min(e.zone_position for e in child_entities)
         return [e for e in child_entities if e.zone_position == min_position]
 
@@ -391,6 +393,8 @@ class LeftmostSelector(PositionSelector):
 class RightmostSelector(PositionSelector):
     def eval(self, entities, source):
         child_entities = self.child.eval(entities, source)
+        if len(child_entities) == 0:
+            return []
         max_position = max(e.zone_position for e in child_entities)
         return [e for e in child_entities if e.zone_position == max_position]
 
@@ -398,9 +402,15 @@ class RightmostSelector(PositionSelector):
 class OutermostSelector(PositionSelector):
     def eval(self, entities, source):
         child_entities = self.child.eval(entities, source)
+        if len(child_entities) == 0:
+            return []
         min_position = min(e.zone_position for e in child_entities)
         max_position = max(e.zone_position for e in child_entities)
-        return [e for e in child_entities if e.zone_position == min_position or e.zone_position == max_position]
+        return [
+            e
+            for e in child_entities
+            if e.zone_position == min_position or e.zone_position == max_position
+        ]
 
 
 RANDOM = RandomSelector
@@ -640,7 +650,9 @@ OTHER_CLASS_CHARACTER = FuncSelector(
 NEUTRAL = AttrValue(GameTag.CLASS) == CardClass.NEUTRAL
 
 NUM_CARDS_PLAYED_THIS_TURN = Attr(CONTROLLER, GameTag.NUM_CARDS_PLAYED_THIS_TURN)
-CARDS_PLAYED_THIS_TURN = AttrValue("played_this_turn") == True
+CARDS_PLAYED_THIS_TURN = FuncSelector(lambda entities, source: [
+    e for e in entities if getattr(e, "played_this_turn", False)
+])
 
 CARDS_PLAYED_THIS_GAME = FuncSelector(
     lambda entities, source: source.controller.cards_played_this_game
