@@ -3,6 +3,8 @@ import math
 import operator
 from abc import ABCMeta, abstractmethod
 
+from hearthstone.enums import Race
+
 from .evaluator import Evaluator
 
 

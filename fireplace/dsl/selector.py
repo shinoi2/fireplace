@@ -142,6 +142,7 @@ NUM_ATTACKS_THIS_TURN = AttrValue(GameTag.NUM_ATTACKS_THIS_TURN)
 DAMAGED_THIS_TURN = AttrValue(enums.DAMAGED_THIS_TURN)
 NUM_ATTACKS = AttrValue("num_attacks")
 MAX_HAND_SIZE = AttrValue("max_hand_size")
+MINION_SLOTS = AttrValue("minion_slots")
 
 
 class ComparisonSelector(Selector):
@@ -286,6 +287,27 @@ class DeDuplicate(Selector):
         return "%s(%r)" % (self.__class__.__name__, self.child)
 
 
+class UniqueRace(Selector):
+    def __init__(self, child: SelectorLike):
+        if isinstance(child, LazyValue):
+            child = LazyValueSelector(child)
+        self.child = child
+
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__.__name__, self.child)
+
+    def eval(self, entities, source):
+        entities = self.child.eval(entities, source)
+        ret = []
+        races = set()
+        for entity in entities:
+            # 双种族暂不考虑
+            if entity.race not in races:
+                races.add(entity.race)
+                ret.append(entity)
+        return ret
+
+
 SELF = FuncSelector(lambda _, source: [source])
 OWNER = FuncSelector(
     lambda entities, source: [source.owner] if hasattr(source, "owner") else []
@@ -310,6 +332,7 @@ def IDS(ids):
 
 TARGET = FuncSelector(lambda entities, source: [source.target])
 ATTACK_TARGET = FuncSelector(lambda entities, source: [source.attack_target])
+CREATOR = FuncSelector(lambda entities, source: [source.creator])
 CREATOR_TARGET = FuncSelector(lambda entities, source: [source.creator.target])
 
 
@@ -474,6 +497,24 @@ class Opponent(Controller):
         return entity.controller.opponent
 
 
+class SameId(LazyValue):
+    def __init__(self, selector):
+        self.selector = selector
+
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__.__name__, self.selector)
+
+    def evaluate(self, source):
+        if isinstance(self.selector, LazyValue):
+            entity = self.selector.evaluate(source)
+            entities = [entity] if entity else []
+        else:
+            entities = self.selector.eval(source.game, source)
+
+        assert len(entities) == 1
+        return [e for e in source.game if e.id == entities[0].id]
+
+
 FRIENDLY = CONTROLLER == Controller()
 ENEMY = CONTROLLER == Opponent()
 
@@ -525,6 +566,8 @@ HAS_DISCOVER = EnumSelector(GameTag.DISCOVER)
 LACKEY = EnumSelector(GameTag.MARK_OF_EVIL)
 LIBRAM = EnumSelector(GameTag.LIBRAM)
 OUTCAST = EnumSelector(GameTag.OUTCAST)
+CORRUPTED = EnumSelector(GameTag.CORRUPTED)
+CORRUPTED_CARD = EnumSelector(GameTag.CORRUPTED_CARD)
 
 ALWAYS_WINS_BRAWLS = AttrValue(enums.ALWAYS_WINS_BRAWLS) == True
 KILLED_THIS_TURN = AttrValue(enums.KILLED_THIS_TURN) == True
@@ -650,14 +693,20 @@ OTHER_CLASS_CHARACTER = FuncSelector(
 NEUTRAL = AttrValue(GameTag.CLASS) == CardClass.NEUTRAL
 
 NUM_CARDS_PLAYED_THIS_TURN = Attr(CONTROLLER, GameTag.NUM_CARDS_PLAYED_THIS_TURN)
-CARDS_PLAYED_THIS_TURN = FuncSelector(lambda entities, source: [
-    e for e in entities if getattr(e, "played_this_turn", False)
-])
+CARDS_PLAYED_THIS_TURN = FuncSelector(
+    lambda entities, source: [
+        e for e in entities if getattr(e, "played_this_turn", False)
+    ]
+)
 
 CARDS_PLAYED_THIS_GAME = FuncSelector(
     lambda entities, source: source.controller.cards_played_this_game
 )
-
+TRIGGERED_SECRET = FuncSelector(
+    lambda entities, source: [
+        e for e in entities if getattr(e, "triggered_secret", False)
+    ]
+)
 STARTING_DECK = FuncSelector(lambda entities, source: source.controller.starting_deck)
 STARTING_HAND = FuncSelector(lambda entities, source: source.controller.starting_hand)
 

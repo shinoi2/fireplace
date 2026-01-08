@@ -43,34 +43,12 @@ class ExactCopy(Copy):
     An exact copy will include buffs and all tags.
     """
 
-    def __init__(self, selector, id=None):
-        self.id = id
+    def __init__(self, selector):
         self.selector = selector
 
     def copy(self, source, entity):
         ret = super().copy(source, entity)
-        if self.id:
-            ret = source.controller.card(self.id, source)
-        for buff in entity.buffs:
-            # Recreate the buff stack
-            new_buff = source.controller.card(buff.id)
-            new_buff.source = buff.source
-            attributes = [
-                "atk",
-                "max_health",
-                "_xatk",
-                "_xhealth",
-                "_xcost",
-                "store_card",
-            ]
-            for attribute in attributes:
-                if hasattr(buff, attribute):
-                    setattr(new_buff, attribute, getattr(buff, attribute))
-            new_buff.additional_deathrattles = buff.additional_deathrattles[:]
-            new_buff.apply(ret)
-            if buff in source.game.active_aura_buffs:
-                new_buff.tick = buff.tick
-                source.game.active_aura_buffs.append(new_buff)
+        copy_buffs(source, entity, ret)
         if entity.type == CardType.MINION:
             for k in entity.silenceable_attributes:
                 v = getattr(entity, k)
@@ -107,3 +85,26 @@ class RebornCopy(Copy):
         ret.reborn = False
         ret.set_current_health(1)
         return ret
+
+
+def copy_buffs(source, entity, new_entity):
+    for buff in entity.buffs:
+        # Recreate the buff stack
+        new_buff = source.controller.card(buff.id)
+        new_buff.source = buff.source
+        attributes = [
+            "atk",
+            "max_health",
+            "_xatk",
+            "_xhealth",
+            "_xcost",
+            "store_card",
+        ]
+        for attribute in attributes:
+            if hasattr(buff, attribute):
+                setattr(new_buff, attribute, getattr(buff, attribute))
+        new_buff.additional_deathrattles = buff.additional_deathrattles[:]
+        new_buff.apply(new_entity)
+        if buff in source.game.active_aura_buffs:
+            new_buff.tick = buff.tick
+            source.game.active_aura_buffs.append(new_buff)

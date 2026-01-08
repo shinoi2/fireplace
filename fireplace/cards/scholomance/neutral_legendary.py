@@ -70,9 +70,11 @@ class SCH_259:
     # [x]At the start of your turn, look at your top card. You can put it on
     # the bottom _and lose 1 Durability.
     events = OWN_TURN_BEGIN.on(
-        Find(FRIENDLY_DECK) & (
+        Find(FRIENDLY_DECK)
+        & (
             Choice(CONTROLLER, ["SCH_259t", FRIENDLY_DECK[-1:]]).then(
-                Find(Choice.CARD + ID("SCH_259t")) & (
+                Find(Choice.CARD + ID("SCH_259t"))
+                & (
                     PutOnBottom(CONTROLLER, FRIENDLY_DECK[-1:]),
                     Hit(SELF, 1),
                 )

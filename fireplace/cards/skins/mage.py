@@ -1,15 +1,8 @@
-from ..utils import *
+from .basic import *
 
 
 ##
 # Hero Powers
-
-
-class HERO_08bp:
-    """Fireblast (Jaina Proudmoore)"""
-
-    requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0}
-    activate = Hit(TARGET, 1)
 
 
 class CS2_034_H1(HERO_08bp):
@@ -20,6 +13,12 @@ class CS2_034_H1(HERO_08bp):
 
 class CS2_034_H2(HERO_08bp):
     """Fireblast (Khadgar)"""
+
+    pass
+
+
+class HERO_08bp(HERO_08bp):
+    """Fireblast (Fire Mage Jaina)"""
 
     pass
 
@@ -36,15 +35,32 @@ class HERO_08fbp(HERO_08bp):
     pass
 
 
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Arcanist Jaina)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Apprentice Jaina)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Archmage Jaina)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Kul Tiran Jaina)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
-
-
-class HERO_08bp2:
-    """Fireblast Rank 2"""
-
-    requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0}
-    activate = Hit(TARGET, 2)
 
 
 class CS2_034_H1_AT_132(HERO_08bp2):
@@ -59,6 +75,12 @@ class CS2_034_H2_AT_132(HERO_08bp2):
     pass
 
 
+class HERO_08bp2(HERO_08bp2):
+    """Fireblast Rank 2 (Fire Mage Jaina)"""
+
+    pass
+
+
 class HERO_08ebp2(HERO_08bp2):
     """Fireblast Rank 2 (Kel'Thuzad)"""
 
@@ -67,5 +89,29 @@ class HERO_08ebp2(HERO_08bp2):
 
 class HERO_08fbp2(HERO_08bp2):
     """Fireblast Rank 2 (Scholar Jaina)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Arcanist Jaina)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Apprentice Jaina)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Archmage Jaina)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Kul Tiran Jaina)"""
 
     pass

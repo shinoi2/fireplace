@@ -1,3 +1,4 @@
+from .basic import *
 from .demonhunter import *
 from .druid import *
 from .hunter import *

@@ -85,7 +85,6 @@ class CardDB(dict[str, cardxml.CardXML]):
             "outcast",
             "awaken",
             "reward",
-            "add_progress",
             "discard",
             "secret_deathrattles",
             "magnetic",
@@ -148,6 +147,11 @@ class CardDB(dict[str, cardxml.CardXML]):
             card.choose_cards = cardscript.choose[:]
         else:
             card.choose_cards = []
+
+        if hasattr(cardscript, "corrupt_card"):
+            card.corrupt_card = cardscript.corrupt_card
+        else:
+            card.corrupt_card = None
 
         if hasattr(cardscript, "tags"):
             for tag, value in cardscript.tags.items():
@@ -259,7 +263,7 @@ class CardDB(dict[str, cardxml.CardXML]):
                         ]
                     else:
                         cards = [card for card in cards if value in card.classes]
-                if attr == "races":
+                elif attr == "races":
                     cards = [card for card in cards if value in card.races]
                 else:
                     cards = [

@@ -10,7 +10,8 @@ class SCH_182:
 
     # [x]<b><b>Rush</b>, Windfury</b> <b><b>Spellburst</b>:</b> Gain Attack and
     # Health equal to the spell's Cost.
-    spellburst = Buff(SELF, "SCH_182e", atk=COST(SELF), max_health=COST(SELF))
+    def spellburst(self, spell):
+        yield Buff(SELF, "SCH_182e", atk=spell.cost, max_health=spell.cost)
 
 
 class SCH_242:
@@ -58,7 +59,7 @@ class SCH_333:
 
 
 class SCH_333e:
-    update = Refresh(FRIENDLY_HAND + SPELL, "SCH_333e2")
+    update = Refresh(FRIENDLY_HAND + SPELL, buff="SCH_333e2")
     events = Play(CONTROLLER, SPELL).after(Destroy(SELF))
 
 

@@ -1,5 +1,6 @@
 from utils import *
 
+
 def test_sphere_of_sapience():
     game = prepare_game()
     weapon = game.player1.give("SCH_259").play()
@@ -14,7 +15,7 @@ def test_sphere_of_sapience():
     assert game.player1.hand[-1] == first_card
     assert len(game.player1.hand) == hand_len
     assert weapon.damage == 0
-    
+
     game.skip_turn()
     first_card = game.player1.deck[-1]
     second_card = game.player1.deck[-2]

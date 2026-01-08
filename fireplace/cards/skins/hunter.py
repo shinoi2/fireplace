@@ -1,20 +1,18 @@
-from ..utils import *
+from .basic import *
 
 
 ##
 # Hero Powers
 
 
-class HERO_05bp:
-    """Steady Shot (Rexxar)"""
-
-    requirements = {PlayReq.REQ_MINION_OR_ENEMY_HERO: 0, PlayReq.REQ_STEADY_SHOT: 0}
-    powered_up = Find(SELF + EnumSelector(GameTag.STEADY_SHOT_CAN_TARGET))
-    activate = powered_up & Hit(TARGET, 2) | Hit(ENEMY_HERO, 2)
-
-
 class DS1h_292_H1(HERO_05bp):
     """Steady Shot (Alleria Windrunner)"""
+
+    pass
+
+
+class HERO_05bp(HERO_05bp):
+    """Steady Shot (Wanderer Rexxar)"""
 
     pass
 
@@ -31,16 +29,14 @@ class HERO_05dbp(HERO_05bp):
     pass
 
 
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Giantstalker Rexxar)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
-
-
-class HERO_05bp2:
-    """Ballista Shot"""
-
-    requirements = {PlayReq.REQ_MINION_OR_ENEMY_HERO: 0, PlayReq.REQ_STEADY_SHOT: 0}
-    powered_up = Find(SELF + EnumSelector(GameTag.STEADY_SHOT_CAN_TARGET))
-    activate = powered_up & Hit(TARGET, 3) | Hit(ENEMY_HERO, 3)
 
 
 class DS1h_292_H1_AT_132(HERO_05bp2):
@@ -49,13 +45,25 @@ class DS1h_292_H1_AT_132(HERO_05bp2):
     pass
 
 
+class HERO_05bp2(HERO_05bp2):
+    """Ballista Shot (Wanderer Rexxar)"""
+
+    pass
+
+
 class DS1h_292_H3_AT_132(HERO_05bp2):
-    """Steady Shot (Sylvanas Windrunner)"""
+    """Ballista Shot (Sylvanas Windrunner)"""
 
     pass
 
 
 class HERO_05dbp2(HERO_05bp2):
     """Ballista Shot (Warsong Rexxar)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Giantstalker Rexxar)"""
 
     pass

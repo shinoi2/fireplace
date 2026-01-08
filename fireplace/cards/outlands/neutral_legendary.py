@@ -17,7 +17,9 @@ class BT_126:
 
 class BT_126e:
     tags = {GameTag.DEATHRATTLE: True}
-    deathrattle = Summon(CONTROLLER, Copy(STORE_CARD)).then(Buff(Summon.CARD, "BT_126e2"))
+    deathrattle = Summon(CONTROLLER, Copy(STORE_CARD)).then(
+        Buff(Summon.CARD, "BT_126e2")
+    )
 
 
 BT_126e2 = buff(+1, +1)

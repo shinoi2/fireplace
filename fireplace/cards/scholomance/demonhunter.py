@@ -155,7 +155,7 @@ class SCH_600t3:
     """Kolek"""
 
     # Your other minions have +1 Attack.
-    update = Refresh(FRIENDLY_MINIONS - SELF, "SCH_600t3e")
+    update = Refresh(FRIENDLY_MINIONS - SELF, buff="SCH_600t3e")
 
 
 SCH_600t3e = buff(atk=1)

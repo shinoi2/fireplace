@@ -39,6 +39,7 @@ GivePoisonous = lambda target: SetTag(target, GameTag.POISONOUS)
 GiveLifesteal = lambda target: SetTag(target, GameTag.LIFESTEAL)
 GiveRush = lambda target: SetTag(target, GameTag.RUSH)
 GiveReborn = lambda target: SetTag(target, GameTag.REBORN)
+GiveTemporary = lambda target: SetTag(target, enums.TEMPORARY)
 
 
 CLEAVE = Hit(TARGET_ADJACENT, ATK(SELF))
@@ -49,7 +50,7 @@ FULL_BOARD = Count(FRIENDLY_MINIONS) == 7
 FULL_HAND = Count(FRIENDLY_HAND) == Attr(CONTROLLER, GameTag.MAXHANDSIZE)
 HOLDING_DRAGON = Find(FRIENDLY_HAND + DRAGON - SELF)
 ELEMENTAL_PLAYED_LAST_TURN = Attr(CONTROLLER, enums.ELEMENTAL_PLAYED_LAST_TURN) > 0
-TIMES_SPELL_PLAYED_THIS_GAME = Count(CARDS_PLAYED_THIS_GAME + SPELL)
+TIMES_SPELL_PLAYED_THIS_GAME = Attr(CONTROLLER, GameTag.NUM_SPELLS_PLAYED_THIS_GAME)
 TIMES_SECRETS_PLAYED_THIS_GAME = Count(CARDS_PLAYED_THIS_GAME + SECRET)
 
 DISCOVER = lambda *args: Discover(CONTROLLER, *args).then(

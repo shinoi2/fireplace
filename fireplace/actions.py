@@ -13,7 +13,7 @@ from hearthstone.enums import (
 )
 
 from .dsl import LazyNum, LazyValue, Selector
-from .dsl.copy import Copy, RebornCopy
+from .dsl.copy import Copy, RebornCopy, copy_buffs
 from .dsl.random_picker import RandomMinion
 from .dsl.selector import *
 from .entity import Entity
@@ -396,6 +396,9 @@ class EndTurn(GameAction):
             )
         source.game.manager.game_action(self, source, player)
         self.broadcast(source, EventListener.ON, player)
+        for card in player.hand:
+            if card.temporary:
+                card.discard()
         if player.extra_end_turn_effect:
             self.broadcast(source, EventListener.ON, player)
         source.game._end_turn()
@@ -505,8 +508,19 @@ class Play(GameAction):
         # We need to fake a Summon broadcast.
         summon_action = Summon(player, card)
 
+        if card.echo:
+            source.game.queue_actions(card, [Give(player, Buff(Copy(SELF), "GIL_000"))])
+
         if card.type == CardType.SPELL and card.twinspell:
             source.game.queue_actions(card, [Give(player, card.twinspell_copy)])
+
+        actions = card.get_actions("magnetic")
+        if actions:
+            source.game.trigger(card, actions, event_args=None)
+
+        for hand in player.hand:
+            if hand.corrupted and hand.cost < card.cost:
+                source.game.queue_actions(player, [Corrupt(hand)])
 
         if card.type in (CardType.MINION, CardType.WEAPON):
             self.queue_broadcast(
@@ -521,15 +535,6 @@ class Play(GameAction):
                 source.game.queue_actions(
                     card, [Battlecry(battlecry_card, card.target)]
                 )
-
-            if card.echo:
-                source.game.queue_actions(
-                    card, [Give(player, Buff(Copy(SELF), "GIL_000"))]
-                )
-
-            actions = card.get_actions("magnetic")
-            if actions:
-                source.game.trigger(card, actions, event_args=None)
 
             # If the play action transforms the card (eg. Druid of the Claw), we
             # have to broadcast the morph result as minion instead.
@@ -549,6 +554,8 @@ class Play(GameAction):
                 card.controller.times_totem_summoned_this_game += 1
             if Race.ELEMENTAL in card.races:
                 player.elemental_played_this_turn += 1
+        elif card.type == CardType.SPELL:
+            player.spells_played_this_game += 1
         player.cards_played_this_turn += 1
         player.cards_played_this_game.append(card)
         card.turn_played = source.game.turn
@@ -800,7 +807,9 @@ class Choice(TargetedAction):
             )
         self.player.choice = None
         for action in self._callback:
-            self.source.game.trigger(self.source, [action], [self.player, self.cards, card])
+            self.source.game.trigger(
+                self.source, [action], [self.player, self.cards, card]
+            )
         self.callback = self._callback
         self.trigger_choice_callback()
 
@@ -864,6 +873,7 @@ class Counter(TargetedAction):
     """
     Counter a card, making it unplayable.
     """
+
     TARGET = ActionArg()
 
     def do(self, source, target):
@@ -968,7 +978,10 @@ class Damage(TargetedAction):
                 and source.lifesteal
                 and source.type != CardType.WEAPON
             ):
-                source.heal(source.controller.hero, amount)
+                if source.controller.lifesteal_damages_opposing_hero:
+                    source.game.queue_actions(source.controller, [Hit(target, amount)])
+                else:
+                    source.heal(source.controller.hero, amount)
             self.broadcast(source, EventListener.ON, target, amount, source)
             # poisonous can not destroy hero
             if (
@@ -1005,6 +1018,12 @@ class Deathrattle(TargetedAction):
 
     def do(self, source, target):
         if not target.has_deathrattle:
+            return
+
+        if source.controller.cant_trigger_deathrattle:
+            log.info(
+                "Deathrattle cannot be triggered because cant_trigger_deathrattle is True"
+            )
             return
 
         for entity in target.entities:
@@ -1048,6 +1067,9 @@ class Battlecry(TargetedAction):
         if player.extra_battlecries and card.has_battlecry:
             return True
 
+        if player.spells_cast_twice and card.type == CardType.SPELL:
+            return True
+
         # Spirit of the Shark
         if card.type == CardType.MINION:
             if player.minion_extra_combos and card.has_combo and player.combo:
@@ -1087,9 +1109,10 @@ class Battlecry(TargetedAction):
         if card.type == CardType.SPELL:
             for entity in player.live_entities:
                 if entity.spellburst:
+                    # source.game.queue_actions(card, [Spellburst(entity)])
                     entity.spellburst = False
                     actions = entity.get_actions("spellburst")
-                    source.game.queue_actions(card, actions)
+                    source.game.queue_actions(entity, actions)
 
 
 class ExtraBattlecry(Battlecry):
@@ -1149,6 +1172,7 @@ class Discard(TargetedAction):
     """
     Discard card targets in a player's hand
     """
+
     TARGET = ActionArg()
 
     def do(self, source, target):
@@ -1266,6 +1290,7 @@ class Fatigue(TargetedAction):
     """
     Hit a player with a tick of fatigue
     """
+
     TARGET = ActionArg()
 
     def do(self, source, target):
@@ -1284,6 +1309,7 @@ class ForceDraw(TargetedAction):
     """
     Draw card targets into their owners hand
     """
+
     TARGET = ActionArg()
 
     def do(self, source, target):
@@ -1311,6 +1337,7 @@ class FullHeal(TargetedAction):
     """
     Fully heal character targets.
     """
+
     TARGET = ActionArg()
 
     def do(self, source, target):
@@ -1586,12 +1613,14 @@ class Reveal(TargetedAction):
     """
     Reveal secret targets.
     """
+
     TARGET = ActionArg()
 
     def do(self, source, target):
         log.info("Revealing %r", target)
         if target.zone == Zone.SECRET and target.data.secret:
             self.broadcast(source, EventListener.ON, target)
+            target.triggered_secret = True
             target.zone = Zone.GRAVEYARD
         source.game.manager.targeted_action(self, source, target)
 
@@ -1657,6 +1686,7 @@ class Silence(TargetedAction):
     """
     Silence minion targets.
     """
+
     TARGET = ActionArg()
 
     def do(self, source, target):
@@ -1860,6 +1890,7 @@ class UnlockOverload(TargetedAction):
     """
     Unlock the target player's overload, both current and owed.
     """
+
     TARGET = ActionArg()
 
     def do(self, source, target):
@@ -2195,6 +2226,7 @@ class ClearProgress(TargetedAction):
     """
     Clear Progress for target
     """
+
     TARGET = ActionArg()
 
     def do(self, source, target):
@@ -2207,6 +2239,7 @@ class LosesDivineShield(TargetedAction):
     """
     Losses Divine Shield
     """
+
     TARGET = ActionArg()
 
     def do(self, source, target):
@@ -2219,6 +2252,7 @@ class Remove(TargetedAction):
     """
     Remove character targets
     """
+
     TARGET = ActionArg()
 
     def do(self, source, target):
@@ -2231,6 +2265,7 @@ class Replay(TargetedAction):
     Cast it if it's spell, otherwise summon it (minion, weapon, hero).
     Now only for Tess Greymane (GIL_598)
     """
+
     TARGET = ActionArg()
 
     def do(self, source, target):
@@ -2312,3 +2347,50 @@ class SwapHands(GameAction):
             card.controller = player1
         for card in player2.hand:
             card.controller = player2
+
+
+class Corrupt(TargetedAction):
+    """
+    Corrupt target
+    """
+
+    TARGET = ActionArg()
+
+    def get_corrupt_card(self, source, target):
+        card = getattr(target, "corrupt_card", None)
+        if isinstance(card, str):
+            return source.controller.card(card)
+        if callable(card):
+            return card(target)
+        return None
+
+    def do(self, source, target):
+        corrupt_card = self.get_corrupt_card(source, target)
+        if not corrupt_card:
+            return
+        copy_buffs(source, target, corrupt_card)
+        source.game.queue_actions(source, [Morph(target, corrupt_card)])
+        source.game.manager.targeted_action(self, source, target)
+        return corrupt_card
+
+
+class Spellburst(TargetedAction):
+    """
+    Spellburst
+    """
+
+    TARGET = CardArg()
+    SPELL = CardArg()
+
+    def do(self, source, target, spell):
+        if not target.spellburst:
+            log.info("%r does not have spellburst", target)
+            return
+
+        spellburst = target.get_actions("spellburst")
+        if callable(spellburst):
+            actions = spellburst(target, spell)
+        else:
+            actions = spellburst
+        source.game.queue_actions(target, actions)
+        source.game.manager.targeted_action(self, source, target, spell)

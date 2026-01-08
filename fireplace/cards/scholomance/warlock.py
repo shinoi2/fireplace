@@ -79,7 +79,7 @@ class SCH_158:
 
 
 class SCH_158e:
-    update = Refresh(FRIENDLY_HAND + DEMON, "SCH_158e2")
+    update = Refresh(FRIENDLY_HAND + DEMON, buff="SCH_158e2")
     events = Play(CONTROLLER, DEMON).after(Destroy(SELF))
 
 

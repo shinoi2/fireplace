@@ -5,7 +5,7 @@ from utils import *
 from fireplace import cards
 
 
-VERSION = "18.6.1.65000"
+VERSION = "19.6.0.74257"
 WIKI_HOST = "https://hearthstone.wiki.gg/wiki"
 
 CARD_SET_NAME = {
@@ -37,6 +37,17 @@ CARD_SET_NAME = {
     CardSet.SCHOLOMANCE: "Scholomance Academy",
     CardSet.DEMON_HUNTER_INITIATE: "Demon Hunter Initiate",
     CardSet.DARKMOON_FAIRE: "Madness at the Darkmoon Faire",
+    CardSet.THE_BARRENS: "Forged in the Barrens",
+    CardSet.STORMWIND: "United in Stormwind",
+    CardSet.LETTUCE: "Mercenaries",
+    CardSet.ALTERAC_VALLEY: "Fractured in Alterac Valley",
+    CardSet.THE_SUNKEN_CITY: "Voyage to the Sunken City",
+    CardSet.REVENDRETH: "Murder at Castle Nathria",
+    CardSet.ISLAND_VACATION: "Perils in Paradise",
+    CardSet.SPACE: "Great Dark Beyond",
+    CardSet.EMERALD_DREAM: "Into the Emerald Dream",
+    CardSet.THE_LOST_CITY: "The Shrouded City",
+    CardSet.TIME_TRAVEL: "Across the Timeways",
 }
 
 

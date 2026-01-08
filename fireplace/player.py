@@ -46,6 +46,9 @@ class Player(Entity, TargetableByAuras):
     heropower_damage_adjustment = slot_property("heropower_damage", sum)
     spells_cost_health = slot_property("spells_cost_health")
     murlocs_cost_health = slot_property("murlocs_cost_health")
+    lifesteal_damages_opposing_hero = slot_property("lifesteal_damages_opposing_hero")
+    spells_cast_twice = slot_property("spells_cast_twice")
+    cant_trigger_deathrattle = slot_property("cant_trigger_deathrattle")
     type = CardType.PLAYER
 
     def __init__(self, name, deck: list[str], hero: str, is_standard=True):
@@ -65,6 +68,7 @@ class Player(Entity, TargetableByAuras):
         self.field = CardList["Minion"]()
         self.graveyard = CardList["PlayableCard"]()
         self.secrets = CardList["Secret | Quest | SideQuest"]()
+        self.removed = CardList()
         self.choice = None
         self.max_hand_size = 10
         self.max_resources = 10
@@ -103,6 +107,7 @@ class Player(Entity, TargetableByAuras):
         self.hero_health_changed_this_turn = 0
         self.cthun = None
         self.invoke_counter = 0
+        self.spells_played_this_game = 0
 
     def dump(self):
         data = super().dump()
@@ -350,6 +355,8 @@ class Player(Entity, TargetableByAuras):
         """
         if self.spells_cost_health and card.type == CardType.SPELL:
             return self.hero.health > card.cost
+        if card.card_costs_health:
+            return self.hero.health > card.cost
         if self.murlocs_cost_health:
             if card.type == CardType.MINION and Race.MURLOC in card.races:
                 return self.hero.health > card.cost
@@ -362,6 +369,10 @@ class Player(Entity, TargetableByAuras):
         """
         if self.spells_cost_health and source.type == CardType.SPELL:
             self.log("%s spells cost %i health", self, amount)
+            self.game.queue_actions(self, [Hit(self.hero, amount)])
+            return amount
+        if getattr(source, "card_costs_health", False):
+            self.log("%s cards cost %i health", source, amount)
             self.game.queue_actions(self, [Hit(self.hero, amount)])
             return amount
         if self.murlocs_cost_health:

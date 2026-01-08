@@ -83,6 +83,11 @@ class UNG_067:
     quest = Play(CONTROLLER, MINION).after(AddProgress(SELF, Play.CARD))
     reward = Give(CONTROLLER, "UNG_067t1")
 
+    def progress(self):
+        if not hasattr(self, "card_name_counter"):
+            self.card_name_counter = defaultdict(int)
+        return max(self.card_name_counter.values(), default=0)
+
     def add_progress(self, card):
         if not hasattr(self, "card_name_counter"):
             self.card_name_counter = defaultdict(int)

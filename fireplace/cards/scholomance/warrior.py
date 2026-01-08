@@ -51,7 +51,7 @@ class SCH_237:
 
 
 class SCH_237e:
-    update = Refresh(FRIENDLY_HAND + RUSH + MINION, "SCH_237e2")
+    update = Refresh(FRIENDLY_HAND + RUSH + MINION, buff="SCH_237e2")
     events = Play(CONTROLLER, RUSH + MINION).after(Destroy(SELF))
 
 

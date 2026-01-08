@@ -124,6 +124,8 @@ def main():
             ):
                 card = cards.db[id]
                 implemented = check_implemented(card)
+                if card.classes[0] != card_class:
+                    continue
                 if not implemented:
                     tmp_cards.append(card)
             if len(tmp_cards) > 0:

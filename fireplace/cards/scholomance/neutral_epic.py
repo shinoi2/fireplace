@@ -10,8 +10,8 @@ class SCH_157:
 
     # <b><b>Spellburst</b>:</b> Cast a random spell of the same Cost.
 
-    # TODO: need to be tested
-    spellburst = CastSpell(RandomSpell(cost=COST(SELF)))
+    def spellburst(self, spell):
+        yield CastSpell(RandomSpell(cost=spell.cost))
 
 
 class SCH_714:

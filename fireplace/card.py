@@ -14,6 +14,8 @@ from hearthstone.enums import (
     Zone,
 )
 
+from fireplace.dsl.copy import copy_buffs
+
 from . import actions, cards, enums, rules
 from .aura import TargetableByAuras
 from .entity import BaseEntity, Entity, boolean_property, int_property, slot_property
@@ -218,6 +220,7 @@ class BaseCard(BaseEntity):
             Zone.DECK: self.controller.deck,
             Zone.GRAVEYARD: self.controller.graveyard,
             Zone.SETASIDE: self.game.setaside,
+            Zone.REMOVEDFROMGAME: self.controller.removed,
         }
         if caches.get(self.old_zone) is not None:
             caches[self.old_zone].remove(self)
@@ -259,15 +262,14 @@ class BaseCard(BaseEntity):
         raise NotImplementedError
 
     def add_progress(self, card, amount):
-        if self.data.scripts.add_progress and amount == 1:
-            # Rogue quest: The Caverns Below
+        if hasattr(self.data.scripts, "add_progress") and amount == 1:
             return self.data.scripts.add_progress(self, card)
         self.progress += amount
 
     @property
     def progress(self):
-        if hasattr(self, "card_name_counter"):
-            return max(self.card_name_counter.values())
+        if hasattr(self.data.scripts, "progress"):
+            return self.data.scripts.progress(self)
         return self._progress
 
     @progress.setter
@@ -289,6 +291,9 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
     has_overkill = boolean_property("has_overkill")
     has_discover = boolean_property("has_discover")
     libram = boolean_property("libram")
+    corrupted = boolean_property("corrupted")
+    corrupted_card = boolean_property("corrupted_card")
+    card_costs_health = boolean_property("card_costs_health")
 
     def __init__(self, data):
         self.cant_play = False
@@ -300,6 +305,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         self.rarity = Rarity.INVALID
         self.choose_cards = CardList()
         self.morphed = None
+        self.corrupt_card = None
         self.turn_drawn = -1
         self.turn_played = -1
         self.cast_on_friendly_characters = False
@@ -307,6 +313,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         self.play_left_most = False
         self.play_right_most = False
         self.custom_card = False
+        self.temporary = False
         super().__init__(data)
 
     def dump(self):
@@ -1085,27 +1092,7 @@ class Hero(Character):
     def play(self, target=None, index=None, choose=None):
         armor = self.armor
 
-        # Copy hero buff
-        for buff in self.controller.hero.buffs:
-            # Recreate the buff stack
-            new_buff = self.controller.card(buff.id)
-            new_buff.source = buff.source
-            attributes = [
-                "atk",
-                "max_health",
-                "_xatk",
-                "_xhealth",
-                "_xcost",
-                "store_card",
-            ]
-            for attribute in attributes:
-                if hasattr(buff, attribute):
-                    setattr(new_buff, attribute, getattr(buff, attribute))
-            new_buff.apply(self)
-            if buff in self.game.active_aura_buffs:
-                new_buff.tick = buff.tick
-                self.game.active_aura_buffs.append(new_buff)
-
+        copy_buffs(self.controller, self.controller.hero, self)
         self.damage = self.controller.hero.damage
         self.armor = self.controller.hero.armor
         super().play(target, index, choose)

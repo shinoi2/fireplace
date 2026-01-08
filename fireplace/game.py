@@ -62,7 +62,12 @@ class BaseGame(Entity):
 
     def __iter__(self):
         return chain(
-            self.entities, self.hands, self.decks, self.graveyard, self.setaside
+            self.entities,
+            self.hands,
+            self.decks,
+            self.graveyard,
+            self.setaside,
+            self.removed,
         )
 
     @property
@@ -96,6 +101,10 @@ class BaseGame(Entity):
     @property
     def graveyard(self):
         return CardList(chain(self.players[0].graveyard, self.players[1].graveyard))
+
+    @property
+    def removed(self):
+        return CardList(chain(self.players[0].removed, self.players[1].removed))
 
     @property
     def entities(self):

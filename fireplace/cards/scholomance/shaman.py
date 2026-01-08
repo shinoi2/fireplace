@@ -63,7 +63,7 @@ class SCH_270:
 
 
 class SCH_270e:
-    update = Refresh(FRIENDLY_HAND + SPELLPOWER + MINION, "SCH_270e2")
+    update = Refresh(FRIENDLY_HAND + SPELLPOWER + MINION, buff="SCH_270e2")
     events = Play(CONTROLLER, SPELLPOWER + MINION).after(Destroy(SELF))
 
 

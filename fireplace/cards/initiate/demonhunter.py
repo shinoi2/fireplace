@@ -126,7 +126,9 @@ class BT_427:
     """Feast of Souls"""
 
     # Draw a card for each friendly minion that died this turn.
-    play = Draw(CONTROLLER) * Attr(CONTROLLER, GameTag.NUM_MINIONS_PLAYER_KILLED_THIS_TURN)
+    play = Draw(CONTROLLER) * Attr(
+        CONTROLLER, GameTag.NUM_MINIONS_PLAYER_KILLED_THIS_TURN
+    )
 
 
 class BT_488:

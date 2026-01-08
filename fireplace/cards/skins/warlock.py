@@ -1,14 +1,8 @@
-from ..utils import *
+from .basic import *
 
 
 ##
 # Hero Powers
-
-
-class HERO_07bp:
-    """Life Tap"""
-
-    activate = Hit(FRIENDLY_HERO, 2), Draw(CONTROLLER)
 
 
 class CS2_056_H1(HERO_07bp):
@@ -23,20 +17,26 @@ class CS2_056_H2(HERO_07bp):
     pass
 
 
+class HERO_07bp(HERO_07bp):
+    """Life Tap (Shadow Gul'dan)"""
+
+    pass
+
+
 class HERO_07dbp(HERO_07bp):
     """Life Tap (N'Zoth)"""
 
     pass
 
 
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Felheart Gul'dan)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
-
-
-class HERO_07bp2:
-    """Soul Tap"""
-
-    activate = Draw(CONTROLLER)
 
 
 class AT_132_WARLOCKa(HERO_07bp2):
@@ -51,7 +51,19 @@ class AT_132_WARLOCKb(HERO_07bp2):
     pass
 
 
+class HERO_07bp2(HERO_07bp2):
+    """Soul Tap (Shadow Gul'dan)"""
+
+    pass
+
+
 class HERO_07dbp2(HERO_07bp2):
     """Soul Tap (N'Zoth)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Felheart Gul'dan)"""
 
     pass

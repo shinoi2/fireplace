@@ -1,8 +1,8 @@
 # <img src="/logo.png" height="32" width="32"/> Fireplace
 [![](https://img.shields.io/badge/python-3.10+-blue.svg)](https://peps.python.org/pep-0619/)
-[![](https://img.shields.io/github/license/jleclanche/fireplace.svg)](https://github.com/jleclanche/fireplace/blob/master/LICENSE.md)
-[![](https://github.com/jleclanche/fireplace/actions/workflows/build.yml/badge.svg)](https://github.com/jleclanche/fireplace/actions/workflows/build.yml)
-[![codecov](https://codecov.io/github/jleclanche/fireplace/graph/badge.svg?token=FXDTJSKZL9)](https://codecov.io/github/jleclanche/fireplace)
+[![](https://img.shields.io/github/license/shinoi2/fireplace.svg)](https://github.com/shinoi2/fireplace/blob/master/LICENSE.md)
+[![](https://github.com/shinoi2/fireplace/actions/workflows/build.yml/badge.svg)](https://github.com/shinoi2/fireplace/actions/workflows/build.yml)
+[![codecov](https://codecov.io/github/shinoi2/fireplace/graph/badge.svg?token=FXDTJSKZL9)](https://codecov.io/github/shinoi2/fireplace)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 A Hearthstone simulator and implementation, written in Python.
@@ -10,7 +10,7 @@ A Hearthstone simulator and implementation, written in Python.
 
 ## Cards Implementation
 
-Now updated to [Patch 18.6.1.65000](https://hearthstone.wiki.gg/wiki/Patch_18.6.1.65000)
+Now updated to [Patch 19.6.0.74257](https://hearthstone.wiki.gg/wiki/Patch_19.6.0.74257)
 * **100%** Basic (153 of 153 cards)
 * **100%** Classic (240 of 240 cards)
 * **100%** Hall of Fame (35 of 35 cards)
@@ -18,7 +18,7 @@ Now updated to [Patch 18.6.1.65000](https://hearthstone.wiki.gg/wiki/Patch_18.6.
 * **100%** Goblins vs Gnomes (123 of 123 cards)
 * **100%** Blackrock Mountain (31 of 31 cards)
 * **100%** The Grand Tournament (132 of 132 cards)
-* **100%** Hero Skins (37 of 37 cards)
+* **100%** Hero Skins (63 of 63 cards)
 * **100%** The League of Explorers (45 of 45 cards)
 * **100%** Whispers of the Old Gods (134 of 134 cards)
 * **100%** One Night in Karazhan (45 of 45 cards)
@@ -36,7 +36,8 @@ Now updated to [Patch 18.6.1.65000](https://hearthstone.wiki.gg/wiki/Patch_18.6.
 * **100%** Ashes of Outlands (135 of 135 cards)
 * **100%** Scholomance Academy (135 of 135 cards)
 * **100%** Demon Hunter Initiate (20 of 20 cards)
-* **100%** Madness at the Darkmoon Faire (1 of 1 card)
+* **100%** Madness at the Darkmoon Faire (170 of 170 cards)
+* **100%** Forged in the Barrens (1 of 1 card)
 
 ## Requirements
 
@@ -52,7 +53,7 @@ Now updated to [Patch 18.6.1.65000](https://hearthstone.wiki.gg/wiki/Patch_18.6.
 
 ## Documentation
 
-The [Fireplace Wiki](https://github.com/jleclanche/fireplace/wiki) is the best
+The [Fireplace Wiki](https://github.com/shinoi2/fireplace/wiki) is the best
 source of documentation, along with the actual code.
 
 

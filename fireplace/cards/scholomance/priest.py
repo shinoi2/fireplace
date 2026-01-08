@@ -80,7 +80,7 @@ class SCH_233:
 
 
 class SCH_233e:
-    update = Refresh(FRIENDLY_HAND + DRAGON, "SCH_233e2")
+    update = Refresh(FRIENDLY_HAND + DRAGON, buff="SCH_233e2")
     events = Play(CONTROLLER, DRAGON).on(Destroy(SELF))
 
 

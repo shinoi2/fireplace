@@ -1,21 +1,24 @@
-from ..utils import *
+from .basic import *
 
 
 ##
 # Hero Powers
 
 
-class HERO_10bp:
-    """Demon Claws"""
+class HERO_10bp(HERO_10bp):
+    """Demon Claws (Demonic Illidan)"""
 
-    activate = Buff(FRIENDLY_HERO, "HERO_10bpe")
-
-
-HERO_10bpe = buff(atk=1)
+    pass
 
 
 class HERO_10bbp(HERO_10bp):
-    """ "Demon Claws (Aranna Starseeker)"""
+    """Demon Claws (Aranna Starseeker)"""
+
+    pass
+
+
+class HERO_10cbp(HERO_10bp):
+    """Demon Claws (Demonbane Illidan)"""
 
     pass
 
@@ -24,16 +27,19 @@ class HERO_10bbp(HERO_10bp):
 # Upgraded Hero Powers
 
 
-class HERO_10bp2:
-    """Demon's Bite"""
+class HERO_10bp2(HERO_10bp2):
+    """Demon's Bite (Demonic Illidan)"""
 
-    activate = Buff(FRIENDLY_HERO, "HERO_10pe2")
-
-
-HERO_10pe2 = buff(atk=2)
+    pass
 
 
 class HERO_10bbp2(HERO_10bp2):
-    """ "Demon's Bite (Aranna Starseeker)"""
+    """Demon's Bite (Aranna Starseeker)"""
+
+    pass
+
+
+class HERO_10cbp2(HERO_10bp2):
+    """Demon's Bite (Demonbane Illidan)"""
 
     pass

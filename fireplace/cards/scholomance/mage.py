@@ -63,7 +63,9 @@ class SCH_352:
     """Potion of Illusion"""
 
     # Add 1/1 copies of your minions to your hand. They cost (1).
-    play = Give(CONTROLLER, MultiBuff(Copy(FRIENDLY_MINIONS), ["SCH_352e", "SCH_352e2"]))
+    play = Give(
+        CONTROLLER, MultiBuff(Copy(FRIENDLY_MINIONS), ["SCH_352e", "SCH_352e2"])
+    )
 
 
 class SCH_352e:

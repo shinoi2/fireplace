@@ -1,18 +1,36 @@
-from ..utils import *
+from .basic import *
 
 
 ##
 # Hero Powers
 
 
-class HERO_03bp:
-    """Dagger Mastery"""
-
-    activate = Summon(CONTROLLER, "CS2_082")
-
-
-class CS2_083b_H1(HERO_03bp):
+class HERO_03bp(HERO_03bp):
     """Dagger Mastery (Maiev Shadowsong)"""
+
+    pass
+
+
+class HERO_03bp(HERO_03bp):
+    """Dagger Mastery (Cap’n Valeera)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Nightslayer Valeera)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Diao Chan Valeera)"""
+
+    pass
+
+
+class HERO_03bp(HERO_03bp):
+    """Dagger Mastery (Gladiator Valeera)"""
 
     pass
 
@@ -21,13 +39,31 @@ class CS2_083b_H1(HERO_03bp):
 # Upgraded Hero Powers
 
 
-class HERO_03bp2:
-    """Poisoned Daggers"""
-
-    activate = Summon(CONTROLLER, "AT_132_ROGUEt")
-
-
-class AT_132_ROGUE_H1(HERO_03bp2):
+class HERO_03bp2(HERO_03bp2):
     """Poisoned Daggers (Maiev Shadowsong)"""
+
+    pass
+
+
+class HERO_03bp2(HERO_03bp2):
+    """Poisoned Daggers (Cap’n Valeera)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Nightslayer Valeera)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Diao Chan Valeera)"""
+
+    pass
+
+
+class HERO_03bp2(HERO_03bp2):
+    """Poisoned Daggers (Gladiator Valeera)"""
 
     pass
