@@ -77,9 +77,7 @@ class BOT_402:
     """Secret Plan"""
 
     # <b>Discover</b> a <b>Secret</b>.
-    play = WITH_SECRECTS & (DISCOVER(RandomSpell(secret=True))) | (
-        DISCOVER(RandomSpell(secret=True, card_class=CardClass.HUNTER))
-    )
+    play = DISCOVER(RandomSpell(secret=True))
 
 
 class BOT_429:

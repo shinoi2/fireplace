@@ -161,9 +161,16 @@ class DMF_108:
         spells = (FRIENDLY_DECK + SPELL).eval(self.game, self)
         for spell in spells:
             origin_cost = spell.cost
-            yield Morph(spell, RandomSpell(cost=origin_cost + 3)).then(
-                Buff(Morph.CARD, "DMF_108e", cost=SET(origin_cost))
+            buff = self.controller.card("DMF_108e")
+            buff._xcost = origin_cost
+            yield Morph(spell, RandomSpell(cost=min(10, origin_cost + 3))).then(
+                Buff(Morph.CARD, buff)
             )
+
+
+class DMF_108e:
+    cost = lambda self, i: self._xcost
+    events = REMOVED_IN_PLAY
 
 
 class YOP_019:

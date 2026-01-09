@@ -71,10 +71,10 @@ class DMF_121:
     """Fortune Teller"""
 
     # [x]<b>Taunt</b> <b>Battlecry:</b> Gain +1/+1 for each spell in your hand.
-    play = Buff(SELF, "DMF_121e") * Count(FRIENDLY_HAND + SPELL)
+    play = Buff(SELF, "DMF_121e2") * Count(FRIENDLY_HAND + SPELL)
 
 
-DMF_121e = buff(+1, +1)
+DMF_121e2 = buff(+1, +1)
 
 
 class DMF_184:

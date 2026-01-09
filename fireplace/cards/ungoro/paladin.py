@@ -8,9 +8,7 @@ from ..utils import *
 class UNG_011:
     """Hydrologist"""
 
-    play = WITH_SECRECTS & (DISCOVER(RandomSpell(secret=True))) | (
-        DISCOVER(RandomSpell(secret=True, card_class=CardClass.PALADIN))
-    )
+    play = DISCOVER(RandomSpell(secret=True))
 
 
 class UNG_015:

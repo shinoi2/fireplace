@@ -283,26 +283,6 @@ class Actived(Evaluator):
         return True
 
 
-class WithSecrets(Evaluator):
-    """
-    Evaluates to True if \a controller class has secret
-    """
-
-    def __init__(self):
-        super().__init__()
-
-    def check(self, source):
-        return source.controller.hero.card_class in [
-            CardClass.MAGE,
-            CardClass.HUNTER,
-            CardClass.PALADIN,
-            CardClass.ROGUE,
-        ]
-
-
-WITH_SECRECTS = WithSecrets()
-
-
 class HasTarget(Evaluator):
     def __init__(self):
         super().__init__()

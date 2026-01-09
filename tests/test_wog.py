@@ -541,8 +541,9 @@ def test_tentacles_for_arms_full_hand():
 
 
 def test_thistle_tea():
-    game = prepare_game()
+    game = prepare_empty_game()
     game.player1.discard_hand()
+    game.player1.give(WISP).put_on_top()
     tea = game.player1.give("OG_073")
     tea.play()
     assert len(game.player1.hand) == 3

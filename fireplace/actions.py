@@ -1205,14 +1205,21 @@ class Discover(TargetedAction):
             discover_class = source.data.card_class
         else:
             # use random class for neutral hero classes with neutral cards
-            discover_class = random_class()
+            discover_class = target.starting_hero.data.card_class
         if "card_class" in self._args[1].filters:
             picker = self._args[1] * 3
             return [picker.evaluate(source)]
         picker = self._args[1] * 3
         picker = picker.copy_with_weighting(1, card_class=CardClass.NEUTRAL)
         picker = picker.copy_with_weighting(1, card_class=discover_class)
-        return [picker.evaluate(source)]
+        cards = picker.evaluate(source)
+        if len(cards) == 0:
+            picker = self._args[1] * 3
+            # When discover random secret
+            discover_class = source.data.card_class
+            picker = picker.copy_with_weighting(1, card_class=discover_class)
+            cards = picker.evaluate(source)
+        return [cards]
 
     def do(self, source, target, cards):
         log.info("%r discovers %r for %s", source, cards, target)
