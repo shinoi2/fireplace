@@ -1,6 +1,5 @@
 from ..utils import *
 
-
 # Luck of the Coin
 GAME_001 = buff(health=3)
 

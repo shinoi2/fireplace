@@ -2,7 +2,6 @@ from collections import defaultdict
 
 from ..utils import *
 
-
 ##
 # Minions
 

@@ -9,7 +9,6 @@ from .. import enums
 from ..entity import BaseEntity
 from .lazynum import Attr, LazyValue, OpAttr
 
-
 # Type aliases
 SelectorLike = Union["Selector", LazyValue]
 BinaryOp = Callable[[Any, Any], bool]

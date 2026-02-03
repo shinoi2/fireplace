@@ -11,7 +11,6 @@ from .entity import Entity, slot_property
 from .managers import PlayerManager
 from .utils import CardList
 
-
 if TYPE_CHECKING:
     from .card import (
         Character,

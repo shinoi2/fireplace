@@ -1,6 +1,5 @@
 from utils import *
 
-
 # Use the old Warsong Commander as it was nerfed
 # implemented in fireplace.cards.custom
 WARSONG_COMMANDER = "FIREPLACE_EX1_084"

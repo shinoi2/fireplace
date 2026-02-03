@@ -14,7 +14,6 @@ from utils import *
 
 import fireplace.utils
 
-
 ARBITRARY_SEED = 1857
 
 

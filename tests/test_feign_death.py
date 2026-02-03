@@ -1,6 +1,5 @@
 from utils import *
 
-
 FEIGN_DEATH = "GVG_026"
 
 

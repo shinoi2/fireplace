@@ -25,7 +25,6 @@ from .managers import CardManager
 from .targeting import TARGETING_PREREQUISITES, is_valid_target
 from .utils import CardList
 
-
 if TYPE_CHECKING:
     from hearthstone import cardxml
 

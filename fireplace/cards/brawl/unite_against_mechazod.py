@@ -4,7 +4,6 @@ Unite Against Mechazod!
 
 from ..utils import *
 
-
 MECHAZOD = (
     ID("HRW02_1")
     | ID("TB_CoOp_Mechazod")

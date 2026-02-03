@@ -9,7 +9,6 @@ from fireplace.logging import log
 from fireplace.player import Player
 from fireplace.utils import random_draft
 
-
 # Token minions
 ANIMATED_STATUE = "LOEA04_27"
 GOLDSHIRE_FOOTMAN = "CS1_042"

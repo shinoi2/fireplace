@@ -1,6 +1,5 @@
 from ..utils import *
 
-
 # Rastakhan's Rumble
 # https://www.youtube.com/watch?v=jlRV-7X0J8A
 ZAYLE_DECK_STRINGS = [

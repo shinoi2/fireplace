@@ -6,7 +6,6 @@ Deal Your Fate
 from ..utils import *
 from .banana_brawl import RandomBanana
 
-
 RandomFate = RandomID(
     "TB_PickYourFate_2",
     "TB_PickYourFate_5",

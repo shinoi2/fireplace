@@ -15,7 +15,6 @@ from fireplace.game import BaseGame as Game
 from fireplace.player import Player
 from fireplace.utils import CardList
 
-
 logging.basicConfig(level=logging.DEBUG)
 KettleLogger = logging.getLogger("kettle")
 KettleLogger.setLevel(logging.DEBUG)

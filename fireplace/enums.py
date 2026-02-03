@@ -1,6 +1,5 @@
 from enum import IntEnum
 
-
 ##
 # Internal fireplace tags
 

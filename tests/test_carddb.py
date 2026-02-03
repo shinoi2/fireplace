@@ -2,7 +2,6 @@ import utils
 import pytest
 from hearthstone.enums import CardType, GameTag, Rarity
 
-
 CARDS = utils.fireplace.cards.db
 
 

@@ -3,7 +3,6 @@ from utils import *
 
 from fireplace.exceptions import GameOver
 
-
 LORD_JARAXXUS = "EX1_323"
 LORD_JARAXXUS_HERO = "EX1_323h"
 LORD_JARAXXUS_WEAPON = "EX1_323w"

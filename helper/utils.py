@@ -5,7 +5,6 @@ from hearthstone.enums import CardSet, CardType
 
 from fireplace.cards import get_script_definition
 
-
 RED = "\033[91m"
 GREEN = "\033[92m"
 YELLOW = "\033[93m"

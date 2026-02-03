@@ -16,7 +16,6 @@ from ..dsl import *
 from ..enums import PlayReq, BoardEnum
 from ..events import *
 
-
 # For buffs which are removed when the card is moved to play (eg. cost buffs)
 # This needs to be Summon, because of Summon from the hand
 REMOVED_IN_PLAY = Summon(ALL_PLAYERS, OWNER).after(Destroy(SELF))

@@ -1,6 +1,5 @@
 from utils import *
 
-
 BRANN_BRONZEBEARD = "LOE_077"
 
 

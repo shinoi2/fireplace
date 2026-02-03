@@ -24,7 +24,6 @@ from .exceptions import GameOver
 from .managers import GameManager
 from .utils import CardList
 
-
 if TYPE_CHECKING:
     from .actions import Action
     from .card import Character, PlayableCard

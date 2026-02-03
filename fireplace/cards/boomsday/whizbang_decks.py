@@ -1,6 +1,5 @@
 from ..utils import *
 
-
 # Where can I find a list of all the current Whizbang decks?
 
 # The Boomsday Project

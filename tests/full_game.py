@@ -6,7 +6,6 @@ from fireplace.exceptions import GameOver
 from fireplace.logging import log
 from fireplace.utils import play_full_game
 
-
 sys.path.append("..")
 
 

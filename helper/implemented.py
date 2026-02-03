@@ -6,7 +6,6 @@ from utils import *
 
 from fireplace import cards
 
-
 PREFIXES = {
     GREEN: "Implemented",
     RED: "Not implemented",
