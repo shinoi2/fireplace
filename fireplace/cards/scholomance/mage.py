@@ -16,7 +16,7 @@ class SCH_243:
     """Wyrm Weaver"""
 
     # <b>Spellburst:</b> Summon two 1/3 Mana Wyrms.
-    spellburst = Summon(CONTROLLER, "SCH_243t") * 2
+    spellburst = SummonBothSides(CONTROLLER, "NEW1_012") * 2
 
 
 class SCH_350:
