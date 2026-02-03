@@ -51,3 +51,38 @@ def test_potion_of_illusion():
         assert card.cost == 1
         assert card.atk == 1
         assert card.health == 1
+
+
+def test_mindrender_illucia():
+    game = prepare_game()
+    player1_hand = game.player1.hand[:]
+    player2_hand = game.player2.hand[:]
+    game.player1.give("SCH_159").play()
+    assert game.player1.hand == player2_hand
+    assert game.player2.hand == player1_hand
+    game.skip_turn()
+    assert game.player1.hand[:len(player1_hand)] == player1_hand
+    assert game.player2.hand[:len(player2_hand)] == player2_hand
+
+
+def test_speaker_gidra():
+    game = prepare_game()
+    gidra = game.player1.give("SCH_182").play()
+    old_atk = gidra.atk
+    old_health = gidra.max_health
+    assert gidra.has_spellburst
+    game.player1.give(FIREBALL).play(target=game.player2.hero)
+    assert gidra.atk == old_atk + 4
+    assert gidra.max_health == old_health + 4
+    assert not gidra.has_spellburst
+
+
+def test_gibberling():
+    game = prepare_game()
+    gibberling = game.player1.give("SCH_242").play()
+    assert gibberling.has_spellburst
+    game.player1.give(FIREBALL).play(target=game.player2.hero)
+    assert not gibberling.has_spellburst
+    assert len(game.player1.field) == 2
+    assert game.player1.field[1].id == "SCH_242"
+    assert game.player1.field[1].has_spellburst

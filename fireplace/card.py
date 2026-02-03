@@ -291,8 +291,8 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
     has_overkill = boolean_property("has_overkill")
     has_discover = boolean_property("has_discover")
     libram = boolean_property("libram")
+    corrupt = boolean_property("corrupt")
     corrupted = boolean_property("corrupted")
-    corrupted_card = boolean_property("corrupted_card")
     card_costs_health = boolean_property("card_costs_health")
 
     def __init__(self, data):
@@ -305,7 +305,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         self.rarity = Rarity.INVALID
         self.choose_cards = CardList()
         self.morphed = None
-        self.corrupt_card = None
+        self.corrupt_card = data.corrupt_card
         self.turn_drawn = -1
         self.turn_played = -1
         self.cast_on_friendly_characters = False
@@ -1130,7 +1130,7 @@ class Minion(Character):
         "secret_deathrattle",
         "has_overkill",
         "reborn",
-        "spellburst",
+        "has_spellburst",
     )
 
     def __init__(self, data):
@@ -1142,6 +1142,7 @@ class Minion(Character):
         self.dormant = False
         self.dormant_turns = data.scripts.dormant_turns
         self.reborn = False
+        self.has_spellburst = False
         super().__init__(data)
 
     def dump(self):
@@ -1151,7 +1152,7 @@ class Minion(Character):
         data["silenced"] = self.silenced
         data["dormant"] = self.dormant
         data["reborn"] = self.reborn
-        data["spellburst"] = self.spellburst
+        data["has_spellburst"] = self.has_spellburst
         return data
 
     @property

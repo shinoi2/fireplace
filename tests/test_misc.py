@@ -262,3 +262,23 @@ def test_observer():
             play_turn(game)
     except GameOver:
         log.info("Game completed normally.")
+
+
+def test_cast_spell_targets_enemies_if_possible():
+    game = prepare_game()
+    game.cheat_action(game.player1, [CastSpellTargetsEnemiesIfPossible(FIREBALL)])
+    assert game.player2.hero.health == 30 - 6
+
+
+def test_cast_spell_targets_friendly_if_possible():
+    game = prepare_game()
+    game.cheat_action(game.player1.hero, [CastSpellTargetsSelfIfPossible(FIREBALL)])
+    assert game.player1.hero.health == 30 - 6
+
+
+def test_set_state_buff():
+    game = prepare_game()
+    wisp = game.player1.give(WISP).play()
+    yeti = game.player1.give("CS2_182").play()
+    game.cheat_action(game.player1, [SetStateBuff(yeti, wisp, "ULD_262e")])
+    assert yeti.health == wisp.health == 1

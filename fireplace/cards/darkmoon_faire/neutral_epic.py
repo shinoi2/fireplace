@@ -22,7 +22,7 @@ class DMF_124:
 
 class DMF_124t:
     def corrupt_card(self):
-        card = self.controller.card("DAL_431t")
+        card = self.controller.card("DMF_124t")
         card.custom_card = True
         atk = self.atk + 1
         max_health = self.max_health + 1

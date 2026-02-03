@@ -518,8 +518,8 @@ class Play(GameAction):
         if actions:
             source.game.trigger(card, actions, event_args=None)
 
-        for hand in player.hand:
-            if hand.corrupted and hand.cost < card.cost:
+        for hand in player.hand[:]:
+            if hand.corrupt and hand.cost < card.cost:
                 source.game.queue_actions(player, [Corrupt(hand)])
 
         if card.type in (CardType.MINION, CardType.WEAPON):
@@ -556,6 +556,9 @@ class Play(GameAction):
                 player.elemental_played_this_turn += 1
         elif card.type == CardType.SPELL:
             player.spells_played_this_game += 1
+            for entity in player.field[:]:
+                if entity.has_spellburst:
+                    source.game.queue_actions(card, [Spellburst(entity, card)])
         player.cards_played_this_turn += 1
         player.cards_played_this_game.append(card)
         card.turn_played = source.game.turn
@@ -1105,14 +1108,6 @@ class Battlecry(TargetedAction):
 
         if card.overload:
             source.game.queue_actions(card, [Overload(player, card.overload)])
-
-        if card.type == CardType.SPELL:
-            for entity in player.live_entities:
-                if entity.spellburst:
-                    # source.game.queue_actions(card, [Spellburst(entity)])
-                    entity.spellburst = False
-                    actions = entity.get_actions("spellburst")
-                    source.game.queue_actions(entity, actions)
 
 
 class ExtraBattlecry(Battlecry):
@@ -2082,7 +2077,7 @@ class CopyStateBuff(TargetedAction):
 
 class SetStateBuff(TargetedAction):
     """
-    Set target state, buff on self
+    Set target state, buff on target
     """
 
     TARGET = ActionArg()
@@ -2364,11 +2359,11 @@ class Corrupt(TargetedAction):
     TARGET = ActionArg()
 
     def get_corrupt_card(self, source, target):
-        card = getattr(target, "corrupt_card", None)
-        if isinstance(card, str):
-            return source.controller.card(card)
-        if callable(card):
-            return card(target)
+        corrupt_card = getattr(target, "corrupt_card", None)
+        if isinstance(corrupt_card, str):
+            return source.controller.card(corrupt_card)
+        if callable(corrupt_card):
+            return corrupt_card(target)
         return None
 
     def do(self, source, target):
@@ -2389,15 +2384,17 @@ class Spellburst(TargetedAction):
     TARGET = CardArg()
     SPELL = CardArg()
 
+    def get_actions(self, target, spell):
+        actions = getattr(target.data.scripts, "spellburst")
+        if callable(actions):
+            actions = actions(target, spell)
+        return actions
+
     def do(self, source, target, spell):
-        if not target.spellburst:
+        if not target.has_spellburst:
             log.info("%r does not have spellburst", target)
             return
 
-        spellburst = target.get_actions("spellburst")
-        if callable(spellburst):
-            actions = spellburst(target, spell)
-        else:
-            actions = spellburst
-        source.game.queue_actions(target, actions)
+        source.game.queue_actions(target, self.get_actions(target, spell))
+        target.has_spellburst = False
         source.game.manager.targeted_action(self, source, target, spell)

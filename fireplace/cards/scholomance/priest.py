@@ -35,7 +35,7 @@ class SCH_159:
 
     # <b>Battlecry:</b> Swap hands and decks with your opponent until your next
     # turn.
-    play = SwapDecks(), SwapHands()
+    play = SwapDecks(), SwapHands(), Buff(CONTROLLER, "SCH_159e")
 
 
 class SCH_159e:

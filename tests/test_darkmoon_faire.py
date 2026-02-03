@@ -42,3 +42,24 @@ def test_guess_the_weight():
     assert card2.zone == Zone.HAND
     game.player1.choice.choose(game.player1.choice.cards[0])
     assert card1.zone == Zone.DECK
+
+
+def test_horrendous_growth():
+    game = prepare_empty_game()
+    growth = game.player1.give("DMF_124")
+    assert growth.cost == 2
+    assert growth.atk == 2
+    assert growth.max_health == 2
+    game.player1.give("CS2_127").play()
+    corrputed = game.player1.hand[0]
+    assert corrputed.id == "DMF_124t"
+    assert corrputed.atk == 3
+    assert corrputed.max_health == 3
+    game.player1.give("CS2_127").play()
+    corrputed = game.player1.hand[0]
+    assert corrputed.atk == 4
+    assert corrputed.max_health == 4
+    game.player1.give("CS2_127").play()
+    corrputed = game.player1.hand[0]
+    assert corrputed.atk == 5
+    assert corrputed.max_health == 5

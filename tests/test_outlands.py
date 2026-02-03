@@ -58,3 +58,27 @@ def test_imprisoned_antaen():
     assert not antaen.dormant
     assert antaen.dormant_turns == 0
     assert game.player2.hero.health == 10
+
+
+def test_darkglare():
+    game = prepare_game()
+    game.player1.give("BT_307").play()
+    assert game.player1.mana == 8
+    game.player1.give(FIREBALL).play(target=game.player1.hero)
+    assert game.player1.mana == 8 - 4 + 2
+
+
+def test_maiev_shadowsong():
+    game = prepare_game()
+    wisp = game.player1.give(WISP).play()
+    assert not wisp.dormant
+    assert wisp.dormant_turns == 0
+    game.player1.give("BT_737").play(target=wisp)
+    assert wisp.dormant
+    assert wisp.dormant_turns == 2
+    game.skip_turn()
+    assert wisp.dormant
+    assert wisp.dormant_turns == 1
+    game.skip_turn()
+    assert not wisp.dormant
+    assert wisp.dormant_turns == 0
