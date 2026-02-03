@@ -61,8 +61,8 @@ def test_mindrender_illucia():
     assert game.player1.hand == player2_hand
     assert game.player2.hand == player1_hand
     game.skip_turn()
-    assert game.player1.hand[:len(player1_hand)] == player1_hand
-    assert game.player2.hand[:len(player2_hand)] == player2_hand
+    assert game.player1.hand[: len(player1_hand)] == player1_hand
+    assert game.player2.hand[: len(player2_hand)] == player2_hand
 
 
 def test_speaker_gidra():
