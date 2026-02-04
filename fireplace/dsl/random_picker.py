@@ -72,13 +72,7 @@ class RandomCardPicker(LazyValue):
 
         return cards.filter(**new_filters)
 
-    def evaluate(self, source, cards=None) -> str:
-        """
-        This picks from a single combined card pool without replacement,
-        weighting each filtered set of cards against the total
-        """
-        from ..utils import weighted_card_choice
-
+    def find_card_sets(self, source, cards):
         if cards:
             # Use specific card list if given
             self.weights = [1]
@@ -90,16 +84,24 @@ class RandomCardPicker(LazyValue):
                     exclude = exclude.eval(source.game, source)
                 exclude = [card.id for card in exclude]
                 cards = [card for card in cards if card not in exclude]
-            card_sets = [list(cards)]
+            return [list(cards)]
         elif not self.weightedfilters:
             # Use global filters if no weighted filter sets given
             self.weights = [1]
-            card_sets = [self.find_cards(source)]
+            return [self.find_cards(source)]
         else:
             # Otherwise find cards for each set of filters
             # add the global filters to each set of filters
             wf = [{**x, **self.filters} for x in self.weightedfilters]
-            card_sets = [self.find_cards(source, **x) for x in wf]
+            return [self.find_cards(source, **x) for x in wf]
+
+    def evaluate(self, source, cards=None) -> str:
+        """
+        This picks from a single combined card pool without replacement,
+        weighting each filtered set of cards against the total
+        """
+        card_sets = self.find_card_sets(source, cards)
+        from ..utils import weighted_card_choice
 
         # get weighted sample of card pools
         return weighted_card_choice(source, self.weights, card_sets, self.count)

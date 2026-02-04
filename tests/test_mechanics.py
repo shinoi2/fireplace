@@ -321,6 +321,15 @@ def test_discover():
     assert len(game.player1.hand) == 1
 
 
+def test_mock_discover():
+    game = prepare_empty_game(CardClass.PRIEST, CardClass.PRIEST)
+    assert game.player1.choice is None
+    curator = game.player1.give("LOE_006")
+    with mock_RandomCardPicker(["EX1_029", "EX1_029", "EX1_029"]):
+        curator.play()
+        assert game.player1.choice.cards == ["EX1_029", "EX1_029", "EX1_029"]
+
+
 def test_divine_shield():
     game = prepare_game(CardClass.MAGE, CardClass.MAGE)
     squire = game.player1.give("EX1_008")

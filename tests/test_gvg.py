@@ -1049,8 +1049,10 @@ def test_unstable_portal():
     game = prepare_game()
     game.player1.discard_hand()
     portal = game.player1.give("GVG_003")
-    portal.play()
+    with mock_RandomCardPicker(WISP):
+        portal.play()
     assert len(game.player1.hand) == 1
+    assert game.player1.hand[0] == WISP
     minion = game.player1.hand[0]
     assert minion.type == CardType.MINION
     assert minion.creator is portal
@@ -1124,3 +1126,31 @@ def test_wee_spellstopper():
     assert outside in moonfire.targets
     assert left.cant_be_targeted_by_abilities
     assert left not in moonfire.targets
+
+
+def test_forgetful():
+    game = prepare_game()
+    ogre = game.player1.give("GVG_065")
+    ogre.play()
+
+    game.end_turn()
+    wisp = game.player2.give(WISP)
+    wisp.play()
+    game.end_turn()
+
+    with mock_custom(RandomNumber, "evaluate", lambda *_: 1):
+        ogre.attack(game.player2.hero)
+
+    assert wisp.dead
+    assert game.player2.hero.damage == 0
+
+    game.end_turn()
+    wisp = game.player2.give(WISP)
+    wisp.play()
+    game.end_turn()
+
+    with mock_custom(RandomNumber, "evaluate", lambda *_: 0):
+        ogre.attack(game.player2.hero)
+
+    assert not wisp.dead
+    assert game.player2.hero.damage == ogre.atk

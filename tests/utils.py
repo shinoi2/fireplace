@@ -132,3 +132,32 @@ def prepare_empty_game(class1=None, class2=None, game_class=BaseTestGame):
     _empty_mulligan(game)
 
     return game
+
+
+def mock_helper(cls: object, method: str, fake_mothod: Callable):
+    real_mothod = getattr(cls, method)
+    try:
+        setattr(cls, method, fake_mothod)
+        yield
+    finally:
+        setattr(cls, method, real_mothod)
+
+
+@contextmanager
+def mock_custom(cls: object, method: str, callback: Callable):
+    yield from mock_helper(cls, method, callback)
+
+
+@contextmanager
+def mock_RandomCardPicker(mock_cards):
+    if not isinstance(mock_cards, (list, tuple, set)):
+        mock_cards = [mock_cards]
+
+    def evaluate(self, source, cards=None):
+        card_sets = self.find_card_sets(source, cards)
+        card_sets = sum(card_sets, [])
+        for card in mock_cards:
+            assert card in card_sets
+        return [source.controller.card(card, source=source) for card in mock_cards]
+
+    yield from mock_helper(RandomCardPicker, "evaluate", evaluate)
