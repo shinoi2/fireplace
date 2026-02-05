@@ -377,12 +377,14 @@ class Player(Entity, TargetableByAuras):
         Quest cards are automatically included in the player's mulligan as the left-most card
         CANT_DRAW_DURING_MULLIGAN cards never included in the player's mulligan card
         """
+
         def key_func(card):
             if card.tags.get(GameTag.QUEST):
                 return 1, self.game.random.random()
             if card.tags.get(GameTag.CANT_DRAW_DURING_MULLIGAN):
                 return -1, self.game.random.random()
             return 0, self.game.random.random()
+
         self.deck.sort(key=key_func)
 
     def shuffle_deck(self):
