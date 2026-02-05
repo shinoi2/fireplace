@@ -61,6 +61,8 @@ BLACKLIST = (
     "UNG_929",  # Molten Blade
     "LOOT_104",  #  Shifting Scroll
     "DRG_096",  # Bandersmosh
+    "BT_300",  # Hand of Gul'dan
+    "SCH_147",  # Boneweb Egg
 )
 
 _draftcache = {}
