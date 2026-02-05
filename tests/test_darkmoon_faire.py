@@ -63,3 +63,20 @@ def test_horrendous_growth():
     corrputed = game.player1.hand[0]
     assert corrputed.atk == 5
     assert corrputed.max_health == 5
+
+
+def test_cthun_the_shattered():
+    game = prepare_game(include=tuple(["DMF_254"] + [WISP] * 29))
+    all_card = list(game.player1.deck + game.player1.hand)
+    assert "DMF_254" not in all_card
+    pieces = ["DMF_254t3", "DMF_254t4", "DMF_254t5", "DMF_254t7"]
+    for piece in pieces:
+        assert piece in all_card
+        card = all_card[all_card.index(piece)]
+        card.zone = Zone.HAND
+        game.player1.used_mana = 0
+        if card == "DMF_254t7":
+            card.play(target=game.player1.field[0])
+        else:
+            card.play()
+    assert "DMF_254" in list(game.player1.deck)

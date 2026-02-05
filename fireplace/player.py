@@ -293,27 +293,15 @@ class Player(Entity, TargetableByAuras):
             if self.is_standard and not card.is_standard:
                 self.is_standard = False
         self.starting_deck = CardList(self.deck[:])
-        self.shuffle_deck()
+        self.mulligan_shuffle_deck()
         self.cthun = self.card("OG_280")
         self.playstate = PlayState.PLAYING
 
         # Draw initial hand (but not any more than what we have in the deck)
         hand_size = min(len(self.deck), self.start_hand_size)
-        # Quest cards are automatically included in the player's mulligan as
-        # the left-most card
-        quests = []
-        exclude_quests = []
-        for card in self.deck:
-            if card.data.quest:
-                quests.append(card)
-            else:
-                exclude_quests.append(card)
-        self.starting_hand = CardList["PlayableCard"](
-            quests + self.game.random.sample(exclude_quests, hand_size - len(quests))
-        )
         # It's faster to move cards directly to the hand instead of drawing
-        for card in self.starting_hand:
-            card.zone = Zone.HAND
+        for _ in range(hand_size):
+            self.deck[-1].zone = Zone.HAND
 
     def get_spell_damage(self, amount: int) -> int:
         """
@@ -383,6 +371,19 @@ class Player(Entity, TargetableByAuras):
             self.spent_mana_on_spells_this_game += amount
         self.game.queue_actions(source, [SpendMana(self, amount)])
         return amount
+
+    def mulligan_shuffle_deck(self):
+        """
+        Quest cards are automatically included in the player's mulligan as the left-most card
+        CANT_DRAW_DURING_MULLIGAN cards never included in the player's mulligan card
+        """
+        def key_func(card):
+            if card.tags.get(GameTag.QUEST):
+                return 1, self.game.random.random()
+            if card.tags.get(GameTag.CANT_DRAW_DURING_MULLIGAN):
+                return -1, self.game.random.random()
+            return 0, self.game.random.random()
+        self.deck.sort(key=key_func)
 
     def shuffle_deck(self):
         self.log("%r shuffles their deck", self)

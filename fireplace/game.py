@@ -464,6 +464,7 @@ class MulliganRules(BaseGame):
         self.queue_actions(self, [GameStart()])
         for player in self.players:
             player.starting_hand = CardList(player.hand[:])
+            player.shuffle_deck()
         self.begin_turn(self.player1)
 
 

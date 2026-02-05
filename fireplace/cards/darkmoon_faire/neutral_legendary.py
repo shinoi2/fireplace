@@ -184,7 +184,7 @@ class DMF_254t4:
 
     # <b>Piece of C'Thun (@/4)</b> Deal $3 damage to all minions.
     play = (
-        Hit(ALL_MINIONS, 1) * 7,
+        Hit(ALL_MINIONS, 3),
         AddProgress(CREATOR, SELF),
     )
 
