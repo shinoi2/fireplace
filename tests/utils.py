@@ -144,20 +144,13 @@ def mock_helper(cls: object, method: str, fake_mothod: Callable):
 
 
 @contextmanager
-def mock_custom(cls: object, method: str, callback: Callable):
-    yield from mock_helper(cls, method, callback)
-
-
-@contextmanager
-def mock_RandomCardPicker(mock_cards):
-    if not isinstance(mock_cards, (list, tuple, set)):
-        mock_cards = [mock_cards]
-
-    def evaluate(self, source, cards=None):
-        card_sets = self.find_card_sets(source, cards)
-        card_sets = sum(card_sets, [])
-        for card in mock_cards:
-            assert card in card_sets
-        return [source.controller.card(card, source=source) for card in mock_cards]
-
-    yield from mock_helper(RandomCardPicker, "evaluate", evaluate)
+def mock(cls: object, return_value):
+    if not isinstance(cls, type):
+        cls = type(cls())
+    fake_method = return_value if callable(return_value) else lambda *_: return_value
+    if issubclass(cls, LazyValue):
+        yield from mock_helper(cls, "evaluate", fake_method)
+    elif issubclass(cls, Selector):
+        if not isinstance(return_value, (list, tuple, set)):
+            return_value = [return_value]
+        yield from mock_helper(cls, "eval", fake_method)

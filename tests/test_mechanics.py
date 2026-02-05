@@ -325,7 +325,7 @@ def test_mock_discover():
     game = prepare_empty_game(CardClass.PRIEST, CardClass.PRIEST)
     assert game.player1.choice is None
     curator = game.player1.give("LOE_006")
-    with mock_RandomCardPicker(["EX1_029", "EX1_029", "EX1_029"]):
+    with mock(RandomMinion, ["EX1_029", "EX1_029", "EX1_029"]):
         curator.play()
         assert game.player1.choice.cards == ["EX1_029", "EX1_029", "EX1_029"]
 

@@ -1049,7 +1049,7 @@ def test_unstable_portal():
     game = prepare_game()
     game.player1.discard_hand()
     portal = game.player1.give("GVG_003")
-    with mock_RandomCardPicker(WISP):
+    with mock(RandomMinion, WISP):
         portal.play()
     assert len(game.player1.hand) == 1
     assert game.player1.hand[0] == WISP
@@ -1134,14 +1134,17 @@ def test_forgetful():
     ogre.play()
 
     game.end_turn()
-    wisp = game.player2.give(WISP)
-    wisp.play()
+    wisp1 = game.player2.give(WISP)
+    wisp1.play()
+    wisp2 = game.player2.give(WISP)
+    wisp2.play()
     game.end_turn()
 
-    with mock_custom(RandomNumber, "evaluate", lambda *_: 1):
-        ogre.attack(game.player2.hero)
+    with mock(RandomNumber, 1):
+        with mock(RANDOM, wisp1):
+            ogre.attack(game.player2.hero)
 
-    assert wisp.dead
+    assert wisp1.dead
     assert game.player2.hero.damage == 0
 
     game.end_turn()
@@ -1149,7 +1152,7 @@ def test_forgetful():
     wisp.play()
     game.end_turn()
 
-    with mock_custom(RandomNumber, "evaluate", lambda *_: 0):
+    with mock(RandomNumber, 0):
         ogre.attack(game.player2.hero)
 
     assert not wisp.dead
