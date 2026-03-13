@@ -14,14 +14,16 @@ def test_auchenai_soulpriest():
 def test_auchenai_soulpriest_divine_shield():
     game = prepare_game(CardClass.PRIEST, CardClass.PRIEST)
     gurubashi = game.player1.summon("EX1_399")
+    old_atk = gurubashi.atk
+    old_health = gurubashi.health
     auchenai = game.player1.give("EX1_591")
     auchenai.play()
     game.player1.give(HAND_OF_PROTECTION).play(target=gurubashi)
     assert gurubashi.divine_shield
     game.player1.hero.power.use(target=gurubashi)
     assert not gurubashi.divine_shield
-    assert gurubashi.atk == 2
-    assert gurubashi.health == 7
+    assert gurubashi.atk == old_atk
+    assert gurubashi.health == old_health
 
 
 def test_auchenai_soulpriest_light_of_the_naaru():

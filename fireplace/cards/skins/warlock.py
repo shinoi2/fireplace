@@ -34,6 +34,18 @@ class HERO_07ebp(HERO_07bp):
     pass
 
 
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Nemesis Gul'dan)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Shadowmoon Gul'dan)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -64,5 +76,17 @@ class HERO_07dbp2(HERO_07bp2):
 
 class HERO_07ebp2(HERO_07bp2):
     """Soul Tap (Felheart Gul'dan)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Nemesis Gul'dan)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Shadowmoon Gul'dan)"""
 
     pass

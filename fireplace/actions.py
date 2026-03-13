@@ -118,6 +118,17 @@ class IntArg(ActionArg, LazyNum):
         return self.num(ret)
 
 
+class SourceArg(CardArg):
+    def __init__(self):
+        self.index = -1
+
+    def __repr__(self):
+        return "<SOURCE>"
+
+
+SOURCE = SourceArg()
+
+
 class Action(metaclass=ActionMeta):
     def __init__(self, *args, **kwargs):
         self._args = args
@@ -589,6 +600,7 @@ class Activate(GameAction):
 
         self.broadcast(source, EventListener.AFTER, heropower, target, choose)
         heropower.activations_this_turn += 1
+        heropower.activations_this_game += 1
 
 
 class Overload(GameAction):
@@ -1006,11 +1018,15 @@ class Damage(TargetedAction):
                     actions = source.get_actions("overkill")
                 if actions:
                     source.game.trigger(source, actions, event_args=None)
+            if target.type == CardType.MINION:
+                if target.has_frenzy:
+                    source.game.queue_actions(source, [Frenzy(target, amount)])
             target.damaged_this_turn += amount
             if target.type == CardType.HERO:
                 target.controller.hero_health_changed_this_turn += 1
             if source.type == CardType.HERO_POWER:
                 source.controller.hero_power_damage_this_game += amount
+            self.broadcast(source, EventListener.AFTER, target, amount, source)
         return amount
 
 
@@ -2304,6 +2320,7 @@ class Awaken(TargetedAction):
         target.dormant = False
         target.turns_in_play = 0
         source.game.manager.targeted_action(self, source, target)
+        self.broadcast(source, EventListener.ON, target, source)
         actions = target.get_actions("awaken")
         if actions:
             source.game.trigger(target, actions, event_args=None)
@@ -2395,6 +2412,32 @@ class Spellburst(TargetedAction):
             log.info("%r does not have spellburst", target)
             return
 
-        source.game.queue_actions(target, self.get_actions(target, spell))
+        actions = self.get_actions(target, spell)
+        source.game.queue_actions(target, actions, event_args=[target, spell])
         target.has_spellburst = False
         source.game.manager.targeted_action(self, source, target, spell)
+
+
+class Frenzy(TargetedAction):
+    """
+    Frenzy
+    """
+
+    TARGET = CardArg()
+    AMOUNT = IntArg()
+
+    def get_actions(self, target, amount):
+        actions = getattr(target.data.scripts, "frenzy")
+        if callable(actions):
+            actions = actions(target, amount)
+        return actions
+
+    def do(self, source, target, amount):
+        if not target.has_frenzy or target.dead:
+            log.info("%s does not have frenzy or is dead", target)
+            return
+
+        actions = self.get_actions(target, amount)
+        source.game.queue_actions(target, actions, event_args=[target, amount])
+        target.has_frenzy = False
+        source.game.manager.targeted_action(self, source, target)

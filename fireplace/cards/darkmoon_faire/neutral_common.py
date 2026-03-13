@@ -10,7 +10,7 @@ class DMF_062:
     # <b>Battlecry:</b> If you played an Elemental last turn, deal 3_damage.
     requirements = {
         PlayReq.REQ_NONSELF_TARGET: 0,
-        PlayReq.REQ_TARGET_IF_AVAILABE_AND_ELEMENTAL_PLAYED_LAST_TURN: 0,
+        PlayReq.REQ_TARGET_IF_AVAILABLE_AND_ELEMENTAL_PLAYED_LAST_TURN: 0,
     }
     play = Hit(TARGET, 3)
 
@@ -159,3 +159,13 @@ class DMF_520:
 
 
 DMF_520e = buff(atk=2)
+
+
+class YOP_031:
+    """Crabrider"""
+
+    # [x]<b>Rush</b> <b>Battlecry:</b> Gain <b>Windfury</b> this turn only.
+    play = Buff(SELF, "YOP_031e")
+
+
+YOP_031e = buff(windfury=True)

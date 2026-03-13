@@ -84,47 +84,19 @@ class BT_429:
     """Metamorphosis"""
 
     # Swap your Hero Power to "Deal 4 damage." After 2 uses, swap it back.
-    play = Switch(
-        FRIENDLY_HERO_POWER,
-        {
-            "BT_429p": (),
-            "BT_429p2": (
-                SetTags(
-                    SELF,
-                    {
-                        GameTag.TAG_SCRIPT_DATA_ENT_1: GetTag(
-                            FRIENDLY_HERO_POWER, GameTag.TAG_SCRIPT_DATA_ENT_1
-                        )
-                    },
-                ),
-                Summon(CONTROLLER, "BT_429p").then(
-                    SetTags(
-                        Summon.CARD,
-                        {
-                            GameTag.TAG_SCRIPT_DATA_ENT_1: GetTag(
-                                SELF, GameTag.TAG_SCRIPT_DATA_ENT_1
-                            )
-                        },
-                    )
-                ),
-                UnsetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_1),
-            ),
-            None: (
-                SetTags(SELF, {GameTag.TAG_SCRIPT_DATA_ENT_1: FRIENDLY_HERO_POWER}),
-                Summon(CONTROLLER, "BT_429p").then(
-                    SetTags(
-                        Summon.CARD,
-                        {
-                            GameTag.TAG_SCRIPT_DATA_ENT_1: GetTag(
-                                SELF, GameTag.TAG_SCRIPT_DATA_ENT_1
-                            )
-                        },
-                    )
-                ),
-                UnsetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_1),
-            ),
-        },
-    )
+    def play(self):
+        player = self.controller
+        old_hero_power = self.controller.hero_power
+        if old_hero_power == "BT_429p":
+            pass
+        elif old_hero_power == "BT_429p2":
+            new_hero_power = player.card("BT_429p")
+            new_hero_power._old_hero_power = old_hero_power._old_hero_power
+            yield Summon(CONTROLLER, new_hero_power)
+        else:
+            new_hero_power = player.card("BT_429p")
+            new_hero_power._old_hero_power = old_hero_power
+            yield Summon(CONTROLLER, new_hero_power)
 
 
 class BT_429p:
@@ -132,21 +104,14 @@ class BT_429p:
 
     # [x]<b>Hero Power</b> Deal $4 damage. <i>(Two uses left!)</i>
     requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0}
-    activate = (
-        Hit(TARGET, 4),
-        Summon(CONTROLLER, "BT_429p2").then(
-            SetTags(
-                Summon.CARD,
-                {
-                    GameTag.TAG_SCRIPT_DATA_ENT_1: GetTag(
-                        SELF, GameTag.TAG_SCRIPT_DATA_ENT_1
-                    ),
-                    enums.ACTIVATIONS_THIS_TURN: Attr(SELF, enums.ACTIVATIONS_THIS_TURN)
-                    + 1,
-                },
-            ),
-        ),
-    )
+
+    def activate(self):
+        yield Hit(TARGET, 4)
+        player = self.controller
+        new_hero_power = player.card("BT_429p2")
+        new_hero_power._old_hero_power = self._old_hero_power
+        yield Summon(CONTROLLER, new_hero_power)
+        yield SetTags(new_hero_power, {enums.ACTIVATIONS_THIS_TURN: 1})
 
 
 class BT_429p2:
@@ -154,11 +119,10 @@ class BT_429p2:
 
     # [x]<b>Hero Power</b> Deal $4 damage. <i>(Last use!)</i>
     requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0}
-    activate = (
-        Hit(TARGET, 4),
-        Summon(CONTROLLER, GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_1)),
-        RefreshHeroPower(FRIENDLY_HERO_POWER),
-    )
+
+    def activate(self):
+        yield Hit(TARGET, 4)
+        yield Summon(CONTROLLER, self.controller.hero_power._old_hero_power)
 
 
 class BT_491:

@@ -78,7 +78,7 @@ class UNG_060:
 class UNG_067:
     """The Caverns Below"""
 
-    progress_total = 5
+    progress_total = 4
     quest = Play(CONTROLLER, MINION).after(AddProgress(SELF, Play.CARD))
     reward = Give(CONTROLLER, "UNG_067t1")
 
@@ -110,8 +110,8 @@ class UNG_067t1e:
 
 
 class UNG_067t1e2:
-    atk = SET(4)
-    max_health = SET(4)
+    atk = SET(5)
+    max_health = SET(5)
 
 
 class UNG_823:

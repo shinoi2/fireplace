@@ -10,7 +10,7 @@ from hearthstone.enums import (
     PlayState,
     Race,
     Rarity,
-    Step,
+    SpellSchool,
     Zone,
 )
 
@@ -44,12 +44,14 @@ def Card(id):
         CardType.HERO_POWER: HeroPower,
     }[data.type]
     if subclass is Spell:
-        if data.secret:
+        if data.tags.get(GameTag.SECRET, False):
             subclass = Secret
-        elif data.quest:
+        elif data.tags.get(GameTag.QUEST, False):
             subclass = Quest
-        elif data.sidequest:
+        elif data.tags.get(GameTag.SIDE_QUEST, False):
             subclass = SideQuest
+        elif data.tags.get(GameTag.SIGIL, False):
+            subclass = Sigil
 
     return subclass(data)
 
@@ -62,6 +64,7 @@ class BaseCard(BaseEntity):
         self.data = data
         super().__init__()
         self.requirements = data.requirements.copy()
+        self.entourage = CardList(data.entourage)
         self.id: str = data.id
         self.controller: Player = None
         self.choose = None
@@ -153,14 +156,14 @@ class BaseCard(BaseEntity):
             description = re.sub(
                 "\\$(?P<damage>\\d+)",
                 lambda match: str(
-                    self.controller.get_spell_damage(int(match.group("damage")))
+                    self.controller.get_spell_damage(self, int(match.group("damage")))
                 ),
                 description,
             )
             description = re.sub(
                 "\\#(?P<heal>\\d+)",
                 lambda match: str(
-                    self.controller.get_spell_heal(int(match.group("heal")))
+                    self.controller.get_spell_heal(self, int(match.group("heal")))
                 ),
                 description,
             )
@@ -168,14 +171,16 @@ class BaseCard(BaseEntity):
             description = re.sub(
                 "\\$(?P<damage>\\d+)",
                 lambda match: str(
-                    self.controller.get_heropower_damage(int(match.group("damage")))
+                    self.controller.get_heropower_damage(
+                        self, int(match.group("damage"))
+                    )
                 ),
                 description,
             )
             description = re.sub(
                 "\\#(?P<heal>\\d+)",
                 lambda match: str(
-                    self.controller.get_heropower_heal(int(match.group("heal")))
+                    self.controller.get_heropower_heal(self, int(match.group("heal")))
                 ),
                 description,
             )
@@ -296,7 +301,6 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
 
     def __init__(self, data):
         self.cant_play = False
-        self.entourage = CardList(data.entourage)
         self.has_battlecry = False
         self.has_combo = False
         self.has_outcast = False
@@ -633,7 +637,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         if PlayReq.REQ_TARGET_IF_AVAILABLE in self.requirements:
             return bool(self.play_targets)
         if PlayReq.REQ_TARGET_IF_AVAILABLE_AND_DRAGON_IN_HAND in self.requirements:
-            if self.controller.hand.filter(races=Race.DRAGON):
+            if self.controller.hand.filter(races=Race.DRAGON).exclude(self):
                 return bool(self.play_targets)
         req = self.requirements.get(
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_MINIMUM_FRIENDLY_MINIONS
@@ -654,7 +658,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
             if self.controller.hero.num_attacks > 0:
                 return bool(self.play_targets)
         req = self.requirements.get(
-            PlayReq.REQ_TARGET_IF_AVAILABE_AND_ELEMENTAL_PLAYED_LAST_TURN
+            PlayReq.REQ_TARGET_IF_AVAILABLE_AND_ELEMENTAL_PLAYED_LAST_TURN
         )
         if req is not None:
             if self.controller.elemental_played_last_turn:
@@ -730,7 +734,22 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         if req is not None:
             if self.steady_shot_can_target:
                 return bool(self.play_targets)
-        req = self.requirements.get(PlayReq)
+        req = self.requirements.get(
+            PlayReq.REQ_TARGET_IF_AVAILABLE_AND_DECK_LESS_OR_EQUAL
+        )
+        if req is not None:
+            if len(self.controller.deck) <= req:
+                return bool(self.play_targets)
+        req = self.requirements.get(
+            PlayReq.REQ_TARGET_IF_AVAILABLE_AND_CONTROLLER_OTHER_WITH_RACE
+        )
+        if req is not None:
+            if self.controller.field.filter(races=req).exclude(self):
+                return bool(self.play_targets)
+        req = self.requirements.get(PlayReq.REQ_TARGET_IF_AVAILABLE_AND_WEAPON_EQUIPPED)
+        if req is not None:
+            if self.controller.weapon:
+                return bool(self.play_targets)
         return PlayReq.REQ_TARGET_TO_PLAY in self.requirements
 
     @property
@@ -1103,6 +1122,14 @@ class Minion(Character):
     charge = boolean_property("charge")
     has_inspire = boolean_property("has_inspire")
     spellpower = int_property("spellpower")
+    spellpower_arcane = int_property("spellpower_arcane")
+    spellpower_fire = int_property("spellpower_fire")
+    spellpower_frost = int_property("spellpower_frost")
+    spellpower_nature = int_property("spellpower_nature")
+    spellpower_holy = int_property("spellpower_holy")
+    spellpower_shadow = int_property("spellpower_shadow")
+    spellpower_fel = int_property("spellpower_fel")
+    spellpower_physical = int_property("spellpower_physical")
     has_magnetic = boolean_property("has_magnetic")
     mark_of_evil = boolean_property("mark_of_evil")
 
@@ -1130,6 +1157,7 @@ class Minion(Character):
         "has_overkill",
         "reborn",
         "has_spellburst",
+        "has_frenzy",
     )
 
     def __init__(self, data):
@@ -1142,6 +1170,7 @@ class Minion(Character):
         self.dormant_turns = data.scripts.dormant_turns
         self.reborn = False
         self.has_spellburst = False
+        self.has_frenzy = False
         super().__init__(data)
 
     def dump(self):
@@ -1152,6 +1181,7 @@ class Minion(Character):
         data["dormant"] = self.dormant
         data["reborn"] = self.reborn
         data["has_spellburst"] = self.has_spellburst
+        data["has_frenzy"] = self.has_frenzy
         return data
 
     @property
@@ -1288,6 +1318,7 @@ class Spell(PlayableCard):
     twinspell = boolean_property("twinspell")
 
     def __init__(self, data):
+        self.spell_school = SpellSchool.NONE
         self.immune_to_spellpower = False
         self.receives_double_spelldamage_bonus = False
         super().__init__(data)
@@ -1310,14 +1341,14 @@ class Spell(PlayableCard):
     def get_damage(self, amount, target):
         amount = super().get_damage(amount, target)
         if not self.immune_to_spellpower:
-            amount = self.controller.get_spell_damage(amount)
+            amount = self.controller.get_spell_damage(self, amount)
         if self.receives_double_spelldamage_bonus:
-            amount = self.controller.get_spell_damage(amount)
+            amount = self.controller.get_spell_damage(self, amount)
         return amount
 
     def get_heal(self, amount, target):
         if not self.immune_to_spellpower:
-            amount = self.controller.get_spell_heal(amount)
+            amount = self.controller.get_spell_heal(self, amount)
         return amount
 
     def _set_zone(self, value):
@@ -1398,7 +1429,7 @@ class Quest(Spell):
         return super().dump_hidden()
 
     def is_summonable(self):
-        if len(self.controller.secrets) > 0 and self.controller.secrets[0].data.quest:
+        if self.controller.secrets.contains(self.id):
             return False
         if len(self.controller.secrets) >= self.game.MAX_SECRETS_ON_PLAY:
             return False
@@ -1421,14 +1452,19 @@ class Quest(Spell):
         return ret
 
 
-class SideQuest(Spell):
+class SideQuest(Quest):
     spelltype = enums.SpellType.SIDEQUEST
 
     @property
-    def zone_position(self):
+    def events(self):
+        ret = super().events
         if self.zone == Zone.SECRET:
-            return self.controller.secrets.index(self) + 1
-        return super().zone_position
+            ret += self.data.scripts.sidequest
+        return ret
+
+
+class Sigil(Spell):
+    spelltype = enums.SpellType.SIGIL
 
     def dump_hidden(self):
         if self.zone == Zone.SECRET:
@@ -1436,8 +1472,6 @@ class SideQuest(Spell):
         return super().dump_hidden()
 
     def is_summonable(self):
-        if self.controller.secrets.contains(self.id):
-            return False
         if len(self.controller.secrets) >= self.game.MAX_SECRETS_ON_PLAY:
             return False
         return super().is_summonable()
@@ -1451,13 +1485,6 @@ class SideQuest(Spell):
             self.controller.secrets.append(self)
         super()._set_zone(value)
 
-    @property
-    def events(self):
-        ret = super().events
-        if self.zone == Zone.SECRET:
-            ret += self.data.scripts.sidequest
-        return ret
-
 
 class Enchantment(BaseCard):
     atk = int_property("atk")
@@ -1466,6 +1493,14 @@ class Enchantment(BaseCard):
     incoming_damage_multiplier = int_property("incoming_damage_multiplier")
     max_health = int_property("max_health")
     spellpower = int_property("spellpower")
+    spellpower_arcane = int_property("spellpower_arcane")
+    spellpower_fire = int_property("spellpower_fire")
+    spellpower_frost = int_property("spellpower_frost")
+    spellpower_nature = int_property("spellpower_nature")
+    spellpower_holy = int_property("spellpower_holy")
+    spellpower_shadow = int_property("spellpower_shadow")
+    spellpower_fel = int_property("spellpower_fel")
+    spellpower_physical = int_property("spellpower_physical")
     min_health = int_property("min_health")
 
     buffs = []
@@ -1585,6 +1620,7 @@ class HeroPower(PlayableCard):
     def __init__(self, data):
         self.activations_this_turn = 0
         self.additional_activations_this_turn = 0
+        self.activations_this_game = 0
         self._upgraded_hero_power = None
         super().__init__(data)
 
@@ -1629,6 +1665,7 @@ class HeroPower(PlayableCard):
             if self.controller.hero_power:
                 self.controller.hero_power.destroy()
             self.controller.hero_power = self
+            self.activations_this_turn = 0
             # Create the "Choose One" subcards
             del self.choose_cards[:]
             for id in self.data.choose_cards:
@@ -1646,11 +1683,11 @@ class HeroPower(PlayableCard):
 
     def get_damage(self, amount, target):
         amount = super().get_damage(amount, target)
-        return self.controller.get_heropower_damage(amount)
+        return self.controller.get_heropower_damage(self, amount)
 
     def get_heal(self, amount, target):
         amount = super().get_heal(amount, target)
-        return self.controller.get_heropower_heal(amount)
+        return self.controller.get_heropower_heal(self, amount)
 
     def use(self, target=None, choose=None):
         if choose:

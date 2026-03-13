@@ -391,6 +391,7 @@ class BaseGame(Entity):
         player.cards_played_this_turn = 0
         player.minions_played_this_turn = 0
         player.minions_killed_this_turn = 0
+        player.healed_this_turn = 0
         player.combo = False
         player.max_mana += 1
         player.used_mana = 0

@@ -34,6 +34,12 @@ class HERO_03bp(HERO_03bp):
     pass
 
 
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Deathmantle Valeera)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -64,5 +70,11 @@ class HERO_03dbp2(HERO_03bp2):
 
 class HERO_03bp2(HERO_03bp2):
     """Poisoned Daggers (Gladiator Valeera)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Deathmantle Valeera)"""
 
     pass

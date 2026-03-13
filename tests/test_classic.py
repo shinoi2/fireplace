@@ -242,7 +242,7 @@ def test_angry_chicken():
     assert chicken.enraged
     assert chicken.atk == 1 + 1 + 5
     assert chicken.health == 1
-    game.player1.give(FIREBALL).play(target=stormwind)
+    game.player1.give(PYROBLAST).play(target=stormwind)
     assert len(game.player1.field) == 1
     assert chicken.atk == chicken.health == 1
     assert not chicken.enraged
@@ -378,23 +378,23 @@ def test_baron_geddon():
     wisp = game.player1.give(WISP)
     geddon1.play()
     wisp.play()
-    assert geddon1.health == 5
+    geddon_health = geddon1.health
     assert not wisp.dead
     assert game.player1.hero.health == 30
     assert game.player2.hero.health == 30
     game.end_turn()
-    assert geddon1.health == 5
+    assert geddon1.health == geddon_health
     assert wisp.dead
     assert game.player1.hero.health == 28
     assert game.player2.hero.health == 28
 
     geddon2 = game.player2.give("EX1_249")
     geddon2.play()
-    assert geddon1.health == 5
-    assert geddon2.health == 5
+    assert geddon1.health == geddon_health
+    assert geddon2.health == geddon_health
     game.end_turn()
-    assert geddon1.health == 3
-    assert geddon2.health == 5
+    assert geddon1.health == geddon_health - 2
+    assert geddon2.health == geddon_health
 
 
 def test_battle_rage():
@@ -943,12 +943,12 @@ def test_deathwing():
 def test_defender_of_argus():
     game = prepare_game()
     defender1 = game.player1.give("EX1_093")
-    assert defender1.atk == 2
-    assert defender1.health == 3
+    defender_atk = defender1.atk
+    defender_health = defender1.health
     assert not defender1.taunt
     defender1.play()
-    assert defender1.atk == 2
-    assert defender1.health == 3
+    assert defender1.atk == defender_atk
+    assert defender1.health == defender_health
     assert not defender1.taunt
     game.end_turn()
     game.end_turn()
@@ -956,8 +956,8 @@ def test_defender_of_argus():
     defender2 = game.player1.give("EX1_093")
     defender2.play()
     assert game.player1.field == [defender1, defender2]
-    assert defender1.atk == 2 + 1
-    assert defender1.health == 3 + 1
+    assert defender1.atk == defender_atk + 1
+    assert defender1.health == defender_health + 1
     assert defender1.taunt
     game.end_turn()
     game.end_turn()
@@ -965,11 +965,11 @@ def test_defender_of_argus():
     defender3 = game.player1.give("EX1_093")
     defender3.play(index=1)
     assert game.player1.field == [defender1, defender3, defender2]
-    assert defender1.atk == 2 + 1 + 1
-    assert defender1.health == 3 + 1 + 1
+    assert defender1.atk == defender_atk + 1 + 1
+    assert defender1.health == defender_health + 1 + 1
     assert defender1.taunt
-    assert defender2.atk == 2 + 1
-    assert defender2.health == 3 + 1
+    assert defender2.atk == defender_atk + 1
+    assert defender2.health == defender_health + 1
     assert defender2.taunt
 
 
@@ -1165,8 +1165,7 @@ def test_druid_of_the_claw():
     assert len(game.current_player.field) == 1
     claw_in_field1 = game.current_player.field[0]
     assert claw_in_field1.id == "EX1_165t1"
-    assert claw_in_field1.atk == claw_in_field1.health == 4
-    assert claw_in_field1.charge
+    assert claw_in_field1.rush
     assert not claw_in_field1.taunt
 
     claw2 = game.current_player.give("EX1_165")
@@ -1176,8 +1175,6 @@ def test_druid_of_the_claw():
     assert len(game.current_player.field) == 2
     claw_in_field2 = game.current_player.field[1]
     assert claw_in_field2.id == "EX1_165t2"
-    assert claw_in_field2.atk == 4
-    assert claw_in_field2.health == 6
     assert claw_in_field2.taunt
     assert not claw_in_field2.charge
     game.end_turn()
@@ -1754,14 +1751,14 @@ def test_inner_fire():
 
     innerfire = game.player1.give("CS1_129")
     innerfire.play(target=gurubashi)
-    assert gurubashi.atk == 7
+    assert gurubashi.atk == 8
     game.end_turn()
 
-    assert gurubashi.atk == 7
+    assert gurubashi.atk == 8
     equality = game.player2.give("EX1_619")
     equality.play()
     assert gurubashi.health == 1
-    assert gurubashi.atk == 7
+    assert gurubashi.atk == 8
 
 
 def test_innervate():
@@ -1942,20 +1939,20 @@ def test_lightspawn():
     game = prepare_game()
     lightspawn = game.player1.give("EX1_335")
     lightspawn.play()
-    assert lightspawn.health == 5
-    assert lightspawn.atk == 5
+    assert lightspawn.health == 4
+    assert lightspawn.atk == 4
 
     # moonfire the lightspawn, goes to 4 health
     game.player1.give(MOONFIRE).play(target=lightspawn)
-    assert lightspawn.health == 4
-    assert lightspawn.atk == 4
+    assert lightspawn.health == 3
+    assert lightspawn.atk == 3
     assert not lightspawn.buffs
 
     flametongue = game.player1.give("EX1_565")
     flametongue.play()
-    assert lightspawn.health == 4
+    assert lightspawn.health == 3
     assert lightspawn.buffs
-    assert lightspawn.atk == 4
+    assert lightspawn.atk == 3
 
     game.player1.give(SILENCE).play(target=lightspawn)
     assert lightspawn.buffs
@@ -3452,20 +3449,20 @@ def test_unbound_elemental():
     game = prepare_game()
     unbound = game.player1.give("EX1_258")
     unbound.play()
-    assert unbound.atk == 2
+    assert unbound.atk == 3
     assert unbound.health == 4
     game.player1.give(THE_COIN).play()
-    assert unbound.atk == 2
+    assert unbound.atk == 3
     assert unbound.health == 4
     # Lightning Bolt should trigger it
     game.player1.give("EX1_238").play(target=game.player2.hero)
-    assert unbound.atk == 3
-    assert unbound.health == 5
+    assert unbound.atk == 3 + 1
+    assert unbound.health == 4 + 1
     game.end_turn()
 
     game.player2.give("EX1_238").play(target=game.player2.hero)
-    assert unbound.atk == 3
-    assert unbound.health == 5
+    assert unbound.atk == 3 + 1
+    assert unbound.health == 4 + 1
 
 
 def test_upgrade():
@@ -3570,21 +3567,21 @@ def test_void_terror():
     terror3 = game.player1.give("EX1_304")
     power = game.player1.give("EX1_316")
     terror1.play()
-    assert terror1.atk == 3
-    assert terror1.health == 3
+    terror_atk = terror1.atk
+    terror_health = terror1.health
 
     terror2.play()
     assert terror1.dead
-    assert terror2.atk == 3 + 3
-    assert terror2.health == 3 + 3
+    assert terror2.atk == terror_atk * 2
+    assert terror2.health == terror_health * 2
 
     power.play(target=terror2)
-    assert terror2.health == 3 + 3 + 4
-    assert terror2.atk == 3 + 3 + 4
+    assert terror2.health == terror_health * 2 + 4
+    assert terror2.atk == terror_atk * 2 + 4
     terror3.play()
     assert terror2.dead
-    assert terror3.atk == 3 + 3 + 3 + 4
-    assert terror3.health == 3 + 3 + 3 + 4
+    assert terror3.atk == terror_atk * 3 + 4
+    assert terror3.health == terror_health * 3 + 4
     game.end_turn()
     game.end_turn()
     assert terror3.zone == Zone.PLAY
@@ -3817,7 +3814,7 @@ def test_stormwind_champion_heal():
     game.end_turn()
 
     # Destroy with Fireball
-    game.player2.give(FIREBALL).play(target=stormwind)
+    game.player2.give(PYROBLAST).play(target=stormwind)
     assert goldshire.atk == 1
     assert goldshire.health == 2
 

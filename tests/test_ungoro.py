@@ -244,8 +244,6 @@ def test_rogue_quest():
     assert quest.progress == 3
     game.player1.give(WISP).play()
     assert quest.progress == 4
-    game.player1.give(WISP).play()
-    assert quest.progress == 5
     assert quest.zone == Zone.GRAVEYARD
     assert game.player1.hand[0].id == "UNG_067t1"
 

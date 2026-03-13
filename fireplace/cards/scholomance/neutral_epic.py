@@ -9,8 +9,7 @@ class SCH_157:
 
     # <b><b>Spellburst</b>:</b> Cast a random spell of the same Cost.
 
-    def spellburst(self, spell):
-        yield CastSpell(RandomSpell(cost=spell.cost))
+    spellburst = CastSpell(RandomSpell(cost=COST(Spellburst.SPELL)))
 
 
 class SCH_714:

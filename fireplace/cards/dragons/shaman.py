@@ -90,7 +90,7 @@ class DRG_217:
     ) | (Summon(CONTROLLER, "DRG_217t") * 2)
 
 
-DRG_217e = buff(+2, +2)
+DRG_217e = buff(+3, +3)
 
 
 class DRG_219:

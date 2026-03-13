@@ -130,7 +130,7 @@ class FP1_028:
     events = Summon(CONTROLLER, MINION + DEATHRATTLE).on(Buff(SELF, "FP1_028e"))
 
 
-FP1_028e = buff(atk=1)
+FP1_028e = buff(+1, +1)
 
 
 class FP1_029:

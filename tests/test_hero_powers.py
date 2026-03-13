@@ -80,7 +80,7 @@ def test_priest():
 
 def test_shaman():
     game = prepare_game(CardClass.SHAMAN, CardClass.SHAMAN)
-    basic_totem = ["CS2_050", "CS2_051", "CS2_052", "NEW1_009"]
+    basic_totem = ["CS2_050", "CS2_051", "CS2_058", "NEW1_009"]
     totem_ids = []
 
     # use hero power four times
@@ -96,7 +96,7 @@ def test_shaman():
     for totem in game.current_player.field:
         totem_ids.append(totem.id)
     totem_ids.sort()
-    assert totem_ids == ["CS2_050", "CS2_051", "CS2_052", "NEW1_009"]
+    assert totem_ids == ["CS2_050", "CS2_051", "CS2_058", "NEW1_009"]
 
     # ensure hero power can only be used again after a totem was destroyed
     assert not game.current_player.hero.power.is_usable()

@@ -60,7 +60,7 @@ class UNG_847:
 
     requirements = {
         PlayReq.REQ_NONSELF_TARGET: 0,
-        PlayReq.REQ_TARGET_IF_AVAILABE_AND_ELEMENTAL_PLAYED_LAST_TURN: 0,
+        PlayReq.REQ_TARGET_IF_AVAILABLE_AND_ELEMENTAL_PLAYED_LAST_TURN: 0,
     }
     play = Hit(TARGET, 5)
 

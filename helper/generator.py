@@ -52,8 +52,10 @@ def main():
     cards.db.initialize()
 
     if args.card_id:
-        card = cards.db[args.card_id]
-        print(single_card(card))
+        for card_id in cards.db:
+            if card_id.startswith(args.card_id):
+                card = cards.db[card_id]
+                print(single_card(card))
         return
 
     os.makedirs(args.output_dir, exist_ok=True)

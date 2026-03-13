@@ -98,10 +98,14 @@ class DMF_512:
     """Cloak of Shadows"""
 
     # Give your hero <b>Stealth</b> for 1 turn.
-    play = Buff(FRIENDLY_HERO, "DMF_512e")
+    play = Stealth(FRIENDLY_HERO), Buff(FRIENDLY_HERO, "DMF_512e")
 
 
-DMF_512e = buff(stealth=True)
+class DMF_512e:
+    events = OWN_TURN_BEGIN.on(
+        Unstealth(FRIENDLY_HERO),
+        Destroy(SELF),
+    )
 
 
 class DMF_513:

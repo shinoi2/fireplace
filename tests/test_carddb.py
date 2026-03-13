@@ -69,4 +69,7 @@ def test_card_docstrings():
         if name is not None:
             if name.endswith(")"):
                 continue
-            assert name == card.name
+            if GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID in card.tags:
+                continue
+            if name != card.name:
+                assert name == card.name

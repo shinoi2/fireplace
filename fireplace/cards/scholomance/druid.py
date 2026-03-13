@@ -9,8 +9,9 @@ class SCH_182:
 
     # [x]<b><b>Rush</b>, Windfury</b> <b><b>Spellburst</b>:</b> Gain Attack and
     # Health equal to the spell's Cost.
-    def spellburst(self, spell):
-        yield Buff(SELF, "SCH_182e", atk=spell.cost, max_health=spell.cost)
+    spellburst = Buff(
+        SELF, "SCH_182e", atk=COST(Spellburst.SPELL), max_health=COST(Spellburst.SPELL)
+    )
 
 
 class SCH_242:

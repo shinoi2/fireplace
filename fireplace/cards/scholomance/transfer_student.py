@@ -42,10 +42,10 @@ class SCH_199:
 
     # This has different effects based on which game board you're on.
     class Hand:
-        events = GameStart.on(TRANSFER_STUDENT_EFFECT)
+        events = GameStart().on(TRANSFER_STUDENT_EFFECT)
 
     class Deck:
-        events = GameStart.on(TRANSFER_STUDENT_EFFECT)
+        events = GameStart().on(TRANSFER_STUDENT_EFFECT)
 
 
 class SCH_199t2:

@@ -23,8 +23,12 @@ class DMF_124t:
     def corrupt_card(self):
         card = self.controller.card("DMF_124t")
         card.custom_card = True
-        atk = self.atk + 1
-        max_health = self.max_health + 1
+        if hasattr(self, "_corrupted_times"):
+            card._corrupted_times = self._corrupted_times + 1
+        else:
+            card._corrupted_times = 1
+        atk = card.atk + card._corrupted_times
+        max_health = card.max_health + card._corrupted_times
 
         def create_custom_card(card):
             card.atk = atk

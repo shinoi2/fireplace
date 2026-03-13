@@ -131,7 +131,7 @@ class CS2_004:
     """Power Word: Shield"""
 
     requirements = {PlayReq.REQ_MINION_TARGET: 0, PlayReq.REQ_TARGET_TO_PLAY: 0}
-    play = Buff(TARGET, "CS2_004e")
+    play = Buff(TARGET, "CS2_004e"), Draw(CONTROLLER)
 
 
 CS2_004e = buff(health=2)

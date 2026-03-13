@@ -58,6 +58,24 @@ class HERO_02fbp(HERO_02bp):
     pass
 
 
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Frostwolf Thrall)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Ten Storm Thrall)"""
+
+    pass
+
+
+class HERO_02mbp(HERO_02bp):
+    """Totemic Call (Ragnaros)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -112,5 +130,23 @@ class HERO_02bp2(HERO_02bp2):
 
 class HERO_02bp2(HERO_02bp2):
     """Totemic Slam (Wolfrider Thrall)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Frostwolf Thrall)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Ten Storm Thrall)"""
+
+    pass
+
+
+class HERO_02mbp2(HERO_02bp2):
+    """Totemic Slam (Ragnaros)"""
 
     pass

@@ -80,10 +80,10 @@ class DMF_526:
 
     # Draw a <b>Rush</b> minion. <b>Corrupt:</b> Give it +2/+1.
     play = ForceDraw(RANDOM(FRIENDLY_DECK + RUSH))
-    corrupt_card = "DMF_526t"
+    corrupt_card = "DMF_526a"
 
 
-class DMF_526t:
+class DMF_526a:
     play = ForceDraw(RANDOM(FRIENDLY_DECK + RUSH)).then(
         Buff(ForceDraw.TARGET, "DMF_526e")
     )

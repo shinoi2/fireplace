@@ -10,15 +10,13 @@ A Hearthstone simulator and implementation, written in Python.
 
 ## Cards Implementation
 
-Now updated to [Patch 19.6.0.74257](https://hearthstone.wiki.gg/wiki/Patch_19.6.0.74257)
-* **100%** Basic (153 of 153 cards)
-* **100%** Classic (240 of 240 cards)
-* **100%** Hall of Fame (35 of 35 cards)
+Now updated to [Patch 20.8.2.88605](https://hearthstone.wiki.gg/wiki/Patch_20.8.2.88605)
+* **100%** Classic (245 of 245 cards)
 * **100%** Curse of Naxxramas (30 of 30 cards)
 * **100%** Goblins vs Gnomes (123 of 123 cards)
 * **100%** Blackrock Mountain (31 of 31 cards)
 * **100%** The Grand Tournament (132 of 132 cards)
-* **100%** Hero Skins (63 of 63 cards)
+* **100%** Hero Skins (101 of 101 cards)
 * **100%** The League of Explorers (45 of 45 cards)
 * **100%** Whispers of the Old Gods (134 of 134 cards)
 * **100%** One Night in Karazhan (45 of 45 cards)
@@ -26,7 +24,7 @@ Now updated to [Patch 19.6.0.74257](https://hearthstone.wiki.gg/wiki/Patch_19.6.
 * **100%** Journey to Un'Goro (135 of 135 cards)
 * **100%** Knights of the Frozen Throne (135 of 135 cards)
 * **100%** Kobolds & Catacombs (135 of 135 cards)
-* **100%** The Witchwood (129 of 129 cards)
+* **100%** The Witchwood (135 of 135 cards)
 * **100%** The Boomsday Project (136 of 136 cards)
 * **100%** Rastakhan's Rumble (135 of 135 cards)
 * **100%** Rise of Shadows (136 of 136 cards)
@@ -37,7 +35,11 @@ Now updated to [Patch 19.6.0.74257](https://hearthstone.wiki.gg/wiki/Patch_19.6.
 * **100%** Scholomance Academy (135 of 135 cards)
 * **100%** Demon Hunter Initiate (20 of 20 cards)
 * **100%** Madness at the Darkmoon Faire (170 of 170 cards)
-* **100%** Forged in the Barrens (1 of 1 card)
+* **100%** Forged in the Barrens (170 of 170 cards)
+* **100%** United in Stormwind (1 of 1 card)
+* **100%** Legacy (167 of 167 cards)
+* **100%** Core (235 of 235 cards)
+* **100%** Vanilla (383 of 383 cards)
 
 ## Requirements
 

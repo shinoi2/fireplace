@@ -171,7 +171,7 @@ class DRG_321:
             direction = Direction.LEFT
         elif right_minion:
             direction = Direction.RIGHT
-        damage = self.controller.get_spell_damage(8)
+        damage = self.controller.get_spell_damage(self, 8)
         action = HitExcessDamage(target, damage)
         if direction == Direction.LEFT:
             while left_minion:

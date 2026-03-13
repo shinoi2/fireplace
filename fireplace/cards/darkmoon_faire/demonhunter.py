@@ -15,7 +15,7 @@ class DMF_222:
     """Redeemed Pariah"""
 
     # After you play an <b>Outcast</b> card, gain +1/+1.
-    event = Play(OUTCAST).after(Buff(SELF, "DMF_222e"))
+    events = Play(OUTCAST).after(Buff(SELF, "DMF_222e"))
 
 
 DMF_222e = buff(atk=1, health=1)

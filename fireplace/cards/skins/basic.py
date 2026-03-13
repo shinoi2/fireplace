@@ -17,7 +17,7 @@ class HERO_02bp:
         PlayReq.REQ_ENTIRE_ENTOURAGE_NOT_IN_PLAY: 0,
         PlayReq.REQ_NUM_MINION_SLOTS: 1,
     }
-    entourage = ["CS2_050", "CS2_051", "CS2_052", "NEW1_009"]
+    entourage = ["CS2_050", "CS2_051", "CS2_058", "NEW1_009"]
     activate = Summon(CONTROLLER, RandomEntourage(exclude=FRIENDLY_MINIONS))
 
 
@@ -25,6 +25,15 @@ class NEW1_009:
     """Healing Totem"""
 
     events = OWN_TURN_END.on(Heal(FRIENDLY_MINIONS, 1))
+
+
+class CS2_058:
+    """Strength Totem"""
+
+    events = OWN_TURN_END.on(Buff(RANDOM(FRIENDLY_MINIONS - SELF), "CS2_058e"))
+
+
+CS2_058 = buff(atk=1)
 
 
 class HERO_03bp:
@@ -100,7 +109,7 @@ class HERO_02bp2:
     """Totemic Slam (Thrall)"""
 
     requirements = {PlayReq.REQ_NUM_MINION_SLOTS: 1}
-    choose = ("AT_132_SHAMANa", "AT_132_SHAMANb", "AT_132_SHAMANc", "AT_132_SHAMANd")
+    choose = ("AT_132_SHAMANa", "AT_132_SHAMANb", "AT_132_SHAMANc", "AT_132_SHAMANe")
 
 
 class AT_132_SHAMANa:
@@ -125,6 +134,12 @@ class AT_132_SHAMANd:
     """Wrath of Air Totem"""
 
     activate = Summon(CONTROLLER, "CS2_052")
+
+
+class AT_132_SHAMANe:
+    """Strength Totem"""
+
+    activate = Summon(CONTROLLER, "CS2_058")
 
 
 class HERO_03bp2:

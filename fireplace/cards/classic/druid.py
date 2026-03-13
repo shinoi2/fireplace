@@ -87,11 +87,11 @@ class NEW1_008:
 
     requirements = {PlayReq.REQ_TARGET_IF_AVAILABLE: 0}
     choose = ("NEW1_008a", "NEW1_008b")
-    play = ChooseBoth(CONTROLLER) & (Draw(CONTROLLER), Heal(TARGET, 5))
+    play = ChooseBoth(CONTROLLER) & ((Draw(CONTROLLER) * 2), Heal(TARGET, 5))
 
 
 class NEW1_008a:
-    play = Draw(CONTROLLER)
+    play = Draw(CONTROLLER) * 2
 
 
 class NEW1_008b:

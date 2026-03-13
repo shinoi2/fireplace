@@ -144,5 +144,5 @@ class DRG_238p2:
 
 
 class DRG_610e:
-    tags = {GameTag.COST: 1}
+    tags = {GameTag.COST: SET(0)}
     events = REMOVED_IN_PLAY

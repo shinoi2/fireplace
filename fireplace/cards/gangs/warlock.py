@@ -27,7 +27,7 @@ class CFM_699:
 
 class CFM_699e:
     events = Play(CONTROLLER, MURLOC).on(Destroy(SELF))
-    update = Refresh(CONTROLLER, {enums.MURLOCS_COST_HEALTH: True})
+    update = Refresh(FRIENDLY_HAND + MURLOC, {GameTag.CARD_COSTS_HEALTH: True})
 
 
 class CFM_750:

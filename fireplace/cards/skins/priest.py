@@ -40,6 +40,30 @@ class HERO_09dbp(HERO_09bp):
     pass
 
 
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Transcendence Anduin)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Survivor Xyrella)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Shardseeker Xyrella)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Lightweaver Xyrella)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -76,5 +100,29 @@ class HERO_09bp2(HERO_09bp2):
 
 class HERO_09dbp2(HERO_09bp2):
     """Heal (Zhuge Liang Anduin)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Transcendence Anduin)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Survivor Xyrella)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Shardseeker Xyrella)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Lightweaver Xyrella)"""
 
     pass

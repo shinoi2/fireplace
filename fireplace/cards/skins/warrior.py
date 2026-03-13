@@ -46,6 +46,30 @@ class HERO_01dbp(HERO_01bp):
     pass
 
 
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Garrosh of Wrath)"""
+
+    pass
+
+
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Young Rokara)"""
+
+    pass
+
+
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Recruit Rokara)"""
+
+    pass
+
+
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Rokara of the Horde)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -88,5 +112,29 @@ class HERO_01dbp2(HERO_01bp2):
 
 class HERO_01dbp2(HERO_01bp2):
     """Tank Up! (Lü Bu Garrosh)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Garrosh of Wrath)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Young Rokara)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Recruit Rokara)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Rokara of the Horde)"""
 
     pass

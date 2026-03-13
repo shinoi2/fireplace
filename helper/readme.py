@@ -4,12 +4,15 @@ from utils import *
 
 from fireplace import cards
 
-VERSION = "19.6.0.74257"
+VERSION = "20.8.2.88605"
 WIKI_HOST = "https://hearthstone.wiki.gg/wiki"
 
 CARD_SET_NAME = {
     CardSet.BASIC: "Basic",
     CardSet.EXPERT1: "Classic",
+    CardSet.CORE: "Core",
+    CardSet.LEGACY: "Legacy",
+    CardSet.VANILLA: "Vanilla",
     CardSet.HOF: "Hall of Fame",
     CardSet.NAXX: "Curse of Naxxramas",
     CardSet.GVG: "Goblins vs Gnomes",

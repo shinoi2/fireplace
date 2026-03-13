@@ -347,14 +347,14 @@ def test_divine_shield():
     # test spell damage events with Divine Shield
     gurubashi = game.player1.summon("EX1_399")
     assert gurubashi.atk == 2
-    assert gurubashi.health == 7
+    assert gurubashi.health == 8
     assert not gurubashi.divine_shield
     game.player1.give(HAND_OF_PROTECTION).play(target=gurubashi)
     assert gurubashi.divine_shield
     game.player1.give(MOONFIRE).play(target=gurubashi)
     assert not gurubashi.divine_shield
     assert gurubashi.atk == 2
-    assert gurubashi.health == 7
+    assert gurubashi.health == 8
 
     # test hero power damage events with Divine Shield
     game.player1.give(HAND_OF_PROTECTION).play(target=gurubashi)
@@ -364,7 +364,7 @@ def test_divine_shield():
     game.player2.hero.power.use(target=gurubashi)
     assert not gurubashi.divine_shield
     assert gurubashi.atk == 2
-    assert gurubashi.health == 7
+    assert gurubashi.health == 8
     game.end_turn()
 
     # test combat damage events with Divine Shield
@@ -375,7 +375,7 @@ def test_divine_shield():
     assert wisp.dead
     assert not gurubashi.divine_shield
     assert gurubashi.atk == 2
-    assert gurubashi.health == 7
+    assert gurubashi.health == 8
 
 
 def test_fatigue():

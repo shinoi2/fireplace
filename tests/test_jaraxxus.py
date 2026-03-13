@@ -3,7 +3,7 @@ from utils import *
 
 from fireplace.exceptions import GameOver
 
-LORD_JARAXXUS = "EX1_323"
+LORD_JARAXXUS = "VAN_EX1_323"
 LORD_JARAXXUS_HERO = "EX1_323h"
 LORD_JARAXXUS_WEAPON = "EX1_323w"
 INFERNO = "EX1_tk33"
@@ -54,7 +54,7 @@ def test_jaraxxus_knife_juggler():
 
 def test_jaraxxus_molten_giant():
     game = prepare_game()
-    jaraxxus = game.player1.give("EX1_323")
+    jaraxxus = game.player1.give(LORD_JARAXXUS)
     molten = game.player1.give("EX1_620")
     molten_base_cost = molten.data.cost
     jaraxxus.play()

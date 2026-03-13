@@ -3,7 +3,15 @@ from abc import ABCMeta, abstractmethod
 from enum import IntEnum
 from typing import Any, Callable, Iterable, List, Optional, Set, Union
 
-from hearthstone.enums import CardClass, CardType, GameTag, Race, Rarity, Zone
+from hearthstone.enums import (
+    CardClass,
+    CardType,
+    GameTag,
+    Race,
+    Rarity,
+    SpellSchool,
+    Zone,
+)
 
 from .. import enums
 from ..entity import BaseEntity
@@ -567,6 +575,7 @@ LIBRAM = EnumSelector(GameTag.LIBRAM)
 OUTCAST = EnumSelector(GameTag.OUTCAST)
 CORRUPTED = EnumSelector(GameTag.CORRUPTED)
 CORRUPTED_CARD = EnumSelector(GameTag.CORRUPTED_CARD)
+FRENZY = EnumSelector(GameTag.FRENZY)
 
 ALWAYS_WINS_BRAWLS = AttrValue(enums.ALWAYS_WINS_BRAWLS) == True
 KILLED_THIS_TURN = AttrValue(enums.KILLED_THIS_TURN) == True
@@ -613,6 +622,14 @@ TREANT = FuncSelector(
         e for e in entities if getattr(e, "name_enUS", "").endswith("Treant")
     ]
 )  # Race.`TREANT` is not defined yet.
+
+ARCANE = EnumSelector(SpellSchool.ARCANE)
+FIRE = EnumSelector(SpellSchool.FIRE)
+FROST = EnumSelector(SpellSchool.FROST)
+NATURE = EnumSelector(SpellSchool.NATURE)
+HOLY = EnumSelector(SpellSchool.HOLY)
+SHADOW = EnumSelector(SpellSchool.SHADOW)
+FEL = EnumSelector(SpellSchool.FEL)
 
 COMMON = EnumSelector(Rarity.COMMON)
 RARE = EnumSelector(Rarity.RARE)
@@ -701,6 +718,9 @@ CARDS_PLAYED_THIS_TURN = FuncSelector(
 CARDS_PLAYED_THIS_GAME = FuncSelector(
     lambda entities, source: source.controller.cards_played_this_game
 )
+ENEMY_CARDS_PLAYED_THIS_GAME = FuncSelector(
+    lambda entities, source: source.controller.opponent.cards_played_this_game
+)
 TRIGGERED_SECRET = FuncSelector(
     lambda entities, source: [
         e for e in entities if getattr(e, "triggered_secret", False)
@@ -708,12 +728,18 @@ TRIGGERED_SECRET = FuncSelector(
 )
 STARTING_DECK = FuncSelector(lambda entities, source: source.controller.starting_deck)
 STARTING_HAND = FuncSelector(lambda entities, source: source.controller.starting_hand)
+ENEMY_STARTING_DECK = FuncSelector(
+    lambda entities, source: source.controller.opponent.starting_deck
+)
+ENEMY_STARTING_HAND = FuncSelector(
+    lambda entities, source: source.controller.opponent.starting_hand
+)
 
 SPELL_DAMAGE = lambda amount: FuncSelector(
-    lambda entities, source: source.controller.get_spell_damage(amount)
+    lambda entities, source: source.controller.get_spell_damage(source, amount)
 )
 SPELL_HEAL = lambda amount: FuncSelector(
-    lambda entities, source: source.controller.get_spell_heal(amount)
+    lambda entities, source: source.controller.get_spell_heal(source, amount)
 )
 
 PLAY_RIGHT_MOST = FuncSelector(

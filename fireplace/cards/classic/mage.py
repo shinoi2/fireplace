@@ -174,7 +174,7 @@ class EX1_294:
             Reveal(SELF), Summon(CONTROLLER, ExactCopy(Play.CARD))
         ),
         Play(OPPONENT, ID("EX1_323h")).after(
-            Reveal(SELF), Summon(CONTROLLER, "EX1_323")
+            Reveal(SELF), Summon(CONTROLLER, "VAN_EX1_323")
         ),  # :-)
     ]
 

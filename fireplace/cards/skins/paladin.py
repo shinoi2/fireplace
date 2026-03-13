@@ -52,6 +52,18 @@ class HERO_04fbp(HERO_04bp):
     pass
 
 
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Judgment Uther)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Righteous Inferno Uther)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -100,5 +112,17 @@ class HERO_04fbp2(HERO_04bp2):
 
 class HERO_04fbp2(HERO_04bp2):
     """The Silver Hand (Guan Yu Uther)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Judgment Uther)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Righteous Inferno Uther)"""
 
     pass

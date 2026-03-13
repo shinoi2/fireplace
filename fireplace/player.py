@@ -1,7 +1,7 @@
 from itertools import chain
 from typing import TYPE_CHECKING
 
-from hearthstone.enums import CardType, GameTag, PlayState, Race, Zone
+from hearthstone.enums import CardType, GameTag, PlayState, SpellSchool, Zone
 
 from .actions import Concede, Draw, Fatigue, Give, Hit, SpendMana, Steal, Summon
 from .aura import TargetableByAuras
@@ -17,6 +17,7 @@ if TYPE_CHECKING:
         Hero,
         Minion,
         PlayableCard,
+        Spell,
         Quest,
         Secret,
         SideQuest,
@@ -42,9 +43,16 @@ class Player(Entity, TargetableByAuras):
     shadowform = slot_property("shadowform")
     spellpower_double = slot_property("spellpower_double", sum)
     spellpower_adjustment = slot_property("spellpower", sum)
+    spellpower_arcane_adjustment = slot_property("spellpower_arcane", sum)
+    spellpower_fire_adjustment = slot_property("spellpower_fire", sum)
+    spellpower_frost_adjustment = slot_property("spellpower_frost", sum)
+    spellpower_nature_adjustment = slot_property("spellpower_nature", sum)
+    spellpower_holy_adjustment = slot_property("spellpower_holy", sum)
+    spellpower_shadow_adjustment = slot_property("spellpower_shadow", sum)
+    spellpower_fel_adjustment = slot_property("spellpower_fel", sum)
+    spellpower_physical_adjustment = slot_property("spellpower_physical", sum)
     heropower_damage_adjustment = slot_property("heropower_damage", sum)
     spells_cost_health = slot_property("spells_cost_health")
-    murlocs_cost_health = slot_property("murlocs_cost_health")
     lifesteal_damages_opposing_hero = slot_property("lifesteal_damages_opposing_hero")
     spells_cast_twice = slot_property("spells_cast_twice")
     cant_trigger_deathrattle = slot_property("cant_trigger_deathrattle")
@@ -103,6 +111,7 @@ class Player(Entity, TargetableByAuras):
         self.hero_power_damage_this_game = 0
         self.spent_mana_on_spells_this_game = 0
         self.healed_this_game = 0
+        self.healed_this_turn = 0
         self.hero_health_changed_this_turn = 0
         self.cthun = None
         self.invoke_counter = 0
@@ -194,6 +203,70 @@ class Player(Entity, TargetableByAuras):
         aura_power = self.controller.heropower_damage_adjustment
         minion_power = sum(
             minion.heropower_damage for minion in self.field.filter(dormant=False)
+        )
+        return aura_power + minion_power
+
+    @property
+    def spellpower_arcane(self):
+        aura_power = self.controller.spellpower_arcane_adjustment
+        minion_power = sum(
+            minion.spellpower_arcane for minion in self.field.filter(dormant=False)
+        )
+        return aura_power + minion_power
+
+    @property
+    def spellpower_fire(self):
+        aura_power = self.controller.spellpower_fire_adjustment
+        minion_power = sum(
+            minion.spellpower_fire for minion in self.field.filter(dormant=False)
+        )
+        return aura_power + minion_power
+
+    @property
+    def spellpower_frost(self):
+        aura_power = self.controller.spellpower_frost_adjustment
+        minion_power = sum(
+            minion.spellpower_frost for minion in self.field.filter(dormant=False)
+        )
+        return aura_power + minion_power
+
+    @property
+    def spellpower_nature(self):
+        aura_power = self.controller.spellpower_nature_adjustment
+        minion_power = sum(
+            minion.spellpower_nature for minion in self.field.filter(dormant=False)
+        )
+        return aura_power + minion_power
+
+    @property
+    def spellpower_holy(self):
+        aura_power = self.controller.spellpower_holy_adjustment
+        minion_power = sum(
+            minion.spellpower_holy for minion in self.field.filter(dormant=False)
+        )
+        return aura_power + minion_power
+
+    @property
+    def spellpower_shadow(self):
+        aura_power = self.controller.spellpower_shadow_adjustment
+        minion_power = sum(
+            minion.spellpower_shadow for minion in self.field.filter(dormant=False)
+        )
+        return aura_power + minion_power
+
+    @property
+    def spellpower_fel(self):
+        aura_power = self.controller.spellpower_fel_adjustment
+        minion_power = sum(
+            minion.spellpower_fel for minion in self.field.filter(dormant=False)
+        )
+        return aura_power + minion_power
+
+    @property
+    def spellpower_physical(self):
+        aura_power = self.controller.spellpower_physic_adjustment
+        minion_power = sum(
+            minion.spellpower_physic for minion in self.field.filter(dormant=False)
         )
         return aura_power + minion_power
 
@@ -303,16 +376,27 @@ class Player(Entity, TargetableByAuras):
         for _ in range(hand_size):
             self.deck[-1].zone = Zone.HAND
 
-    def get_spell_damage(self, amount: int) -> int:
+    def get_spell_damage(self, spell: "Spell", amount: int) -> int:
         """
         Returns the amount of damage \a amount will do, taking
         SPELLPOWER and SPELLPOWER_DOUBLE into account.
         """
+        spell_school_power_map = {
+            SpellSchool.ARCANE: self.spellpower_arcane,
+            SpellSchool.FIRE: self.spellpower_fire,
+            SpellSchool.FROST: self.spellpower_frost,
+            SpellSchool.NATURE: self.spellpower_nature,
+            SpellSchool.HOLY: self.spellpower_holy,
+            SpellSchool.SHADOW: self.spellpower_shadow,
+            SpellSchool.FEL: self.spellpower_fel,
+        }
+        if spell.spell_school in spell_school_power_map:
+            amount += spell_school_power_map[spell.spell_school]
         amount += self.spellpower
         amount <<= self.controller.spellpower_double
         return amount
 
-    def get_spell_heal(self, amount: int) -> int:
+    def get_spell_heal(self, spell: "Spell", amount: int) -> int:
         """
         Returns the amount of heal \a amount will do, taking
         SPELLPOWER and SPELLPOWER_DOUBLE into account.
@@ -320,12 +404,12 @@ class Player(Entity, TargetableByAuras):
         amount <<= self.controller.healing_double
         return amount
 
-    def get_heropower_damage(self, amount: int) -> int:
+    def get_heropower_damage(self, heropower: "HeroPower", amount: int) -> int:
         amount += self.heropower_damage
         amount <<= self.controller.hero_power_double
         return amount
 
-    def get_heropower_heal(self, amount: int) -> int:
+    def get_heropower_heal(self, heropower: "HeroPower", amount: int) -> int:
         amount <<= self.controller.hero_power_double
         return amount
 
@@ -344,9 +428,6 @@ class Player(Entity, TargetableByAuras):
             return self.hero.health > card.cost
         if card.card_costs_health:
             return self.hero.health > card.cost
-        if self.murlocs_cost_health:
-            if card.type == CardType.MINION and Race.MURLOC in card.races:
-                return self.hero.health > card.cost
         return self.mana >= card.cost
 
     def pay_cost(self, source: Entity, amount: int) -> int:
@@ -362,11 +443,6 @@ class Player(Entity, TargetableByAuras):
             self.log("%s cards cost %i health", source, amount)
             self.game.queue_actions(self, [Hit(self.hero, amount)])
             return amount
-        if self.murlocs_cost_health:
-            if source.type == CardType.MINION and Race.MURLOC in source.races:
-                self.log("%s murlocs cost %i health", self, amount)
-                self.game.queue_actions(self, [Hit(self.hero, amount)])
-                return amount
         if source.type == CardType.SPELL:
             self.spent_mana_on_spells_this_game += amount
         self.game.queue_actions(source, [SpendMana(self, amount)])

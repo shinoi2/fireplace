@@ -58,6 +58,18 @@ class HERO_08fbp(HERO_08bp):
     pass
 
 
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Netherwind Jaina)"""
+
+    pass
+
+
+class HERO_08lbp(HERO_08bp):
+    """Fireblast (Lady Katrana Prestor)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -112,5 +124,17 @@ class HERO_08fbp2(HERO_08bp2):
 
 class HERO_08fbp2(HERO_08bp2):
     """Fireblast Rank 2 (Kul Tiran Jaina)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Netherwind Jaina)"""
+
+    pass
+
+
+class HERO_08lbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Lady Katrana Prestor)"""
 
     pass

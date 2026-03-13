@@ -84,7 +84,7 @@ UPGRADED_HERO_POWERS = [
 
 UPGRADE_HERO_POWER = Summon(CONTROLLER, UPGRADED_HERO_POWER)
 
-BASIC_TOTEMS = ["CS2_050", "CS2_051", "CS2_052", "NEW1_009"]
+BASIC_TOTEMS = ["CS2_050", "CS2_051", "CS2_058", "NEW1_009"]
 
 POTIONS = [
     "CFM_021",  # Freezing Potion
@@ -121,6 +121,33 @@ LACKEY_CARDS = [
     "ULD_616",
     "DRG_052",
 ]
+
+ADVENTURERS = [
+    "WC_034t",
+    "WC_034t2",
+    "WC_034t3",
+    "WC_034t4",
+    "WC_034t5",
+    "WC_034t6",
+    "WC_034t7",
+    "WC_034t8",
+]
+
+
+WATCH_POSTS = [
+    "BAR_074",
+    "BAR_075",
+    "BAR_076",
+]
+
+POISONS = [
+    "CS2_074",
+    "ICC_221",
+    "YOP_015",
+    "BAR_318",
+    "BAR_321",
+]
+
 
 SOUL_FRAGMENT = "SCH_307t"
 

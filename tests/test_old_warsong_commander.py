@@ -86,7 +86,7 @@ def test_old_warsong_commander_faceless_manipulator_buffed():
     gurubashi.play()
     game.player2.give(MOONFIRE).play(target=gurubashi)
     assert gurubashi.atk == 5
-    assert gurubashi.health == 6
+    assert gurubashi.health == 7
     game.end_turn()
 
     faceless = game.player1.give("EX1_564")

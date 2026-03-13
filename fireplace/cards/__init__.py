@@ -31,11 +31,6 @@ def get_script_definition(id, card=None):
     if not card:
         card = db[id]
 
-    if GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID in card.tags:
-        dbf_id = card.tags[GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID]
-        if dbf_id < card.dbf_id and dbf_id in db.dbf:
-            id = db.dbf[dbf_id]
-
     for cardset in CARD_SETS:
         module = import_module("fireplace.cards.%s" % (cardset))
         if hasattr(module, id):
@@ -47,6 +42,12 @@ def get_script_definition(id, card=None):
             ]
             if len(methods) > 0:
                 return cls
+
+    if GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID in card.tags:
+        dbf_id = card.tags[GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID]
+        if dbf_id < card.dbf_id and dbf_id in db.dbf:
+            id = db.dbf[dbf_id]
+            return get_script_definition(id, db[id])
 
 
 class CardDB(dict[str, cardxml.CardXML]):
@@ -89,6 +90,7 @@ class CardDB(dict[str, cardxml.CardXML]):
             "magnetic",
             "overkill",
             "spellburst",
+            "frenzy",
         )
 
         for script in scriptnames:
@@ -195,7 +197,7 @@ class CardDB(dict[str, cardxml.CardXML]):
         dirname = os.path.dirname(__file__)
         filename = os.path.join(dirname, "CardDefs.xml")
         db, _ = cardxml.load(path=filename, locale=locale)
-        for id, card in db.items():
+        for id, card in sorted(db.items(), key=lambda item: item[1].dbf_id):
             self[id] = self.merge(id, card)
             self.dbf[card.dbf_id] = id
 
@@ -264,6 +266,8 @@ class CardDB(dict[str, cardxml.CardXML]):
                         cards = [card for card in cards if value in card.classes]
                 elif attr == "races":
                     cards = [card for card in cards if value in card.races]
+                elif attr == "custom_filter":
+                    cards = [card for card in cards if value(card)]
                 else:
                     cards = [
                         card

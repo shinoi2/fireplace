@@ -40,6 +40,24 @@ class HERO_06fbp(HERO_06bp):
     pass
 
 
+class HERO_06fbp(HERO_06bp):
+    """Shapeshift (Storm's Rage Malfurion)"""
+
+    pass
+
+
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Emerald Malfurion)"""
+
+    pass
+
+
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Druid of the Flame Malfurion)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -76,5 +94,23 @@ class HERO_06ebp2(HERO_06bp2):
 
 class HERO_06fbp2(HERO_06bp2):
     """Dire Shapeshift (Hamuul Runetotem)"""
+
+    pass
+
+
+class HERO_06fbp2(HERO_06bp2):
+    """Dire Shapeshift (Storm's Rage Malfurion)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Emerald Malfurion)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Druid of the Flame Malfurion)"""
 
     pass
