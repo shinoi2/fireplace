@@ -79,7 +79,7 @@ class UNG_817:
     play = Hit(TARGET, 4), Heal(FRIENDLY_HERO, 4)
 
 
-class UNG_942:
+class UNG_942(QuestRewardProtect):
     """Unite the Murlocs"""
 
     progress_total = 10

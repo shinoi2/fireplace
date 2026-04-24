@@ -70,6 +70,24 @@ class HERO_01dbp(HERO_01bp):
     pass
 
 
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Pirate King Garrosh)"""
+
+    pass
+
+
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Forge-wrought Garrosh)"""
+
+    pass
+
+
+class HERO_01obp(HERO_01bp):
+    """Armor Up! (Vanndar Stormpike)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -136,5 +154,23 @@ class HERO_01dbp2(HERO_01bp2):
 
 class HERO_01dbp2(HERO_01bp2):
     """Tank Up! (Rokara of the Horde)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Pirate King Garrosh)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Forge-wrought Garrosh)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Vanndar Stormpike)"""
 
     pass

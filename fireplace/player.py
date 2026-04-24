@@ -1,7 +1,7 @@
 from itertools import chain
 from typing import TYPE_CHECKING
 
-from hearthstone.enums import CardType, GameTag, PlayState, SpellSchool, Zone
+from hearthstone.enums import CardClass, CardType, GameTag, PlayState, SpellSchool, Zone
 
 from .actions import Concede, Draw, Fatigue, Give, Hit, SpendMana, Steal, Summon
 from .aura import TargetableByAuras
@@ -101,6 +101,7 @@ class Player(Entity, TargetableByAuras):
         self.zone = Zone.INVALID
         self.turn = None
         self.last_turn = None
+        self.turns = []
         self.jade_golem = 1
         self.times_totem_summoned_this_game = 0
         self.elemental_played_this_turn = 0
@@ -358,9 +359,29 @@ class Player(Entity, TargetableByAuras):
                 ZAYLE_DECKS
             )
 
-        self.summon(self.starting_hero)
+        self.starting_hero = self.card(self.starting_hero)
+
+        if "SW_050" in self.starting_deck:
+            # Maestra of the Masquerad
+            # You start the game as a different class until you play a Rogue card.
+            classes = [
+                # CardClass.DEATHKNIGHT,
+                CardClass.DRUID,
+                CardClass.HUNTER,
+                CardClass.MAGE,
+                CardClass.PALADIN,
+                CardClass.PRIEST,
+                # CardClass.ROGUE,
+                CardClass.SHAMAN,
+                CardClass.WARLOCK,
+                CardClass.WARRIOR,
+                CardClass.DEMONHUNTER,
+            ]
+            hero = self.game.random.choice(classes).default_hero
+            self.summon(hero)
+        else:
+            self.summon(self.starting_hero)
         # self.game.trigger(self, [Summon(self, self.starting_hero)], event_args=None)
-        self.starting_hero = self.hero
         for id in self.starting_deck:
             card = self.card(id, zone=Zone.DECK)
             if self.is_standard and not card.is_standard:
@@ -390,7 +411,7 @@ class Player(Entity, TargetableByAuras):
             SpellSchool.SHADOW: self.spellpower_shadow,
             SpellSchool.FEL: self.spellpower_fel,
         }
-        if spell.spell_school in spell_school_power_map:
+        if getattr(spell, "spell_school", SpellSchool.NONE) in spell_school_power_map:
             amount += spell_school_power_map[spell.spell_school]
         amount += self.spellpower
         amount <<= self.controller.spellpower_double

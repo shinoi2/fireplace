@@ -52,6 +52,18 @@ class HERO_05dbp(HERO_05bp):
     pass
 
 
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Robin Hood Rexxar)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Iron Hunter Rexxar)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -100,5 +112,17 @@ class HERO_05dbp2(HERO_05bp2):
 
 class HERO_05dbp2(HERO_05bp2):
     """Ballista Shot (Flamewalker Rexxar)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Robin Hood Rexxar)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Iron Hunter Rexxar)"""
 
     pass

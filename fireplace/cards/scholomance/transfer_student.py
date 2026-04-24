@@ -147,7 +147,7 @@ class SCH_199t13:
     """Transfer Student"""
 
     # <b>Battlecry:</b> <b>Adapt</b>.
-    play = Adapt()
+    play = Adapt(SELF)
 
 
 class SCH_199t14:

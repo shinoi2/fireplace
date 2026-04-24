@@ -22,14 +22,20 @@ class HERO_08bp(HERO_08bp):
     pass
 
 
-class HERO_08ebp(HERO_08bp):
-    """Fireblast (Kel'Thuzad)"""
+class CS2_034_H4(HERO_08bp):
+    """Fireblast (Celeste)"""
 
     pass
 
 
 class HERO_08fbp(HERO_08bp):
     """Fireblast (Scholar Jaina)"""
+
+    pass
+
+
+class HERO_08ebp(HERO_08bp):
+    """Fireblast (Kel'Thuzad)"""
 
     pass
 
@@ -70,6 +76,18 @@ class HERO_08lbp(HERO_08bp):
     pass
 
 
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Red Riding Hood Jaina)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Arcane Sentinel Jaina)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -92,14 +110,20 @@ class HERO_08bp2(HERO_08bp2):
     pass
 
 
-class HERO_08ebp2(HERO_08bp2):
-    """Fireblast Rank 2 (Kel'Thuzad)"""
+class CS2_034_H3_AT_132(HERO_08bp2):
+    """Fireblast Rank 2 (Celeste)"""
 
     pass
 
 
 class HERO_08fbp2(HERO_08bp2):
     """Fireblast Rank 2 (Scholar Jaina)"""
+
+    pass
+
+
+class HERO_08ebp2(HERO_08bp2):
+    """Fireblast Rank 2 (Kel'Thuzad)"""
 
     pass
 
@@ -136,5 +160,17 @@ class HERO_08fbp2(HERO_08bp2):
 
 class HERO_08lbp2(HERO_08bp2):
     """Fireblast Rank 2 (Lady Katrana Prestor)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Red Riding Hood Jaina)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Arcane Sentinel Jaina)"""
 
     pass

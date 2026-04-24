@@ -15,7 +15,7 @@ from hearthstone.enums import (
 
 from .. import enums
 from ..entity import BaseEntity
-from .lazynum import Attr, LazyValue, OpAttr
+from .lazynum import Attr, LazyNum, LazyValue, OpAttr
 
 # Type aliases
 SelectorLike = Union["Selector", LazyValue]
@@ -136,6 +136,7 @@ CONTROLLER = AttrValue(GameTag.CONTROLLER)
 MAX_HEALTH = AttrValue(GameTag.HEALTH)
 CURRENT_HEALTH = AttrValue("health")
 CURRENT_DURABILITY = AttrValue("durability")
+CURRENT_PROGRESS = AttrValue(GameTag.QUEST_PROGRESS)
 MIN_HEALTH = AttrValue(GameTag.HEALTH_MINIMUM)
 COST = AttrValue(GameTag.COST)
 DAMAGE = AttrValue(GameTag.DAMAGE)
@@ -231,7 +232,16 @@ class SliceSelector(Selector):
         self.slice = slice_val
 
     def eval(self, entities, source):
-        return list(self.child.eval(entities, source)[self.slice])
+        start = self.slice.start
+        stop = self.slice.stop
+        step = self.slice.step
+        if isinstance(start, LazyNum):
+            start = start.evaluate(source)
+        if isinstance(stop, LazyNum):
+            stop = stop.evaluate(source)
+        if isinstance(step, LazyNum):
+            step = step.evaluate(source)
+        return list(self.child.eval(entities, source)[slice(start, stop, step)])
 
     def __repr__(self):
         return "%r[%r]" % (self.child, self.slice)
@@ -519,7 +529,7 @@ class SameId(LazyValue):
             entities = self.selector.eval(source.game, source)
 
         assert len(entities) == 1
-        return [e for e in source.game if e.id == entities[0].id]
+        return [e for e in source.game if e == entities[0].id]
 
 
 FRIENDLY = CONTROLLER == Controller()
@@ -543,6 +553,9 @@ Race.test = lambda self, entity, *args: (
 )
 Rarity.test = lambda self, entity, *args: (
     entity is not None and self == getattr(entity, "rarity", Rarity.INVALID)
+)
+SpellSchool.test = lambda self, entity, *args: (
+    entity is not None and self == getattr(entity, "spell_school", SpellSchool.NONE)
 )
 Zone.test = lambda self, entity, *args: (entity is not None and self == entity.zone)
 CardClass.test = lambda self, entity, *args: (
@@ -576,6 +589,7 @@ OUTCAST = EnumSelector(GameTag.OUTCAST)
 CORRUPTED = EnumSelector(GameTag.CORRUPTED)
 CORRUPTED_CARD = EnumSelector(GameTag.CORRUPTED_CARD)
 FRENZY = EnumSelector(GameTag.FRENZY)
+SI_7 = EnumSelector(GameTag.SI_7)
 
 ALWAYS_WINS_BRAWLS = AttrValue(enums.ALWAYS_WINS_BRAWLS) == True
 KILLED_THIS_TURN = AttrValue(enums.KILLED_THIS_TURN) == True
@@ -603,7 +617,7 @@ CHARACTER = MINION | HERO
 WEAPON = EnumSelector(CardType.WEAPON)
 SPELL = EnumSelector(CardType.SPELL)
 SECRET = EnumSelector(GameTag.SECRET)
-QUEST = EnumSelector(GameTag.QUEST)
+QUEST = EnumSelector(GameTag.QUEST) | EnumSelector(GameTag.QUESTLINE)
 HERO_POWER = EnumSelector(CardType.HERO_POWER)
 
 GALAKROND = EnumSelector(GameTag.GALAKROND_HERO_CARD)
@@ -728,6 +742,7 @@ TRIGGERED_SECRET = FuncSelector(
 )
 STARTING_DECK = FuncSelector(lambda entities, source: source.controller.starting_deck)
 STARTING_HAND = FuncSelector(lambda entities, source: source.controller.starting_hand)
+STARTING_HERO = FuncSelector(lambda entities, source: source.controller.starting_hero)
 ENEMY_STARTING_DECK = FuncSelector(
     lambda entities, source: source.controller.opponent.starting_deck
 )

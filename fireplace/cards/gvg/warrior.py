@@ -44,7 +44,6 @@ class GVG_056t:
     """Burrowing Mine"""
 
     play = Hit(FRIENDLY_HERO, 10)
-    draw = CAST_WHEN_DRAWN
 
 
 class GVG_086:

@@ -58,6 +58,42 @@ class HERO_06ebp(HERO_06bp):
     pass
 
 
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Guff Runetotem)"""
+
+    pass
+
+
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Spelunker Guff)"""
+
+    pass
+
+
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Fangbound Guff)"""
+
+    pass
+
+
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Fauna Friend Guff)"""
+
+    pass
+
+
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Winter Fury Malfurion)"""
+
+    pass
+
+
+class HERO_06pbp(HERO_06bp):
+    """Shapeshift (Steel Guardian Malfurion)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -112,5 +148,41 @@ class HERO_06ebp2(HERO_06bp2):
 
 class HERO_06ebp2(HERO_06bp2):
     """Dire Shapeshift (Druid of the Flame Malfurion)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Guff Runetotem)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Spelunker Guff)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Fangbound Guff)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Fauna Friend Guff)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Winter Fury Malfurion)"""
+
+    pass
+
+
+class HERO_06pbp2(HERO_06bp2):
+    """Dire Shapeshift (Steel Guardian Malfurion)"""
 
     pass

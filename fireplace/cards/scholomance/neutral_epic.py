@@ -22,4 +22,4 @@ class SCH_714:
 
 class SCH_714e:
     tags = {GameTag.DEATHRATTLE: True}
-    deathrattle = Shuffle(CONTROLLER, STORE_CARD)
+    deathrattle = Shuffle(CONTROLLER, Copy(STORE_CARD))

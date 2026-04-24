@@ -521,10 +521,10 @@ def test_undertaker():
 
     game.player1.give("EX1_029").play()
     assert undertaker.atk == 2
-    assert undertaker.health == 2
+    assert undertaker.health == 3
     game.player1.give("EX1_029").play()
     assert undertaker.atk == 3
-    assert undertaker.health == 2
+    assert undertaker.health == 4
 
 
 def test_unstable_ghoul():

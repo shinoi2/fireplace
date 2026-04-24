@@ -10,7 +10,7 @@ class BAR_042:
     # [x]<b>Battlecry:</b> Draw your highest Cost spell. Summon a random minion
     # with the same Cost.
     play = ForceDraw(RANDOM(HIGHEST_COST(FRIENDLY_DECK + SPELL))).then(
-        Summon(RandomMinion(cost=COST(ForceDraw.TARGET)))
+        Summon(CONTROLLER, RandomMinion(cost=COST(ForceDraw.TARGET)))
     )
 
 

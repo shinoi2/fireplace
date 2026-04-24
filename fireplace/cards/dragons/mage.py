@@ -16,7 +16,7 @@ class DRG_104:
 
     # After you cast three spells in a turn, summon a 5/5_Elemental.
     progress_total = 3
-    reward = Summon(CONTROLLER, "DRG_104t2"), ClearProgress(SELF)
+    reward = Summon(CONTROLLER, "DRG_104t2")
     events = (
         Play(CONTROLLER, SPELL).after(AddProgress(SELF, Play.CARD)),
         TURN_BEGIN.on(ClearProgress(SELF)),

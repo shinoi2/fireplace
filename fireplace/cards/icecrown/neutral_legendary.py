@@ -73,8 +73,8 @@ class ICC_314t7:
 
 
 ICC_314t7e = buff(
-    atk=2,
-    health=2,
+    +2,
+    +2,
     cant_be_targeted_by_spells=True,
     cant_be_targeted_by_hero_powers=True,
 )

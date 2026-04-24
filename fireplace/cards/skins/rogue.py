@@ -40,6 +40,42 @@ class HERO_03dbp(HERO_03bp):
     pass
 
 
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Chef Scabbs)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Agent Scabbs)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Investigator Scabbs)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Undercover Scabbs)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Titanblade Valeera)"""
+
+    pass
+
+
+class HERO_03mbp(HERO_03bp):
+    """Dagger Mastery (Edwin VanCleef)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -76,5 +112,41 @@ class HERO_03bp2(HERO_03bp2):
 
 class HERO_03dbp2(HERO_03bp2):
     """Poisoned Daggers (Deathmantle Valeera)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Chef Scabbs)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Agent Scabbs)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Investigator Scabbs)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Undercover Scabbs)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Titanblade Valeera)"""
+
+    pass
+
+
+class HERO_03mbp2(HERO_03bp2):
+    """Poisoned Daggers (Edwin VanCleef)"""
 
     pass

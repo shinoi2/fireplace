@@ -80,7 +80,6 @@ class LOOT_526:
 
 
 class LOOT_526t:
-    draw = CAST_WHEN_DRAWN
     play = AddProgress(FuncSelector(lambda entities, source: [source.creator]), SELF)
 
 

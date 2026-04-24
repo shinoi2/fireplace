@@ -48,7 +48,6 @@ class DMF_514:
 
 
 class DMF_514t:
-    draw = CAST_WHEN_DRAWN
     play = Summon(CONTROLLER, "DMF_514t2")
 
 
@@ -66,7 +65,7 @@ class DMF_517:
     """Sweet Tooth"""
 
     # <b>Corrupt:</b> Gain +2 Attack and <b>Stealth</b>.
-    corrupt_card = "DMF_517t"
+    corrupt_card = "DMF_517a"
 
 
 class DMF_519:

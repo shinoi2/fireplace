@@ -76,6 +76,18 @@ class HERO_02mbp(HERO_02bp):
     pass
 
 
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Frog Prince Thrall)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Mechaconduit Thrall)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -148,5 +160,17 @@ class HERO_02bp2(HERO_02bp2):
 
 class HERO_02mbp2(HERO_02bp2):
     """Totemic Slam (Ragnaros)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Frog Prince Thrall)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Mechaconduit Thrall)"""
 
     pass

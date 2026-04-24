@@ -24,6 +24,7 @@ def main():
             sys.stderr.write("Usage: %s [NUMGAMES]\n" % (sys.argv[0]))
             exit(1)
         for i in range(int(numgames)):
+            log.info(f"test full game: {i+1}/{int(numgames)}")
             test_full_game()
     else:
         test_full_game()

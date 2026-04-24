@@ -62,7 +62,7 @@ class UNG_024e:
     events = REMOVED_IN_PLAY
 
 
-class UNG_028:
+class UNG_028(QuestRewardProtect):
     """Open the Waygate"""
 
     progress_total = 8

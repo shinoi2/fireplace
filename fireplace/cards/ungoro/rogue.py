@@ -75,7 +75,7 @@ class UNG_060:
     play = Draw(CONTROLLER).then(Give(CONTROLLER, Copy(Draw.CARD)))
 
 
-class UNG_067:
+class UNG_067(QuestRewardProtect):
     """The Caverns Below"""
 
     progress_total = 4
@@ -86,6 +86,9 @@ class UNG_067:
         if not hasattr(self, "card_name_counter"):
             self.card_name_counter = defaultdict(int)
         return max(self.card_name_counter.values(), default=0)
+
+    def clear_progress(self):
+        self.card_name_counter = defaultdict(int)
 
     def add_progress(self, card):
         if not hasattr(self, "card_name_counter"):

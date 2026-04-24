@@ -44,13 +44,13 @@ def Card(id):
         CardType.HERO_POWER: HeroPower,
     }[data.type]
     if subclass is Spell:
-        if data.tags.get(GameTag.SECRET, False):
+        if data.secret:
             subclass = Secret
-        elif data.tags.get(GameTag.QUEST, False):
+        elif data.quest or data.questline:
             subclass = Quest
-        elif data.tags.get(GameTag.SIDE_QUEST, False):
+        elif data.sidequest:
             subclass = SideQuest
-        elif data.tags.get(GameTag.SIGIL, False):
+        elif data.sigil:
             subclass = Sigil
 
     return subclass(data)
@@ -270,6 +270,11 @@ class BaseCard(BaseEntity):
             return self.data.scripts.add_progress(self, card)
         self.progress += amount
 
+    def clear_progress(self):
+        if hasattr(self.data.scripts, "clear_progress"):
+            return self.data.scripts.clear_progress(self)
+        self.progress = 0
+
     @property
     def progress(self):
         if hasattr(self.data.scripts, "progress"):
@@ -280,8 +285,11 @@ class BaseCard(BaseEntity):
     def progress(self, value):
         self._progress = value
 
-    def clear_progress(self):
-        self.progress = 0
+    @property
+    def finished(self):
+        if hasattr(self.data.scripts, "finished"):
+            return self.data.scripts.finished(self)
+        return self.progress_total > 0 and self.progress >= self.progress_total
 
 
 class PlayableCard(BaseCard, Entity, TargetableByAuras):
@@ -298,6 +306,8 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
     corrupt = boolean_property("corrupt")
     corrupted = boolean_property("corrupted")
     card_costs_health = boolean_property("card_costs_health")
+    casts_when_drawn = boolean_property("casts_when_drawn")
+    cant_draw_during_mulligan = boolean_property("cant_draw_during_mulligan")
 
     def __init__(self, data):
         self.cant_play = False
@@ -589,6 +599,30 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         self.game.play_card(self, target, index, choose)
         return self
 
+    def is_tradeable(self):
+        if self.controller.choice:
+            return False
+
+        if not self.controller.current_player:
+            return False
+
+        if self.zone != Zone.HAND:
+            return False
+
+        if not self.controller.mana < 1:
+            return False
+
+        if len(self.controller.deck) == 0:
+            return False
+
+        return True
+
+    def trade(self):
+        if not self.is_tradeable():
+            raise InvalidAction("%r isn't tradeable." % (self))
+        self.game.trade_card(self)
+        return self
+
     def is_summonable(self) -> bool:
         """
         Return whether the card can be summoned.
@@ -750,6 +784,16 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         if req is not None:
             if self.controller.weapon:
                 return bool(self.play_targets)
+        req = self.requirements.get(PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SHADOW_IN_HAND)
+        if req is not None:
+            if self.controller.hand.filter(spell_scholl=SpellSchool.SHADOW):
+                return bool(self.play_targets)
+        req = self.requirements.get(
+            PlayReq.REQ_TARGET_IF_AVAILABLE_AND_HERO_DAMAGED_THIS_TURN
+        )
+        if req is not None:
+            if self.controller.hero.damaged_this_turn:
+                return bool(self.play_targets)
         return PlayReq.REQ_TARGET_TO_PLAY in self.requirements
 
     @property
@@ -767,6 +811,7 @@ class LiveEntity(PlayableCard, Entity):
     atk = int_property("atk")
     cant_be_damaged = boolean_property("cant_be_damaged")
     immune_while_attacking = slot_property("immune_while_attacking")
+    incoming_damage_adjustment = int_property("incoming_damage_adjustment")
     incoming_damage_multiplier = int_property("incoming_damage_multiplier")
     max_health = int_property("max_health")
     poisonous = boolean_property("poisonous")
@@ -1490,6 +1535,7 @@ class Enchantment(BaseCard):
     atk = int_property("atk")
     cost = int_property("cost")
     has_deathrattle = boolean_property("has_deathrattle")
+    incoming_damage_adjustment = int_property("incoming_damage_adjustment")
     incoming_damage_multiplier = int_property("incoming_damage_multiplier")
     max_health = int_property("max_health")
     spellpower = int_property("spellpower")

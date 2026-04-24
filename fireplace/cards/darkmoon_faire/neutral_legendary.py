@@ -47,7 +47,7 @@ class DMF_002:
     play = Summon(CONTROLLER, UniqueRace(FRIENDLY + KILLED + MINION))
 
 
-class DMF_004(ThresholdUtils):
+class DMF_004(metaclass=ThresholdUtils):
     """Yogg-Saron, Master of Fate"""
 
     # [x]<b>Battlecry:</b> If you've cast 10 spells this game, spin the Wheel
@@ -60,7 +60,7 @@ class DMF_004(ThresholdUtils):
         "DMF_004t5",
         "DMF_004t6",
     ]
-    play = ThresholdUtils.powered_up & Battlecry(RandomEntourage(), None)
+    play = Battlecry(RandomEntourage(), None)
 
 
 class DMF_004t1:
@@ -156,6 +156,9 @@ class DMF_254:
     progress_total = 4
     reward = Shuffle(CONTROLLER, SELF)
     play = Hit(RANDOM_ENEMY_CHARACTER, 1) * 30
+
+    def clear_progress(self):
+        self.cthun_pieces = set()
 
     def progress(self):
         if not hasattr(self, "cthun_pieces"):

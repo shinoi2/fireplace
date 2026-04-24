@@ -75,7 +75,7 @@ class WC_023:
     """Stealer of Souls"""
 
     # After you draw a card, change its Cost to Health instead of Mana.
-    events = Draw(CONTROLLER).after(Buff(Draw.CARD, "WC_023e"))
+    events = Draw(CONTROLLER).on(Buff(Draw.CARD, "WC_023e"))
 
 
 class WC_023e:

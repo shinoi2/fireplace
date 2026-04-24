@@ -1,3 +1,4 @@
+from hearthstone import cardxml
 from hearthstone.deckstrings import Deck
 from hearthstone.enums import (
     CardClass,
@@ -148,8 +149,9 @@ POISONS = [
     "BAR_321",
 ]
 
-
 SOUL_FRAGMENT = "SCH_307t"
+
+SPY_GIZMO = ["SW_052t4", "SW_052t5", "SW_052t6", "SW_052t7", "SW_052t8_t"]
 
 RandomBasicTotem = lambda *args, **kw: RandomID(*BASIC_TOTEMS, **kw)
 RandomBasicHeroPower = lambda *args, **kw: RandomID(*BASIC_HERO_POWERS, **kw)
@@ -166,7 +168,6 @@ FORGETFUL = Attack(SELF).on(
 AT_MAX_MANA = lambda s: MANA(s) == MAX_MANA(s)
 OVERLOADED = lambda s: (OVERLOAD_LOCKED(s) > 0) or (OVERLOAD_OWED(s) > 0)
 CHECK_CTHUN = ATK(HIGHEST_ATK(CTHUN)) >= 10
-CAST_WHEN_DRAWN = Destroy(SELF), Draw(CONTROLLER), Battlecry(SELF, None)
 INVOKED_TWICE = Attr(CONTROLLER, GameTag.INVOKE_COUNTER) >= 2
 
 
@@ -344,29 +345,55 @@ class GalakrondUtils:
     def cardtext_entity_0(self):
         return self.progress_total - self.progress
 
-    tags = {
-        enums.CUSTOM_CARDTEXT: custom_cardtext,
-        GameTag.CARDTEXT_ENTITY_0: cardtext_entity_0,
-    }
-
-
-class ThresholdUtils:
-    def custom_cardtext(self):
-        splited = self.data.description.split("@")
-        if self.powered_up:
-            return splited[0] + splited[2]
-        return splited[0] + splited[1]
-
-    def cardtext_entity_0(self):
+    def finished(self):
         return (
-            Attr(SELF, GameTag.PLAYER_TAG_THRESHOLD_VALUE)
-            - Attr(CONTROLLER, Attr(SELF, GameTag.PLAYER_TAG_THRESHOLD_TAG_ID))
-        ).evaluate(self)
+            self.progress_total > 0
+            and self.progress >= self.progress_total
+            and self.zone != Zone.PLAY
+        )
 
     tags = {
         enums.CUSTOM_CARDTEXT: custom_cardtext,
         GameTag.CARDTEXT_ENTITY_0: cardtext_entity_0,
     }
-    powered_up = Attr(
-        CONTROLLER, Attr(SELF, GameTag.PLAYER_TAG_THRESHOLD_TAG_ID)
-    ) >= Attr(SELF, GameTag.PLAYER_TAG_THRESHOLD_VALUE)
+
+
+class ThresholdUtils(type):
+    def __new__(cls, name, bases, namespace):
+        def custom_cardtext(self):
+            splited = self.data.description.split("@")
+            if self.powered_up:
+                return splited[0] + splited[2]
+            return splited[0] + splited[1]
+
+        def cardtext_entity_0(self):
+            return self.player_tag_threshold_value - getattr(
+                self.controller, self.map[self.player_tag_threshold_tag_id], 0
+            )
+
+        tags = {
+            enums.CUSTOM_CARDTEXT: custom_cardtext,
+            GameTag.CARDTEXT_ENTITY_0: cardtext_entity_0,
+        }
+
+        cardscript = db[name]
+        player_tag_threshold_tag_id = cardscript.tags[GameTag.PLAYER_TAG_THRESHOLD_TAG_ID]
+        player_tag_threshold_value = cardscript.tags[GameTag.PLAYER_TAG_THRESHOLD_VALUE]
+        powered_up = Attr(CONTROLLER, player_tag_threshold_tag_id) >= player_tag_threshold_value
+
+        namespace["custom_cardtext"] = custom_cardtext
+        namespace["cardtext_entity_0"] = cardtext_entity_0
+        namespace["tags"] = tags
+        namespace["powered_up"] = powered_up
+        if "play" in namespace:
+            namespace["play"] = powered_up & namespace["play"]
+        return super().__new__(cls, name, bases, namespace)
+
+
+class QuestRewardProtect:
+    def finished(self):
+        return (
+            self.progress_total > 0
+            and self.progress >= self.progress_total
+            and len(self.controller.hand) < self.controller.max_hand_size
+        )

@@ -18,7 +18,7 @@ class DMF_222:
     events = Play(OUTCAST).after(Buff(SELF, "DMF_222e"))
 
 
-DMF_222e = buff(atk=1, health=1)
+DMF_222e = buff(+1, +1)
 
 
 class DMF_223:
@@ -130,7 +130,7 @@ class DMF_224:
 
 
 class DMF_224e:
-    update = Find(FRIENDLY_MINIONS + STORE_CARD) | (
+    update = Find(STORE_CARD - DEAD) | (
         Summon(CONTROLLER, "BT_036t") * 7,
         Destroy(SELF),
     )

@@ -60,7 +60,7 @@ class UNG_927:
     play = Summon(CONTROLLER, ExactCopy(FRIENDLY_MINIONS + DAMAGED))
 
 
-class UNG_934:
+class UNG_934(QuestRewardProtect):
     """Fire Plume's Heart"""
 
     progress_total = 7

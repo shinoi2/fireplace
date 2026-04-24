@@ -27,7 +27,7 @@ class BAR_045:
 
     # <b>Battlecry:</b> If you played an Elemental last turn, gain <b>Rush</b>
     # and <b>Windfury</b>.
-    play = Find(ELEMENTAL_PLAYED_LAST_TURN) & (GiveRush(SELF), GiveWindfury(SELF))
+    play = ELEMENTAL_PLAYED_LAST_TURN & (GiveRush(SELF), GiveWindfury(SELF))
 
 
 class BAR_750:

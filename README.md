@@ -10,13 +10,13 @@ A Hearthstone simulator and implementation, written in Python.
 
 ## Cards Implementation
 
-Now updated to [Patch 20.8.2.88605](https://hearthstone.wiki.gg/wiki/Patch_20.8.2.88605)
+Now updated to [Patch 21.8.0.126451](https://hearthstone.wiki.gg/wiki/Patch_21.8.0.126451)
 * **100%** Classic (245 of 245 cards)
 * **100%** Curse of Naxxramas (30 of 30 cards)
 * **100%** Goblins vs Gnomes (123 of 123 cards)
 * **100%** Blackrock Mountain (31 of 31 cards)
 * **100%** The Grand Tournament (132 of 132 cards)
-* **100%** Hero Skins (101 of 101 cards)
+* **100%** Hero Skins (137 of 137 cards)
 * **100%** The League of Explorers (45 of 45 cards)
 * **100%** Whispers of the Old Gods (134 of 134 cards)
 * **100%** One Night in Karazhan (45 of 45 cards)
@@ -36,7 +36,8 @@ Now updated to [Patch 20.8.2.88605](https://hearthstone.wiki.gg/wiki/Patch_20.8.
 * **100%** Demon Hunter Initiate (20 of 20 cards)
 * **100%** Madness at the Darkmoon Faire (170 of 170 cards)
 * **100%** Forged in the Barrens (170 of 170 cards)
-* **100%** United in Stormwind (1 of 1 card)
+* **100%** United in Stormwind (170 of 170 cards)
+* **100%** Fractured in Alterac Valley (2 of 2 cards)
 * **100%** Legacy (167 of 167 cards)
 * **100%** Core (235 of 235 cards)
 * **100%** Vanilla (383 of 383 cards)

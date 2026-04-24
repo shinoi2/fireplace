@@ -58,8 +58,26 @@ class HERO_04fbp(HERO_04bp):
     pass
 
 
+class HERO_04lbp(HERO_04bp):
+    """Reinforce (Yrel)"""
+
+    pass
+
+
 class HERO_04fbp(HERO_04bp):
     """Reinforce (Righteous Inferno Uther)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Ascended Uther)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Star Ascendant Uther)"""
 
     pass
 
@@ -122,7 +140,25 @@ class HERO_04fbp2(HERO_04bp2):
     pass
 
 
+class HERO_04lbp2(HERO_04bp2):
+    """The Silver Hand (Yrel)"""
+
+    pass
+
+
 class HERO_04fbp2(HERO_04bp2):
     """The Silver Hand (Righteous Inferno Uther)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Ascended Uther)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Star Ascendant Uther)"""
 
     pass

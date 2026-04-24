@@ -95,6 +95,13 @@ class SCH_307:
     play = Hit(ALL_MINIONS, 2), Shuffle(CONTROLLER, SOUL_FRAGMENT) * 2
 
 
+class SCH_307t:
+    """Soul Fragment"""
+
+    # <b>Casts When Drawn</b> Restore #2 Health to your hero.
+    play = Heal(FRIENDLY_HERO, 2)
+
+
 class SCH_701:
     """Soul Shear"""
 

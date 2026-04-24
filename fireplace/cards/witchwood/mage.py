@@ -22,7 +22,7 @@ class GIL_640:
     """Curio Collector"""
 
     # Whenever you draw a card, gain +1/+1.
-    events = Draw(CONTROLLER).after(Buff(Draw.CARD, "GIL_640e"))
+    events = Draw(CONTROLLER).on(Buff(Draw.CARD, "GIL_640e"))
 
 
 GIL_640e = buff(+1, +1)

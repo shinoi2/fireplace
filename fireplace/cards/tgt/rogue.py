@@ -69,7 +69,6 @@ class AT_035:
 
 class AT_035t:
     play = Summon(OPPONENT, "AT_036t")
-    draw = CAST_WHEN_DRAWN
 
 
 ##

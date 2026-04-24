@@ -15,6 +15,8 @@ from .actions import (
     EventListener,
     GameStart,
     Play,
+    Reward,
+    Trade,
 )
 from .card import THE_COIN
 from .cards import standard_board_skins
@@ -148,6 +150,7 @@ class BaseGame(Entity):
         if not self._action_stack:
             self.log("Empty stack, refreshing auras and processing deaths")
             self.refresh_auras()
+            self.process_reward()
             self.process_deaths()
 
     def action_block(
@@ -191,12 +194,26 @@ class BaseGame(Entity):
         actions = [Play(card, target, index, choose)]
         return self.action_block(player, actions, type, index, target)
 
+    def trade_card(self, card: "PlayableCard"):
+        type = BlockType.TRADE
+        actions = [Trade(card)]
+        return self.action_block(card.controller, actions, type)
+
     def process_deaths(self):
         type = BlockType.DEATHS
 
         if any(card.dead for card in self.live_entities):
             self.action_start(type, self, 0, None)
             self.trigger(self, [Death(self.live_entities)], event_args=None)
+            self.action_end(type, self)
+
+    def process_reward(self):
+        type = BlockType.TRIGGER
+
+        finished_card = [card for card in self if card.is_card and card.finished]
+        if finished_card:
+            self.action_start(type, self, 0, None)
+            self.trigger(self, [Reward(finished_card)], event_args=None)
             self.action_end(type, self)
 
     def trigger(self, source, actions, event_args):
@@ -387,6 +404,7 @@ class BaseGame(Entity):
 
         player.turn_start = timegm(time.gmtime())
         player.last_turn = player.turn
+        player.turns.append(self.turn)
         player.turn = self.turn
         player.cards_played_this_turn = 0
         player.minions_played_this_turn = 0

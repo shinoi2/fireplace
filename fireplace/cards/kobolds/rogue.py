@@ -17,7 +17,6 @@ class LOOT_026e:
 
     # Summon a 4/4 Spider. Draw a card. Cast this when drawn.
     play = Summon(CONTROLLER, "LOOT_026t")
-    draw = CAST_WHEN_DRAWN
 
 
 class LOOT_033:

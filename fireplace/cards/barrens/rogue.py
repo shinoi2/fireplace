@@ -147,7 +147,7 @@ class BAR_323e:
     cost = SET(0)
     events = Activate(FRIENDLY_HERO_POWER).after(
         (Attr(FRIENDLY_HERO_POWER, "activations_this_game") >= 2)
-        & (Summon(CONTROLLER, STORE_CARD), Destroy(SELF))
+        & (Summon(CONTROLLER, ExactCopy(STORE_CARD)), Destroy(SELF))
     )
 
 

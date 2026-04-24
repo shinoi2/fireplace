@@ -130,7 +130,6 @@ class LOOT_106t:
 
     # Cast a random spell. Draw a card. Cast this when drawn.
     play = CastSpell(RandomSpell())
-    draw = CAST_WHEN_DRAWN
 
 
 class LOOT_172:

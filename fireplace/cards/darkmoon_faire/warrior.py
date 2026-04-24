@@ -125,7 +125,7 @@ class YOP_013:
     """Spiked Wheel"""
 
     # Has +3 Attack while your hero has Armor.
-    update = (ARMOR(FRIENDLY_HERO) > 0) & Buff(SELF, "YOP_013e")
+    update = (ARMOR(FRIENDLY_HERO) > 0) & Refresh(SELF, buff="YOP_013e")
 
 
 YOP_013e = buff(atk=3)

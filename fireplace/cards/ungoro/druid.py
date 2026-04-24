@@ -84,7 +84,7 @@ class UNG_111t1:
     deathrattle = GainEmptyMana(CONTROLLER, 1)
 
 
-class UNG_116:
+class UNG_116(QuestRewardProtect):
     """Jungle Giants"""
 
     progress_total = 5

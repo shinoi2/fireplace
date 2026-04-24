@@ -46,6 +46,42 @@ class HERO_07ebp(HERO_07bp):
     pass
 
 
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Scholomance Tamsin)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Impressive Tamsin)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Summoner Tamsin)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Tamsin Triumphant)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (House of Rituals Gul'dan)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Fel Colossus Gul'dan)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -88,5 +124,41 @@ class HERO_07ebp2(HERO_07bp2):
 
 class HERO_07ebp2(HERO_07bp2):
     """Soul Tap (Shadowmoon Gul'dan)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Scholomance Tamsin)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Impressive Tamsin)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Summoner Tamsin)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Tamsin Triumphant)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (House of Rituals Gul'dan)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Fel Colossus Gul'dan)"""
 
     pass

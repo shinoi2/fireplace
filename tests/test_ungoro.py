@@ -89,16 +89,16 @@ def test_crystal_core():
     game = prepare_game()
     wisp1 = game.player1.give(WISP).play()
     game.player1.give("UNG_067t1").play()
-    assert wisp1.atk == 4
-    assert wisp1.health == 4
+    assert wisp1.atk == 5
+    assert wisp1.health == 5
     wisp2 = game.player1.give(WISP)
-    assert wisp2.atk == 4
-    assert wisp2.health == 4
+    assert wisp2.atk == 5
+    assert wisp2.health == 5
     wisp2.play()
-    assert wisp2.atk == 4
-    assert wisp2.health == 4
+    assert wisp2.atk == 5
+    assert wisp2.health == 5
     game.player1.give(MOONFIRE).play(target=wisp1)
-    assert wisp1.health == 4 - 1
+    assert wisp1.health == 5 - 1
 
 
 def test_kalimos_primal_lord():
@@ -223,7 +223,7 @@ def test_quest():
     game.player1.give("CS2_118").play()
     assert quest.progress == 4
     game.player1.give("CS2_118").play()
-    assert quest.progress == 5
+    assert quest.progress == 0
     assert quest.zone == Zone.GRAVEYARD
     assert game.player1.hand[0].id == "UNG_116t"
 
@@ -243,7 +243,6 @@ def test_rogue_quest():
     game.player1.give(WISP).play()
     assert quest.progress == 3
     game.player1.give(WISP).play()
-    assert quest.progress == 4
     assert quest.zone == Zone.GRAVEYARD
     assert game.player1.hand[0].id == "UNG_067t1"
 
@@ -260,10 +259,11 @@ def test_mage_quest():
     assert quest.progress == 1
     game.player2.hand[0].play(target=game.player1.hero)
     assert quest.progress == 1
-    for i in range(7):
+    for i in range(6):
         game.player2.give(MOONFIRE).play(target=game.player1.hero)
         assert quest.progress == i + 2
-    assert quest.progress == 8
+    game.player2.give(MOONFIRE).play(target=game.player1.hero)
+    assert quest.progress == 0
     assert game.player2.hand[-1].id == "UNG_028t"
 
 

@@ -42,7 +42,6 @@ class DRG_320:
 
 class DRG_320t:
     play = Summon(CONTROLLER, RandomDragon())
-    draw = CAST_WHEN_DRAWN
 
 
 ##

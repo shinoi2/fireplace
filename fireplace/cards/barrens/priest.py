@@ -45,6 +45,12 @@ class BAR_315:
 
     # <b>Battlecry:</b> Choose an enemy minion. Steal Attack and Health from it
     # until this has more.
+    requirements = {
+        PlayReq.REQ_TARGET_TO_PLAY: 0,
+        PlayReq.REQ_MINION_TARGET: 0,
+        PlayReq.REQ_ENEMY_TARGET: 0,
+    }
+
     def play(self):
         target = self.target
         while self.atk <= target.atk:
@@ -125,7 +131,7 @@ class BAR_311:
 
     # [x]<b>Lifesteal</b>. Deal $4 damage randomly split among all enemy
     # minions.
-    play = Hit(RANDOM(ENEMY_MINIONS, 1)) * SPELL_DAMAGE(4)
+    play = Hit(RANDOM(ENEMY_MINIONS), 1) * SPELL_DAMAGE(4)
 
 
 class BAR_314:

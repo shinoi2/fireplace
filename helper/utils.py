@@ -38,6 +38,7 @@ SOLVED_KEYWORDS = [
     r"Physical Spell Damage \+\d+",
     r"Overload: \(\d+\)",
     r"This is an Elemental, Mech,\nDemon, Murloc, Dragon,\nBeast, Pirate and Totem\.",
+    "Tradeable",
 ]
 
 DUMMY_CARDS = (

@@ -23,9 +23,11 @@ def test_strength_in_numbers():
     assert sidequest.progress == 0
     assert sidequest.zone == Zone.SECRET
     game.player1.give(THE_COIN).play()
-    for i in range(5):
+    for i in range(4):
         game.player1.give(MECH).play()
         assert sidequest.progress == (i + 1) * 2
+    game.player1.give(MECH).play()
+    assert sidequest.progress == 0
     assert sidequest.zone == Zone.GRAVEYARD
 
 
@@ -85,7 +87,7 @@ def test_elemental_allies():
     game.skip_turn()
     assert allies.progress == 1
     game.player1.give(ELEMENTAL).play()
-    assert allies.progress == 2
+    assert allies.progress == 0
     assert allies.zone == Zone.GRAVEYARD
 
 
@@ -98,7 +100,7 @@ def test_sanctuary():
     game.end_turn()
     assert sanctuary.progress == 0
     game.skip_turn()
-    assert sanctuary.progress == 1
+    assert sanctuary.progress == 0
     assert sanctuary.zone == Zone.GRAVEYARD
     assert game.player1.field[0] == "DRG_258t"
 

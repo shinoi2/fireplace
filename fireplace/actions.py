@@ -726,6 +726,7 @@ class Buff(TargetedAction):
         buff.source = source
         buff.apply(target)
         source.game.manager.targeted_action(self, source, target, buff)
+        self.broadcast(source, EventListener.AFTER, target, buff)
         return target
 
 
@@ -755,7 +756,8 @@ class StoringBuff(TargetedAction):
         log.info("%r store card %r", buff, cards)
         buff.source = source
         buff.store_card = cards
-        return buff.apply(target)
+        buff.apply(target)
+        return target
 
 
 class Bounce(TargetedAction):
@@ -809,11 +811,14 @@ class Choice(TargetedAction):
         log.info("%r choice from %r", player, cards)
         player.choice = self
         self.source = source
+        self.game = source.game
         self.player = player
         self.cards = cards
         self.min_count = 1
         self.max_count = 1
         source.game.manager.targeted_action(self, source, player, cards)
+        if self.game.current_player != self.player:
+            self.choose(self.game.random.choice(self.cards))
 
     def choose(self, card):
         if card not in self.cards:
@@ -842,6 +847,10 @@ class GenericChoice(Choice):
                     _card.discard()
             else:
                 _card.discard()
+
+
+class ChoiceTarget(Choice):
+    pass
 
 
 class CopyDeathrattleBuff(TargetedAction):
@@ -905,6 +914,7 @@ class Predamage(TargetedAction):
     AMOUNT = IntArg()
 
     def do(self, source, target, amount):
+        amount += target.incoming_damage_adjustment
         amount <<= target.incoming_damage_multiplier
         target.predamage = amount
         if amount:
@@ -1295,11 +1305,13 @@ class Draw(TargetedAction):
             card.turn_drawn = source.game.turn
             source.controller.cards_drawn_this_turn += 1
             source.game.manager.targeted_action(self, source, target, card)
+            self.broadcast(source, EventListener.ON, target, card, source)
             if source.game.step > Step.BEGIN_MULLIGAN:
                 # Proc the draw script, but only if we are past mulligan
                 actions = card.get_actions("draw")
+                if card.casts_when_drawn:
+                    actions += (Destroy(SELF), Draw(CONTROLLER), Battlecry(SELF, None))
                 source.game.cheat_action(card, actions)
-            self.broadcast(source, EventListener.ON, target, card, source)
 
         return [card]
 
@@ -1483,19 +1495,26 @@ class HitExcessDamage(TargetedAction):
 
     TARGET = ActionArg()
     AMOUNT = IntArg()
+    EXCEDSS_AMOUNT = IntArg()
 
-    def do(self, source, target, amount):
+    def get_target_args(self, source, target):
+        amount = _eval_card(source, self._args[1])
+        while hasattr(amount, "__iter__"):
+            if len(amount) == 0:
+                amount = None
+            else:
+                amount = amount[0]
         amount = source.get_damage(amount, target)
+        excess_amount = 0
+        if target.health < amount:
+            excess_amount = amount - target.health
+        return [amount, excess_amount]
+
+    def do(self, source, target, amount, excess_amount):
         if amount:
             source.game.manager.targeted_action(self, source, target, amount)
-            if target.health >= amount:
-                source.game.queue_actions(source, [Predamage(target, amount)])
-                return 0
-            else:
-                excess_amount = amount - target.health
-                source.game.queue_actions(source, [Predamage(target, amount)])
-                return excess_amount
-        return 0
+            source.game.queue_actions(source, [Predamage(target, amount)])
+        return excess_amount
 
 
 class Heal(TargetedAction):
@@ -2104,6 +2123,7 @@ class SetStateBuff(TargetedAction):
         target = target
         buff = source.controller.card(buff, source=source)
         buff.source = source
+        buff._xcost = other.cost
         buff._xatk = other.atk
         buff._xhealth = other.health
         buff.apply(target)
@@ -2228,16 +2248,12 @@ class AddProgress(TargetedAction):
     CARD = CardArg()
     AMOUNT = IntArg()
 
-    def do(self, source, target, card, amount=1):
+    def do(self, source, target, card=None, amount=1):
         log.info("%r add progress from %r", target, card)
         if not target:
             return
         target.add_progress(card, amount)
         source.game.manager.targeted_action(self, source, target, card, amount)
-        if target.progress >= target.progress_total:
-            source.game.trigger(target, target.get_actions("reward"), event_args=None)
-            if target.data.quest or target.data.sidequest:
-                target.zone = Zone.GRAVEYARD
 
 
 class ClearProgress(TargetedAction):
@@ -2251,6 +2267,26 @@ class ClearProgress(TargetedAction):
         log.info("%r clear progress", target)
         target.clear_progress()
         source.game.manager.targeted_action(self, source, target)
+
+
+class Reward(GameAction):
+    """
+    Reward
+    """
+
+    CARDS = ActionArg()
+
+    def do(self, source, cards):
+        source.game.manager.game_action(self, source, cards)
+        for card in cards:
+            if not card.is_card or not card.finished:
+                return
+            log.info("%r is finished", card)
+            if card.zone == Zone.SECRET:
+                card.zone = Zone.GRAVEYARD
+                card.destroy()
+            source.game.trigger(card, card.get_actions("reward"), event_args=None)
+            card.clear_progress()
 
 
 class LosesDivineShield(TargetedAction):
@@ -2441,3 +2477,27 @@ class Frenzy(TargetedAction):
         source.game.queue_actions(target, actions, event_args=[target, amount])
         target.has_frenzy = False
         source.game.manager.targeted_action(self, source, target)
+
+
+class Trade(GameAction):
+    """
+    Trade
+    """
+
+    TARGET = CardArg()
+
+    def do(self, source, target):
+        player = target.controller
+        if len(player.deck) == 0:
+            log.info("%s does not have a card to trade", player)
+            return
+        player.pay_cost(player, 1)
+        target.zone = Zone.SETASIDE
+        self.broadcast(source, EventListener.ON, target)
+        player.draw()
+        target._summon_index = source.game.random.randint(0, len(player.deck))
+        target.zone = Zone.DECK
+        source.game.manager.targeted_action(self, source, target)
+        actions = target.get_actions("trade")
+        if actions:
+            source.game.trigger(target, actions, event_args=None)

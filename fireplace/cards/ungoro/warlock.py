@@ -54,7 +54,7 @@ UNG_836e = buff(+2, +2)
 # Spells
 
 
-class UNG_829:
+class UNG_829(QuestRewardProtect):
     """Lakkari Sacrifice"""
 
     progress_total = 6

@@ -86,7 +86,7 @@ class ULD_140:
 
     # <b>Quest:</b> Draw 20 cards. <b>Reward:</b> Tome of Origination.
     progress_total = 20
-    quest = Draw(CONTROLLER).after(AddProgress(SELF, Draw.CARD))
+    quest = Draw(CONTROLLER).on(AddProgress(SELF, Draw.CARD))
     reward = Summon(CONTROLLER, "ULD_140p")
 
 

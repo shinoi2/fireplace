@@ -87,10 +87,12 @@ class YOP_018:
             ]
         )
         * 3,
-    ).then(SetTags(SELF, {GameTag.TAG_SCRIPT_DATA_ENT_1: GenericChoice.CARD}))
-    spellburst = (
-        Give(CONTROLLER, Copy(GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_1))),
-        UnsetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_1),
+    ).then(StoringBuff(SELF, "YOP_018e", GenericChoice.CARD))
+
+
+class YOP_018e:
+    events = Play(CONTROLLER, SPELL).after(
+        Give(CONTROLLER, Copy(STORE_CARD)), Destroy(SELF)
     )
 
 

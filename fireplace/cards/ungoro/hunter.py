@@ -93,7 +93,7 @@ class UNG_917t1:
 UNG_917e = buff(+2, +2)
 
 
-class UNG_920:
+class UNG_920(QuestRewardProtect):
     """The Marsh Queen"""
 
     progress_total = 7

@@ -9,10 +9,8 @@ class CS3_003:
 
     # [x]<b>Battlecry:</b> Your opponent discards a minion. <b>Deathrattle:</b>
     # Return it.
-    play = Discard(OPPONENT, RANDOM(ENEMY_HAND + MINION)).then(
-        Find(Discard.TARGET) & Retarget(SELF, Discard.TARGET)
-    )
-    deathrattle = Give(OPPONENT, TARGET)
+    play = Discard(RANDOM(ENEMY_HAND + MINION)).then(Retarget(SELF, Discard.TARGET))
+    deathrattle = HAS_TARGET & Give(OPPONENT, TARGET)
 
 
 class CS3_021:

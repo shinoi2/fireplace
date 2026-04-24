@@ -38,14 +38,14 @@ def main():
         "--card_set",
         dest="card_set",
         type=int,
-        default=CardSet.BLACK_TEMPLE,
+        default=CardSet.ALTERAC_VALLEY,
         help="Generate cards of card set",
     )
     p.add_argument("--card_id", dest="card_id", help="Generate single card")
     p.add_argument(
         "--output_dir",
         dest="output_dir",
-        default="./fireplace/cards/outlands",
+        default="./fireplace/cards/alterac",
         help="Generate code output dir",
     )
     args = p.parse_args(sys.argv[1:])

@@ -17,7 +17,7 @@ class BAR_545:
 
     # Cards that didn't start in your deck cost (2) less, but not less than
     # (1).
-    update = Refresh(FRIENDLY_HAND - STARTING_DECK, "BAR_545e")
+    update = Refresh(FRIENDLY_HAND - STARTING_DECK, buff="BAR_545e")
 
 
 class BAR_545e:
@@ -25,12 +25,12 @@ class BAR_545e:
     events = REMOVED_IN_PLAY
 
 
-class BAR_547(ThresholdUtils):
+class BAR_547(metaclass=ThresholdUtils):
     """Mordresh Fire Eye"""
 
     # [x]<b>Battlecry:</b> If you've dealt 10 damage with your Hero Power this
     # game, deal 10 damage to all enemies.@ <i>({0} left!)</i>@ <i>(Ready!)</i>
-    play = ThresholdUtils.powered_up & Hit(ENEMY_CHARACTERS, 10)
+    play = Hit(ENEMY_CHARACTERS, 10)
 
 
 class BAR_748:

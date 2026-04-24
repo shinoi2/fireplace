@@ -251,7 +251,6 @@ class LOE_110t:
     """Ancient Curse"""
 
     play = Hit(FRIENDLY_HERO, 7)
-    draw = CAST_WHEN_DRAWN
 
 
 class LOE_116:

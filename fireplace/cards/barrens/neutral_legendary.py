@@ -152,7 +152,6 @@ class BAR_721:
 
 
 class BAR_721t:
-    draw = CAST_WHEN_DRAWN
     play = Summon(CONTROLLER, "BAR_721t2").then(Attack(Summon.CARD, ENEMY_HERO))
 
 

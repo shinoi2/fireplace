@@ -158,22 +158,22 @@ class DRG_307:
 # Heros
 
 
-class DRG_660:
+class DRG_660(GalakrondUtils):
     """Galakrond, the Unspeakable"""
 
     # [x]<b>Battlecry:</b> Destroy 1 random enemy minion. <i>(@)</i>
     progress_total = 2
     play = Destroy(RANDOM_ENEMY_MINION)
-    reward = Find(SELF + FRIENDLY_HERO) | Morph(SELF, "DRG_660t2")
+    reward = Morph(SELF, "DRG_660t2")
 
 
-class DRG_660t2:
+class DRG_660t2(GalakrondUtils):
     """Galakrond, the Apocalypse"""
 
     # [x]<b>Battlecry:</b> Destroy 2 random enemy minions. <i>(@)</i>
     progress_total = 2
     play = Destroy(RANDOM_ENEMY_MINION * 2)
-    reward = Find(SELF + FRIENDLY_HERO) | Morph(SELF, "DRG_660t3")
+    reward = Morph(SELF, "DRG_660t3")
 
 
 class DRG_660t3:

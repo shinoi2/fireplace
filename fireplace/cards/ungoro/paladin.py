@@ -72,7 +72,7 @@ class UNG_952e:
     deathrattle = Summon(CONTROLLER, "UNG_810")
 
 
-class UNG_954:
+class UNG_954(QuestRewardProtect):
     """The Last Kaleidosaur"""
 
     progress_total = 6

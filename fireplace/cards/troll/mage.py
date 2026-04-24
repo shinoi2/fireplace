@@ -22,12 +22,12 @@ class TRL_315:
     )
 
 
-class TRL_316(ThresholdUtils):
+class TRL_316(metaclass=ThresholdUtils):
     """Jan'alai, the Dragonhawk"""
 
     # [x]<b>Battlecry:</b> If your Hero Power dealt 8 damage this game, summon Ragnaros the
     # Firelord.@ <i>({0} left!)</i>@ <i>(Ready!)</i>
-    play = ThresholdUtils.powered_up & Summon(CONTROLLER, "TRL_316t")
+    play = Summon(CONTROLLER, "TRL_316t")
 
 
 class TRL_316t:

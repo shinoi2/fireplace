@@ -224,7 +224,7 @@ class LOOT_209:
 
     # After you cast 3 spells in a turn, summon a 5/5 Dragon.
     progress_total = 3
-    reward = Summon(CONTROLLER, "LOOT_209t"), ClearProgress(SELF)
+    reward = Summon(CONTROLLER, "LOOT_209t")
     events = (
         Play(CONTROLLER, SPELL).after(AddProgress(SELF, Play.CARD)),
         TURN_BEGIN.on(ClearProgress(SELF)),

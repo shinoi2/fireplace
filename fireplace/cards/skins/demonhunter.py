@@ -46,6 +46,24 @@ class HERO_10cbp(HERO_10bp):
     pass
 
 
+class HERO_10cbp(HERO_10bp):
+    """Demon Claws (Skullbearer Illidan)"""
+
+    pass
+
+
+class HERO_10cbp(HERO_10bp):
+    """Demon Claws (Ember Court Illidan)"""
+
+    pass
+
+
+class HERO_10lbp(HERO_10bp):
+    """Demon Claws (Infernal Armor Illidan)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -88,5 +106,23 @@ class HERO_10cbp2(HERO_10bp2):
 
 class HERO_10cbp2(HERO_10bp2):
     """Demon's Bite (Trainer Kurtrus)"""
+
+    pass
+
+
+class HERO_10cbp2(HERO_10bp2):
+    """Demon's Bite (Skullbearer Illidan)"""
+
+    pass
+
+
+class HERO_10cbp2(HERO_10bp2):
+    """Demon's Bite (Ember Court Illidan)"""
+
+    pass
+
+
+class HERO_10lbp2(HERO_10bp2):
+    """Demon's Bite (Infernal Armor Illidan)"""
 
     pass

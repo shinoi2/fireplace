@@ -63,9 +63,9 @@ def test_imprisoned_antaen():
 def test_darkglare():
     game = prepare_game()
     game.player1.give("BT_307").play()
-    assert game.player1.mana == 8
+    assert game.player1.mana == 7
     game.player1.give(FIREBALL).play(target=game.player1.hero)
-    assert game.player1.mana == 8 - 4 + 2
+    assert game.player1.mana == 7 - 4 + 2
 
 
 def test_maiev_shadowsong():

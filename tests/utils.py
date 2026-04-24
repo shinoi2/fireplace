@@ -64,6 +64,7 @@ BLACKLIST = (
     "BT_300",  # Hand of Gul'dan
     "SCH_147",  # Boneweb Egg
     "DMF_254",  # C'Thun, the Shattered
+    "SW_306",  # Encumbered Pack Mule
 )
 
 _draftcache = {}

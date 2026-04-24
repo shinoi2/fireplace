@@ -35,7 +35,7 @@ class SCH_519:
     """Vulpera Toxinblade"""
 
     # Your weapon has +2_Attack.
-    update = Buff(FRIENDLY_WEAPON, "SCH_519e")
+    update = Refresh(FRIENDLY_WEAPON, buff="SCH_519e")
 
 
 SCH_519e = buff(atk=2)

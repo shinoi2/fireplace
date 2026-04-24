@@ -47,7 +47,6 @@ class DRG_036:
 
 class DRG_036t:
     play = Summon(CONTROLLER, "DRG_036")
-    draw = CAST_WHEN_DRAWN
 
 
 class DRG_037:
@@ -56,11 +55,7 @@ class DRG_037:
     # [x]<b>Battlecry:</b> Destroy a minion and all copies of it <i>(wherever they
     # are)</i>.
     requirements = {PlayReq.REQ_TARGET_IF_AVAILABLE: 0, PlayReq.REQ_MINION_TARGET: 0}
-    play = Destroy(
-        FilterSelector(
-            lambda entity, source: getattr(entity, "id", None) == source.target.id
-        )
-    )
+    play = Destroy(SameId(TARGET))
 
 
 ##
@@ -114,7 +109,7 @@ class DRG_610(GalakrondUtils):
     # [x]<b>Battlecry:</b> Draw 1 card. It costs (0). <i>(@)</i>
     progress_total = 2
     play = Draw(CONTROLLER).then(Buff(Draw.CARD, "DRG_610e"))
-    reward = Find(SELF + FRIENDLY_HERO) | Morph(SELF, "DRG_610t2")
+    reward = Morph(SELF, "DRG_610t2")
 
 
 class DRG_610t2(GalakrondUtils):
@@ -123,7 +118,7 @@ class DRG_610t2(GalakrondUtils):
     # [x]<b>Battlecry:</b> Draw 2 cards. They cost (0). <i>(@)</i>
     progress_total = 2
     play = Draw(CONTROLLER).then(Buff(Draw.CARD, "DRG_610e")) * 2
-    reward = Find(SELF + FRIENDLY_HERO) | Morph(SELF, "DRG_610t3")
+    reward = Morph(SELF, "DRG_610t3")
 
 
 class DRG_610t3:
@@ -144,5 +139,5 @@ class DRG_238p2:
 
 
 class DRG_610e:
-    tags = {GameTag.COST: SET(0)}
+    cost = SET(0)
     events = REMOVED_IN_PLAY

@@ -28,14 +28,14 @@ class HERO_09dbp(HERO_09bp):
     pass
 
 
-class HERO_09bp(HERO_09bp):
-    """Lesser Heal (SI:7 Anduin)"""
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Zhuge Liang Anduin)"""
 
     pass
 
 
-class HERO_09dbp(HERO_09bp):
-    """Lesser Heal (Zhuge Liang Anduin)"""
+class HERO_09bp(HERO_09bp):
+    """Lesser Heal (SI:7 Anduin)"""
 
     pass
 
@@ -60,6 +60,18 @@ class HERO_09dbp(HERO_09bp):
 
 class HERO_09dbp(HERO_09bp):
     """Lesser Heal (Lightweaver Xyrella)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Prince Charming Anduin)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Holy Leviathan Anduin)"""
 
     pass
 
@@ -92,14 +104,14 @@ class HERO_09dbp2(HERO_09bp2):
     pass
 
 
-class HERO_09bp2(HERO_09bp2):
-    """Heal (SI:7 Anduin)"""
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Zhuge Liang Anduin)"""
 
     pass
 
 
-class HERO_09dbp2(HERO_09bp2):
-    """Heal (Zhuge Liang Anduin)"""
+class HERO_09bp2(HERO_09bp2):
+    """Heal (SI:7 Anduin)"""
 
     pass
 
@@ -124,5 +136,17 @@ class HERO_09dbp2(HERO_09bp2):
 
 class HERO_09dbp2(HERO_09bp2):
     """Heal (Lightweaver Xyrella)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Prince Charming Anduin)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Holy Leviathan Anduin)"""
 
     pass

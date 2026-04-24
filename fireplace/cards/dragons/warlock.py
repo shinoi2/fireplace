@@ -116,7 +116,7 @@ class DRG_600(GalakrondUtils):
     # [x]<b>Battlecry:</b> Summon 1 random Demon. <i>(@)</i>
     progress_total = 2
     play = Summon(CONTROLLER, RandomDemon())
-    reward = Find(SELF + FRIENDLY_HERO) | Morph(SELF, "DRG_600t2")
+    reward = Morph(SELF, "DRG_600t2")
 
 
 class DRG_600t2(GalakrondUtils):
@@ -125,7 +125,7 @@ class DRG_600t2(GalakrondUtils):
     # [x]<b>Battlecry:</b> Summon 2 random Demons. <i>(@)</i>
     progress_total = 2
     play = Summon(CONTROLLER, RandomDemon()) * 2
-    reward = Find(SELF + FRIENDLY_HERO) | Morph(SELF, "DRG_600t3")
+    reward = Morph(SELF, "DRG_600t3")
 
 
 class DRG_600t3:

@@ -106,7 +106,7 @@ class BT_132:
         update = (MANA(CONTROLLER) >= 7) & Refresh(SELF, {GameTag.COST: SET(0)})
 
 
-BT_132e = buff(atk=1, health=3, taunt=True)
+BT_132e = buff(+1, +3, taunt=True)
 
 
 class BT_134:

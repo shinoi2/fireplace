@@ -62,7 +62,6 @@ class DAL_582:
 
 class DAL_582t:
     play = Summon(CONTROLLER, "DAL_582t2")
-    draw = CAST_WHEN_DRAWN
 
 
 class DAL_749:

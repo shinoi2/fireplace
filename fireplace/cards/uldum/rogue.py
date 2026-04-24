@@ -62,7 +62,6 @@ class ULD_286:
 
 class ULD_286t:
     play = Summon(CONTROLLER, Copy(CREATOR_TARGET))
-    draw = CAST_WHEN_DRAWN
 
 
 class ULD_326:

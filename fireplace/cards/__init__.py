@@ -8,7 +8,7 @@ from ..enums import BoardEnum
 from ..logging import log
 from ..utils import CARD_SETS
 
-year = ZodiacYear.PHOENIX
+year = ZodiacYear.GRYPHON
 default_language = "enUS"
 standard_board_skins = [
     BoardEnum.STORMWIND,
@@ -23,6 +23,7 @@ standard_board_skins = [
     BoardEnum.SCHOLOMANCE,
 ]
 
+modules = {}
 
 def get_script_definition(id, card=None):
     """
@@ -32,7 +33,9 @@ def get_script_definition(id, card=None):
         card = db[id]
 
     for cardset in CARD_SETS:
-        module = import_module("fireplace.cards.%s" % (cardset))
+        if cardset not in modules:
+            modules[cardset] = import_module("fireplace.cards.%s" % (cardset))
+        module = modules[cardset]
         if hasattr(module, id):
             cls = getattr(module, id)
             methods = [
@@ -91,6 +94,7 @@ class CardDB(dict[str, cardxml.CardXML]):
             "overkill",
             "spellburst",
             "frenzy",
+            "trade",
         )
 
         for script in scriptnames:
@@ -198,8 +202,11 @@ class CardDB(dict[str, cardxml.CardXML]):
         filename = os.path.join(dirname, "CardDefs.xml")
         db, _ = cardxml.load(path=filename, locale=locale)
         for id, card in sorted(db.items(), key=lambda item: item[1].dbf_id):
-            self[id] = self.merge(id, card)
+            self[id] = card
             self.dbf[card.dbf_id] = id
+        for id, card in sorted(db.items(), key=lambda item: item[1].dbf_id):
+            self[id] = self.merge(id, card)
+            
 
         log.info("Merged %i cards", len(self))
 

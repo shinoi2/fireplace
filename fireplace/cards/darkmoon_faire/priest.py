@@ -149,10 +149,10 @@ class DMF_186:
     # Summon a random 4-Cost minion. <b>Corrupt:</b> Summon a 7-Cost minion
     # instead.
     play = Summon(CONTROLLER, RandomMinion(cost=4))
-    corrupt_card = "DMF_186t"
+    corrupt_card = "DMF_186a"
 
 
-class DMF_186t:
+class DMF_186a:
     play = Summon(CONTROLLER, RandomMinion(cost=7))
 
 

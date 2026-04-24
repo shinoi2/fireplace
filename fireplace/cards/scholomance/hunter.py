@@ -44,12 +44,18 @@ class SCH_607:
 
     # [x]<b>Choose One -</b> Give Beasts in your deck +1/+1; or Transform into
     # a copy of a friendly Beast.
+    requirements = {
+        PlayReq.REQ_FRIENDLY_TARGET: 0,
+        PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
+        PlayReq.REQ_TARGET_WITH_RACE: Race.BEAST,
+    }
+    play = Morph(SELF, ExactCopy(TARGET)), Buff(FRIENDLY_DECK + BEAST, "SCH_607e")
     choose = ("SCH_607a", "SCH_607b")
 
 
 class SCH_607a:
     # Give Beasts in your deck +1/+1
-    update = Buff(FRIENDLY_DECK + BEAST, "SCH_607e")
+    play = Buff(FRIENDLY_DECK + BEAST, "SCH_607e")
 
 
 SCH_607e = buff(+1, +1)
@@ -79,7 +85,7 @@ class SCH_300:
 
 class SCH_300e:
     # Your next <b>Deathrattle</b> minion costs (1) less
-    update = Buff(FRIENDLY_HAND + MINION + DEATHRATTLE, "SCH_300e2")
+    update = Refresh(FRIENDLY_HAND + MINION + DEATHRATTLE, buff="SCH_300e2")
     events = Play(CONTROLLER, MINION + DEATHRATTLE).after(Destroy(SELF))
 
 

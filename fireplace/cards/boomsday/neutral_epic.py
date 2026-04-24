@@ -52,7 +52,6 @@ class BOT_511:
 
 class BOT_511t:
     play = Hit(FRIENDLY_HERO, 5)
-    draw = CAST_WHEN_DRAWN
 
 
 class BOT_540:

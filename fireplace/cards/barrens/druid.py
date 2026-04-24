@@ -16,7 +16,7 @@ class BAR_537:
 
     # The first <b>Taunt</b> minion you_play each turn costs_(2) less.
     update = Find(CARDS_PLAYED_THIS_TURN + MINION + TAUNT) | (
-        Refresh(FRIENDLY_HAND + MINION + TAUNT, "BAR_537e")
+        Refresh(FRIENDLY_HAND + MINION + TAUNT, buff="BAR_537e")
     )
 
 
@@ -63,10 +63,10 @@ class WC_004:
 
     # <b>Taunt</b> <b>Deathrattle:</b> Reduce the Cost of a Beast in your hand
     # by (2).
-    deathrattle = Buff(RANDOM(FRIENDLY_HAND + BEAST), "BAR_540e")
+    deathrattle = Buff(RANDOM(FRIENDLY_HAND + BEAST), "WC_004t")
 
 
-BAR_540e = buff(cost=-2)
+WC_004t = buff(cost=-2)
 
 
 class WC_006:
@@ -166,7 +166,7 @@ class BAR_539:
 
 
 class BAR_539e:
-    tags = {GameTag.COST: SET(1)}
+    cost = SET(1)
     events = REMOVED_IN_PLAY
 
 

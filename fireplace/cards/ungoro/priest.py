@@ -143,7 +143,7 @@ class UNG_854:
     )
 
 
-class UNG_940:
+class UNG_940(QuestRewardProtect):
     """Awaken the Makers"""
 
     progress_total = 7

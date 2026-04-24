@@ -50,7 +50,7 @@ class BAR_879:
 
 class BAR_878t:
     tags = {GameTag.DEATHRATTLE: True}
-    deathrattle = Summon(CONTROLLER, STORE_CARD)
+    deathrattle = Summon(CONTROLLER, Copy(STORE_CARD))
 
 
 class BAR_902:

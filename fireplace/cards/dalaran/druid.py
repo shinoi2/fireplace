@@ -45,12 +45,12 @@ class DAL_732:
     )
 
 
-class DAL_799(ThresholdUtils):
+class DAL_799(metaclass=ThresholdUtils):
     """Crystal Stag"""
 
     # <b>Rush</b>. <b>Battlecry:</b> If you've restored 5 Health this game, summon a copy
     # of this.@ <i>({0} left!)</i>@ <i>(Ready!)</i>
-    play = ThresholdUtils.powered_up & Summon(CONTROLLER, ExactCopy(SELF))
+    play = Summon(CONTROLLER, ExactCopy(SELF))
 
 
 ##

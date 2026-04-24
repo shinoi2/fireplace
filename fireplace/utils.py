@@ -123,11 +123,24 @@ def random_draft(card_class: CardClass, exclude=[], include=[], game=None):
 
 
 def random_class(game=None):
+    classes = [
+        # CardClass.DEATHKNIGHT,
+        CardClass.DRUID,
+        CardClass.HUNTER,
+        CardClass.MAGE,
+        CardClass.PALADIN,
+        CardClass.PRIEST,
+        CardClass.ROGUE,
+        CardClass.SHAMAN,
+        CardClass.WARLOCK,
+        CardClass.WARRIOR,
+        CardClass.DEMONHUNTER,
+    ]
     if game:
-        return CardClass(game.random.randint(2, 10))
+        return game.random.choice(classes)
     import random
 
-    return CardClass(random.randint(2, 10))
+    return random.choice(classes)
 
 
 def entity_to_xml(entity):

@@ -26,7 +26,15 @@ class BAR_843:
     """Warsong Envoy"""
 
     # [x]<b>Frenzy:</b> Gain +1  Attack for each damaged character.
-    play = Buff(SELF, "BAR_843e") * Count(ALL_CHARACTERS + DAMAGED)
+    frenzy = Buff(SELF, "BAR_843e", atk=Count(ALL_CHARACTERS + DAMAGED))
+
+
+@custom_card
+class BAR_843e:
+    tags = {
+        GameTag.CARDNAME: "Warsong Envoy Buff",
+        GameTag.CARDTYPE: CardType.ENCHANTMENT,
+    }
 
 
 class BAR_846:

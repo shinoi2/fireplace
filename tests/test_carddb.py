@@ -55,6 +55,7 @@ def test_deathrattle_scripts():
                 "UNG_953",
                 "BT_126",
                 "SCH_714",
+                "SW_069",
             ]:
                 continue
             assert card.scripts.deathrattle

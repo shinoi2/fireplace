@@ -55,7 +55,6 @@ class TRL_541t:
     # <b>Casts When Drawn</b> Take 3 damage. After you draw, shuffle two copies of this
     # into your deck.
     play = Hit(FRIENDLY_HERO, 3), Shuffle(CONTROLLER, "TRL_541t") * 2
-    draw = CAST_WHEN_DRAWN
 
 
 class TRL_542:
