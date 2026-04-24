@@ -817,8 +817,6 @@ class Choice(TargetedAction):
         self.min_count = 1
         self.max_count = 1
         source.game.manager.targeted_action(self, source, player, cards)
-        if self.game.current_player != self.player:
-            self.choose(self.game.random.choice(self.cards))
 
     def choose(self, card):
         if card not in self.cards:

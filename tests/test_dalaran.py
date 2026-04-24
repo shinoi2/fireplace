@@ -307,3 +307,26 @@ def test_sweeping_strikes():
     wisp.attack(dummies[1])
     for i in range(3):
         assert dummies[i].health == 1
+
+
+def test_nine_lives():
+    game = prepare_game()
+    highmane = game.player1.give("EX1_534").play()
+    highmane.destroy()
+    game.skip_turn()
+    game.player1.discard_hand()
+    assert len(game.player1.field) == 2
+    game.player1.give("DAL_377").play()
+    game.player1.choice.choose("EX1_534")
+    assert len(game.player1.field) == 4
+
+
+def test_unseen_saboteur():
+    game = prepare_empty_game()
+    highmane = game.player1.give("EX1_534").play()
+    highmane.destroy()
+    game.player1.give("DAL_377")
+    game.end_turn()
+    game.player2.give("DAL_538").play()
+    assert len(game.player1.field) == 4
+    

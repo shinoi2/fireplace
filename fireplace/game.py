@@ -147,6 +147,13 @@ class BaseGame(Entity):
 
         if type != BlockType.PLAY:
             self._action_stack -= 1
+        
+        if self.current_player:
+            while self.current_player.opponent.choice:
+                choice = self.current_player.opponent.choice
+                card = self.random.choice(choice.cards)
+                choice.choose(card)
+
         if not self._action_stack:
             self.log("Empty stack, refreshing auras and processing deaths")
             self.refresh_auras()
