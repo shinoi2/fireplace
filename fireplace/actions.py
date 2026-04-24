@@ -104,7 +104,7 @@ class ActionArg(LazyValue):
         # XXX we rely on source.event_args to be set, but it's very racey.
         # If multiple events happen on an entity at once, stuff will go wrong.
         assert source.event_args
-        return source.event_args[self.index]
+git         return source.event_args[self.index]
 
 
 class CardArg(ActionArg):
@@ -914,6 +914,10 @@ class Predamage(TargetedAction):
     def do(self, source, target, amount):
         amount += target.incoming_damage_adjustment
         amount <<= target.incoming_damage_multiplier
+        if source.type == CardType.SPELL:
+            amount <<= target.incoming_damage_multiplier_from_spell
+        if target.heavily_armored:
+            amount = min(amount, 1)
         target.predamage = amount
         if amount:
             self.broadcast(source, EventListener.ON, target, amount)

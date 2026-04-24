@@ -27,4 +27,4 @@ class BT_733:
     """Mo'arg Artificer"""
 
     # All minions take double damage from spells.
-    update = Refresh(ALL_MINIONS, {GameTag.INCOMING_DAMAGE_MULTIPLIER: 1})
+    update = Refresh(ALL_MINIONS, {enums.INCOMING_DAMAGE_MULTIPLIER_FROM_SPELL: 1})

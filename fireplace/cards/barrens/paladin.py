@@ -43,12 +43,12 @@ class BAR_879:
         for secret in secrets:
             if len(player.field) < 7:
                 yield Destroy(secret)
-                yield Summon(CONTROLLER, "BAR_878t").then(
-                    StoringBuff(Summon.CARD, "BAR_878e", secret)
+                yield Summon(CONTROLLER, "BAR_879t").then(
+                    StoringBuff(Summon.CARD, "BAR_879e", secret)
                 )
 
 
-class BAR_878t:
+class BAR_879e:
     tags = {GameTag.DEATHRATTLE: True}
     deathrattle = Summon(CONTROLLER, Copy(STORE_CARD))
 

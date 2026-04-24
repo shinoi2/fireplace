@@ -83,10 +83,10 @@ class SCH_704:
     # [x]<b>Battlecry:</b> Destroy a Soul Fragment in your deck to give your
     # hero +5 Attack this turn.
     powered_up = Find(FRIENDLY_DECK + ID(SOUL_FRAGMENT))
-    play = powered_up & Buff(FRIENDLY_HERO, "SCH_074e")
+    play = powered_up & Buff(FRIENDLY_HERO, "SCH_704e")
 
 
-SCH_074e = buff(atk=5)
+SCH_704e = buff(atk=5)
 
 
 class SCH_705:

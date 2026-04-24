@@ -810,9 +810,11 @@ class LiveEntity(PlayableCard, Entity):
     secret_deathrattle = int_property("secret_deathrattle")
     atk = int_property("atk")
     cant_be_damaged = boolean_property("cant_be_damaged")
+    heavily_armored = boolean_property("heavily_armored")
     immune_while_attacking = slot_property("immune_while_attacking")
     incoming_damage_adjustment = int_property("incoming_damage_adjustment")
     incoming_damage_multiplier = int_property("incoming_damage_multiplier")
+    incoming_damage_multiplier_from_spell = int_property("incoming_damage_multiplier_from_spell")
     max_health = int_property("max_health")
     poisonous = boolean_property("poisonous")
 
@@ -910,8 +912,6 @@ class Character(LiveEntity):
     cant_be_targeted_by_hero_powers = boolean_property(
         "cant_be_targeted_by_hero_powers"
     )
-
-    heavily_armored = boolean_property("heavily_armored")
     min_health = int_property("min_health")
     rush = boolean_property("rush")
     taunt = boolean_property("taunt")
@@ -937,13 +937,6 @@ class Character(LiveEntity):
         data["race"] = int(self.race)
         data["can_attack"] = self.can_attack()
         return data
-
-    @property
-    def events(self):
-        ret = super().events
-        if self.heavily_armored:
-            ret += rules.HEAVILY_ARMORED
-        return ret
 
     @property
     def attackable(self):
@@ -1537,6 +1530,7 @@ class Enchantment(BaseCard):
     has_deathrattle = boolean_property("has_deathrattle")
     incoming_damage_adjustment = int_property("incoming_damage_adjustment")
     incoming_damage_multiplier = int_property("incoming_damage_multiplier")
+    incoming_damage_multiplier_from_spell = int_property("incoming_damage_multiplier")
     max_health = int_property("max_health")
     spellpower = int_property("spellpower")
     spellpower_arcane = int_property("spellpower_arcane")
