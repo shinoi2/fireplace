@@ -39,7 +39,12 @@ class DED_509:
     """Brilliant Macaw"""
 
     # <b>Battlecry:</b> Repeat the last <b>Battlecry</b> you played.
-    play = ExtraBattlecry((CARDS_PLAYED_THIS_GAME + BATTLECRY)[-1:], None)
+    def play(self):
+        if getattr(self, "_last_card", None) is None:
+            self._last_card = ((CARDS_PLAYED_THIS_GAME + BATTLECRY)[-1:]).eval(
+                self.game, self
+            )
+        yield ExtraBattlecry(self._last_card, None)
 
 
 class DED_511:

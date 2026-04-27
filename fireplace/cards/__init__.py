@@ -25,6 +25,7 @@ standard_board_skins = [
 
 modules = {}
 
+
 def get_script_definition(id, card=None):
     """
     Find and return the script definition for card
@@ -206,7 +207,6 @@ class CardDB(dict[str, cardxml.CardXML]):
             self.dbf[card.dbf_id] = id
         for id, card in sorted(db.items(), key=lambda item: item[1].dbf_id):
             self[id] = self.merge(id, card)
-            
 
         log.info("Merged %i cards", len(self))
 

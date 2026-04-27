@@ -1,4 +1,3 @@
-from hearthstone import cardxml
 from hearthstone.deckstrings import Deck
 from hearthstone.enums import (
     CardClass,
@@ -377,9 +376,13 @@ class ThresholdUtils(type):
         }
 
         cardscript = db[name]
-        player_tag_threshold_tag_id = cardscript.tags[GameTag.PLAYER_TAG_THRESHOLD_TAG_ID]
+        player_tag_threshold_tag_id = cardscript.tags[
+            GameTag.PLAYER_TAG_THRESHOLD_TAG_ID
+        ]
         player_tag_threshold_value = cardscript.tags[GameTag.PLAYER_TAG_THRESHOLD_VALUE]
-        powered_up = Attr(CONTROLLER, player_tag_threshold_tag_id) >= player_tag_threshold_value
+        powered_up = (
+            Attr(CONTROLLER, player_tag_threshold_tag_id) >= player_tag_threshold_value
+        )
 
         namespace["custom_cardtext"] = custom_cardtext
         namespace["cardtext_entity_0"] = cardtext_entity_0

@@ -814,7 +814,9 @@ class LiveEntity(PlayableCard, Entity):
     immune_while_attacking = slot_property("immune_while_attacking")
     incoming_damage_adjustment = int_property("incoming_damage_adjustment")
     incoming_damage_multiplier = int_property("incoming_damage_multiplier")
-    incoming_damage_multiplier_from_spell = int_property("incoming_damage_multiplier_from_spell")
+    incoming_damage_multiplier_from_spell = int_property(
+        "incoming_damage_multiplier_from_spell"
+    )
     max_health = int_property("max_health")
     poisonous = boolean_property("poisonous")
 

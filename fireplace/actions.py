@@ -104,7 +104,7 @@ class ActionArg(LazyValue):
         # XXX we rely on source.event_args to be set, but it's very racey.
         # If multiple events happen on an entity at once, stuff will go wrong.
         assert source.event_args
-git         return source.event_args[self.index]
+        return source.event_args[self.index]
 
 
 class CardArg(ActionArg):
@@ -1150,7 +1150,20 @@ class ExtraBattlecry(Battlecry):
                 target = source.game.random.choice(source.play_targets)
             source.requirements = old_requirements
 
-        return super().do(source, card, target)
+        if source == "GIL_820" and card == "GIL_820":
+            return
+
+        if card.battlecry_requires_target() and not target:
+            log.info("%r requires a target for its battlecry. Will not trigger.")
+            return
+
+        source.target = target
+        old_target = card.target
+        card.target = target
+        actions = card.get_actions("play")
+        source.game.manager.targeted_action(self, source, card, target)
+        source.game.main_power(source, actions, target)
+        card.target = old_target
 
 
 class PlayHeroPower(TargetedAction):

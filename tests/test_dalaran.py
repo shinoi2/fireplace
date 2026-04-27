@@ -329,4 +329,3 @@ def test_unseen_saboteur():
     game.end_turn()
     game.player2.give("DAL_538").play()
     assert len(game.player1.field) == 4
-    

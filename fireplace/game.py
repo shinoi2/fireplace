@@ -147,7 +147,7 @@ class BaseGame(Entity):
 
         if type != BlockType.PLAY:
             self._action_stack -= 1
-        
+
         if self.current_player:
             while self.current_player.opponent.choice:
                 choice = self.current_player.opponent.choice

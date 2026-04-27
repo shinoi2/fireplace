@@ -282,3 +282,28 @@ def test_set_state_buff():
     yeti = game.player1.give("CS2_182").play()
     game.cheat_action(game.player1, [SetStateBuff(yeti, wisp, "ULD_262e")])
     assert yeti.health == wisp.health == 1
+
+
+def test_double_brilliant_macaw():
+    game = prepare_game()
+    game.player1.give("EX1_319").play()
+    assert game.player1.hero.damage == 3
+    game.player1.give("DED_509").play()
+    assert game.player1.hero.damage == 6
+    game.player1.give("DED_509").play()
+    assert game.player1.hero.damage == 9
+
+
+def test_shudderwock_and_brilliant_macaw():
+    game = prepare_game()
+    game.player1.give("EX1_319").play()
+    assert game.player1.hero.damage == 3
+    game.skip_turn()
+    game.player1.give("GIL_820").play()
+    assert game.player1.hero.damage == 6
+    game.skip_turn()
+    game.player1.give("DED_509").play()
+    assert game.player1.hero.damage == 9
+    game.skip_turn()
+    game.player1.give("GIL_820").play()
+    assert game.player1.hero.damage == 12

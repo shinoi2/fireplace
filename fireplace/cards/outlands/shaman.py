@@ -64,7 +64,7 @@ class BT_230:
     def play(self):
         target = self.target
         yield Hit(target, 3)
-        while Dead(SELF).check(target) and target.adjacent_minions:
+        while target.dead and target.adjacent_minions:
             target = self.game.random.choice(target.adjacent_minions)
             yield Deaths()
             yield Hit(target, 3)
