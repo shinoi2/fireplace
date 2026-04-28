@@ -1,4 +1,3 @@
-from pkg_resources import Requirement
 from ..utils import *
 
 ##
