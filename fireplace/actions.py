@@ -1006,7 +1006,10 @@ class Damage(TargetedAction):
                 and source.type != CardType.WEAPON
             ):
                 if source.controller.lifesteal_damages_opposing_hero:
-                    source.game.queue_actions(source.controller, [Hit(target, amount)])
+                    source.game.queue_actions(
+                        source.controller,
+                        [Hit(source.controller.opponent.hero, amount)],
+                    )
                 else:
                     source.heal(source.controller.hero, amount)
             self.broadcast(source, EventListener.ON, target, amount, source)

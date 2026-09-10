@@ -80,3 +80,18 @@ def test_cthun_the_shattered():
         else:
             card.play()
     assert "DMF_254" in list(game.player1.deck)
+
+
+def test_illgynoth_lifesteal():
+    game = prepare_game()
+    game.player1.hero.damage = 15
+    assert game.player1.hero.health == 15
+    wisp = game.player1.give(WISP).play()
+    game.player1.give("ICC_055").play(target=wisp)
+    assert game.player1.hero.health == 15 + 2
+    assert game.player2.hero.damage == 0
+    wisp2 = game.player1.give(WISP).play()
+    game.player1.give("DMF_230").play()
+    game.player1.give("ICC_055").play(target=wisp2)
+    assert game.player1.hero.health == 15 + 2
+    assert game.player2.hero.damage == 2

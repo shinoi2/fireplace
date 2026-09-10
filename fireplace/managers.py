@@ -169,8 +169,6 @@ class PlayerManager(Manager):
         enums.CANT_OVERLOAD: "cant_overload",
         enums.ELEMENTAL_PLAYED_LAST_TURN: "elemental_played_last_turn",
         enums.HERO_HEALTH_CHANGED_THIS_TURN: "hero_health_changed_this_turn",
-        GameTag.LIFESTEAL_DAMAGES_OPPOSING_HERO: "lifesteal_damages_opposing_hero",
-        GameTag.CANT_TRIGGER_DEATHRATTLE: "cant_trigger_deathrattle",
     }
 
 
@@ -193,6 +191,7 @@ CARD_ATTRIBUTE_MAP = {
     GameTag.CANT_BE_TARGETED_BY_OPPONENTS: "cant_be_targeted_by_opponents",
     GameTag.CANT_DRAW_DURING_MULLIGAN: "cant_draw_during_mulligan",
     GameTag.CANT_PLAY: "cant_play",
+    GameTag.CANT_TRIGGER_DEATHRATTLE: "cant_trigger_deathrattle",
     GameTag.CARD_ID: "id",
     GameTag.CARD_COSTS_HEALTH: "card_costs_health",
     GameTag.CARD_TARGET: "target",
@@ -235,6 +234,7 @@ CARD_ATTRIBUTE_MAP = {
     GameTag.JADE_GOLEM: "jade_golem",
     GameTag.LIBRAM: "libram",
     GameTag.LIFESTEAL: "lifesteal",
+    GameTag.LIFESTEAL_DAMAGES_OPPOSING_HERO: "lifesteal_damages_opposing_hero",
     GameTag.IGNORE_TAUNT: "ignore_taunt",
     GameTag.INCOMING_DAMAGE_ADJUSTMENT: "incoming_damage_adjustment",
     GameTag.INCOMING_DAMAGE_MULTIPLIER: "incoming_damage_multiplier",
