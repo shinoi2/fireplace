@@ -290,6 +290,8 @@ class Attack(GameAction):
         defender.defending = False
         if source == attacker:
             attacker.num_attacks += 1
+        if attacker.type == CardType.HERO:
+            attacker.controller.hero_attacks_this_game += 1
 
 
 class BeginTurn(GameAction):
@@ -495,6 +497,13 @@ class Play(GameAction):
         card.target = target
         card._summon_index = index
 
+        # Pathmaker (AV_210)
+        # [x]<b>Battlecry:</b> Cast the other choice from the last <b>Choose
+        # One</b> spell you've cast. @<b>Battlecry:</b> {0}
+        if card.type == CardType.SPELL and choose:
+            other_choice = next(c for c in card.choose_cards if c is not choose)
+            player.other_choice_from_the_last_choose_one_spell = other_choice
+
         battlecry_card = choose or card
         # We check whether the battlecry will trigger, before the card.zone changes
         if battlecry_card.battlecry_requires_target() and not target:
@@ -562,7 +571,9 @@ class Play(GameAction):
         if card.type == CardType.MINION:
             player.minions_played_this_turn += 1
             if Race.TOTEM in card.races:
-                card.controller.times_totem_summoned_this_game += 1
+                player.times_totem_summoned_this_game += 1
+            if Race.BEAST in card.races:
+                player.times_beast_summoned_this_game += 1
             if Race.ELEMENTAL in card.races:
                 player.elemental_played_this_turn += 1
         elif card.type == CardType.SPELL:
@@ -1027,16 +1038,29 @@ class Damage(TargetedAction):
                 and target.type != CardType.WEAPON
                 and target.health < 0
             ):
-                if source.type == CardType.HERO:
-                    actions = source.controller.weapon.get_actions("overkill")
-                else:
-                    actions = source.get_actions("overkill")
-                if actions:
-                    source.game.trigger(source, actions, event_args=None)
+                for entity in source.entities:
+                    actions = entity.get_actions("overkill", target)
+                    if actions:
+                        source.game.trigger(entity, actions, event_args=None)
+
+            if (
+                hasattr(source, "has_honorable_kill")
+                and source.has_honorable_kill
+                and source.controller.current_player
+                and target.type != CardType.WEAPON
+                and target.health == 0
+            ):
+                for entity in source.entities:
+                    actions = entity.get_actions("honorable_kill", target)
+                    if actions:
+                        source.game.trigger(entity, actions, event_args=None)
+
             if target.type == CardType.MINION:
                 if target.has_frenzy:
                     source.game.queue_actions(source, [Frenzy(target, amount)])
             target.damaged_this_turn += amount
+            if target.controller != source.game.current_player:
+                target.damaged_on_opponent_turn += amount
             if target.type == CardType.HERO:
                 target.controller.hero_health_changed_this_turn += 1
             if source.type == CardType.HERO_POWER:
@@ -1402,6 +1426,7 @@ class GainArmor(TargetedAction):
 
     def do(self, source, target, amount):
         target.armor += amount
+        target.controller.armor_gained_this_game += amount
         source.game.manager.targeted_action(self, source, target, amount)
         self.broadcast(source, EventListener.ON, target, amount)
 
@@ -2455,18 +2480,12 @@ class Spellburst(TargetedAction):
     TARGET = CardArg()
     SPELL = CardArg()
 
-    def get_actions(self, target, spell):
-        actions = getattr(target.data.scripts, "spellburst")
-        if callable(actions):
-            actions = actions(target, spell)
-        return actions
-
     def do(self, source, target, spell):
         if not target.has_spellburst:
             log.info("%r does not have spellburst", target)
             return
 
-        actions = self.get_actions(target, spell)
+        actions = target.get_actions("spellburst", spell)
         source.game.queue_actions(target, actions, event_args=[target, spell])
         target.has_spellburst = False
         source.game.manager.targeted_action(self, source, target, spell)
@@ -2480,18 +2499,12 @@ class Frenzy(TargetedAction):
     TARGET = CardArg()
     AMOUNT = IntArg()
 
-    def get_actions(self, target, amount):
-        actions = getattr(target.data.scripts, "frenzy")
-        if callable(actions):
-            actions = actions(target, amount)
-        return actions
-
     def do(self, source, target, amount):
         if not target.has_frenzy or target.dead:
             log.info("%s does not have frenzy or is dead", target)
             return
 
-        actions = self.get_actions(target, amount)
+        actions = target.get_actions("frenzy", amount)
         source.game.queue_actions(target, actions, event_args=[target, amount])
         target.has_frenzy = False
         source.game.manager.targeted_action(self, source, target)

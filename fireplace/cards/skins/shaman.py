@@ -88,6 +88,42 @@ class HERO_02fbp(HERO_02bp):
     pass
 
 
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Barrens Bru'kan)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Dungeoneer Bru'kan)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Venerable Bru'kan)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Deadmines Bru'kan)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Snowman Thrall)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Jade Serpent Thrall)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -172,5 +208,41 @@ class HERO_02bp2(HERO_02bp2):
 
 class HERO_02bp2(HERO_02bp2):
     """Totemic Slam (Mechaconduit Thrall)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Barrens Bru'kan)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Dungeoneer Bru'kan)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Venerable Bru'kan)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Deadmines Bru'kan)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Snowman Thrall)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Jade Serpent Thrall)"""
 
     pass

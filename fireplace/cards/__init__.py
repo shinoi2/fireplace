@@ -93,6 +93,7 @@ class CardDB(dict[str, cardxml.CardXML]):
             "secret_deathrattles",
             "magnetic",
             "overkill",
+            "honorable_kill",
             "spellburst",
             "frenzy",
             "trade",

@@ -8,9 +8,9 @@ class TRL_096:
     """Griftah"""
 
     # [x]<b>Battlecry:</b> <b>Discover</b> two cards. Give one to your opponent at random.
-    play = DISCOVER(RandomCollectible()).then(
+    play = Discover(CONTROLLER, RandomCollectible()).then(
         SetTags(SELF, {GameTag.TAG_SCRIPT_DATA_ENT_1: Discover.CARD}),
-        DISCOVER(RandomCollectible()).then(
+        Discover(CONTROLLER, RandomCollectible()).then(
             SetTags(SELF, {GameTag.TAG_SCRIPT_DATA_ENT_2: Discover.CARD}),
             COINFLIP
             & (

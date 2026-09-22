@@ -52,6 +52,8 @@ def Card(id):
             subclass = SideQuest
         elif data.sigil:
             subclass = Sigil
+        elif data.objective:
+            subclass = Objective
 
     return subclass(data)
 
@@ -77,6 +79,8 @@ class BaseCard(BaseEntity):
         self.progress_total: int = data.scripts.progress_total
         self.card_class = CardClass.INVALID
         self.multi_class_group = MultiClassGroup.INVALID
+        self.data_num_1 = 0
+        self.data_num_2 = 0
         self.tags.update(data.tags)
 
     def dump(self):
@@ -301,6 +305,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
     keep_buff = boolean_property("keep_buff")
     echo = boolean_property("echo")
     has_overkill = boolean_property("has_overkill")
+    has_honorable_kill = boolean_property("has_honorable_kill")
     has_discover = boolean_property("has_discover")
     libram = boolean_property("libram")
     corrupt = boolean_property("corrupt")
@@ -308,6 +313,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
     card_costs_health = boolean_property("card_costs_health")
     casts_when_drawn = boolean_property("casts_when_drawn")
     cant_draw_during_mulligan = boolean_property("cant_draw_during_mulligan")
+    choose_both = boolean_property("choose_both")
 
     def __init__(self, data):
         self.cant_play = False
@@ -373,6 +379,8 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         Returns True if the card has active choices
         """
         if self.controller.choose_both and self.has_choose_one:
+            return False
+        if self.choose_both and self.has_choose_one:
             return False
         return bool(self.choose_cards)
 
@@ -811,7 +819,7 @@ class LiveEntity(PlayableCard, Entity):
     atk = int_property("atk")
     cant_be_damaged = boolean_property("cant_be_damaged")
     heavily_armored = boolean_property("heavily_armored")
-    immune_while_attacking = slot_property("immune_while_attacking")
+    immune_while_attacking = boolean_property("immune_while_attacking")
     incoming_damage_adjustment = int_property("incoming_damage_adjustment")
     incoming_damage_multiplier = int_property("incoming_damage_multiplier")
     incoming_damage_multiplier_from_spell = int_property(
@@ -829,6 +837,7 @@ class LiveEntity(PlayableCard, Entity):
         self.turns_in_play = 0
         self.turn_killed = -1
         self.damaged_this_turn = 0
+        self.damaged_on_opponent_turn = 0
         self.healed_this_turn = 0
         self.spellburst = False
         self.additional_deathrattles = []
@@ -1118,6 +1127,13 @@ class Hero(Character):
             return self.controller.weapon.has_overkill or ret
         return ret
 
+    @property
+    def has_honorable_kill(self):
+        ret = super().has_honorable_kill
+        if self.controller.weapon and not self.controller.weapon.exhausted:
+            return self.controller.weapon.has_honorable_kill or ret
+        return ret
+
     def _getattr(self, attr, i):
         ret = super()._getattr(attr, i)
         if attr == "atk":
@@ -1195,6 +1211,7 @@ class Minion(Character):
         "rush",
         "secret_deathrattle",
         "has_overkill",
+        "has_honorable_kill",
         "reborn",
         "has_spellburst",
         "has_frenzy",
@@ -1473,6 +1490,11 @@ class Quest(Spell):
             return False
         if len(self.controller.secrets) >= self.game.MAX_SECRETS_ON_PLAY:
             return False
+        # Only one quest can be active at a time
+        if self.spelltype == enums.SpellType.QUEST:
+            for spell in self.controller.secrets:
+                if spell.spelltype == enums.SpellType.QUEST:
+                    return False
         return super().is_summonable()
 
     def _set_zone(self, value):
@@ -1503,8 +1525,31 @@ class SideQuest(Quest):
         return ret
 
 
-class Sigil(Spell):
+class Sigil(rules.SigilRules, Spell):
     spelltype = enums.SpellType.SIGIL
+
+    def dump_hidden(self):
+        if self.zone == Zone.SECRET:
+            return self.dump()
+        return super().dump_hidden()
+
+    def is_summonable(self):
+        if len(self.controller.secrets) >= self.game.MAX_SECRETS_ON_PLAY:
+            return False
+        return super().is_summonable()
+
+    def _set_zone(self, value):
+        if value == Zone.PLAY:
+            value = Zone.SECRET
+        if self.zone == Zone.SECRET:
+            self.controller.secrets.remove(self)
+        if value == Zone.SECRET:
+            self.controller.secrets.append(self)
+        super()._set_zone(value)
+
+
+class Objective(rules.ObjectiveRules, Spell):
+    spelltype = enums.SpellType.OBJECTIVE
 
     def dump_hidden(self):
         if self.zone == Zone.SECRET:

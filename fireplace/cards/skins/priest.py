@@ -65,6 +65,12 @@ class HERO_09dbp(HERO_09bp):
 
 
 class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Shadow-touched Xyrella)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
     """Lesser Heal (Prince Charming Anduin)"""
 
     pass
@@ -72,6 +78,18 @@ class HERO_09dbp(HERO_09bp):
 
 class HERO_09dbp(HERO_09bp):
     """Lesser Heal (Holy Leviathan Anduin)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Ice Lady Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Little Lion Anduin)"""
 
     pass
 
@@ -141,6 +159,12 @@ class HERO_09dbp2(HERO_09bp2):
 
 
 class HERO_09dbp2(HERO_09bp2):
+    """Heal (Shadow-touched Xyrella)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
     """Heal (Prince Charming Anduin)"""
 
     pass
@@ -148,5 +172,17 @@ class HERO_09dbp2(HERO_09bp2):
 
 class HERO_09dbp2(HERO_09bp2):
     """Heal (Holy Leviathan Anduin)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Ice Lady Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Little Lion Anduin)"""
 
     pass

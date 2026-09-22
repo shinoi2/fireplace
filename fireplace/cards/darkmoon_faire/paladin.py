@@ -35,7 +35,7 @@ class DMF_237:
     """Carnival Barker"""
 
     # Whenever you summon a 1-Health minion, give it +1/+2.
-    play = Summon(CONTROLLER, MINION + (CURRENT_HEALTH == 1)).on(
+    events = Summon(CONTROLLER, MINION + (CURRENT_HEALTH == 1)).on(
         Buff(Summon.CARD, "DMF_237e")
     )
 
@@ -92,7 +92,9 @@ class DMF_195:
     """Snack Run"""
 
     # <b>Discover</b> a spell. Restore Health to your hero equal to its Cost.
-    play = DISCOVER(RandomSpell()).then(Heal(FRIENDLY_HERO, COST(Discover.CARD)))
+    play = Discover(CONTROLLER, RandomSpell()).then(
+        Give(CONTROLLER, Discover.CARD), Heal(FRIENDLY_HERO, COST(Discover.CARD))
+    )
 
 
 class DMF_236:

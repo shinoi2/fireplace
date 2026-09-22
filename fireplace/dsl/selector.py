@@ -148,9 +148,12 @@ OVERLOAD_OWED = AttrValue(GameTag.OVERLOAD_OWED)
 CURRENT_MANA = AttrValue("mana")
 NUM_ATTACKS_THIS_TURN = AttrValue(GameTag.NUM_ATTACKS_THIS_TURN)
 DAMAGED_THIS_TURN = AttrValue(enums.DAMAGED_THIS_TURN)
+HEALED_THIS_TURN = AttrValue(enums.HEALED_THIS_TURN)
+DAMAGED_ON_OPPONENT_TURN = AttrValue(enums.DAMAGED_ON_OPPONENT_TURN)
 NUM_ATTACKS = AttrValue("num_attacks")
 MAX_HAND_SIZE = AttrValue("max_hand_size")
 MINION_SLOTS = AttrValue("minion_slots")
+HERO_ATTACKS_THIS_GAME = AttrValue(enums.NUM_HERO_ATTACKS_THIS_GAME)
 
 
 class ComparisonSelector(Selector):
@@ -351,6 +354,7 @@ TARGET = FuncSelector(lambda entities, source: [source.target])
 ATTACK_TARGET = FuncSelector(lambda entities, source: [source.attack_target])
 CREATOR = FuncSelector(lambda entities, source: [source.creator])
 CREATOR_TARGET = FuncSelector(lambda entities, source: [source.creator.target])
+APPLIED_BUFFS = FuncSelector(lambda entities, source: [source.buffs])
 
 
 class BoardPositionSelector(Selector):

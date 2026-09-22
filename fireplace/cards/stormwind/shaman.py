@@ -21,7 +21,7 @@ class SW_032:
 
 
 class SW_032e:
-    tag = {GameTag.COST: -1}
+    tags = {GameTag.COST: -1}
     events = REMOVED_IN_PLAY
 
 
@@ -162,5 +162,5 @@ class SW_025:
 
 
 class SW_025e:
-    tag = {GameTag.COST: -1}
+    tags = {GameTag.COST: -1}
     events = REMOVED_IN_PLAY

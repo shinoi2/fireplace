@@ -444,6 +444,8 @@ class BaseGame(Entity):
             character.num_attacks = 0
             character.damaged_this_turn = 0
             character.healed_this_turn = 0
+            if character.controller != player:
+                character.damaged_on_opponent_turn = 0
 
         player.draw()
         self.manager.step(self.next_step, Step.MAIN_END)

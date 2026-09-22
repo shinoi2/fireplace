@@ -150,8 +150,10 @@ class SW_440:
 
     # [x]<b>Discover</b> a <b>Deathrattle</b> minion. If you have enough Mana
     # to play it, trigger its <b>Deathrattle</b>.
-    play = DISCOVER(RandomMinion(deathrattle=True)).then(
-        (CURRENT_MANA(CONTROLLER) >= COST(Discover.CARD)) & (Deathrattle(Discover.CARD))
+    play = Discover(CONTROLLER, RandomMinion(deathrattle=True)).then(
+        Give(CONTROLLER, Discover.CARD),
+        (CURRENT_MANA(CONTROLLER) >= COST(Discover.CARD))
+        & (Deathrattle(Discover.CARD)),
     )
 
 

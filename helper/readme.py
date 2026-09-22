@@ -4,7 +4,7 @@ from utils import *
 
 from fireplace import cards
 
-VERSION = "21.8.0.126451"
+VERSION = "22.6.0.134558"
 WIKI_HOST = "https://hearthstone.wiki.gg/wiki"
 
 CARD_SET_NAME = {

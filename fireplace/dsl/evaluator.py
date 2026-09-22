@@ -95,6 +95,8 @@ class ChooseBoth(Evaluator):
         self.selector = selector
 
     def check(self, source):
+        if source.choose_both:
+            return True
         player = self.selector.eval(source.game, source)[0]
         if player.choose_both:
             return True
@@ -185,6 +187,24 @@ class FindDuplicates(Evaluator):
         entities = self.selector.eval(source.game, source)
         ids = [entity.id for entity in entities]
         return len(set(ids)) < len(ids)
+
+
+class FindId(Evaluator):
+    """
+    Evaluates to True if \a selector has an entity with the specified ID.
+    """
+
+    def __init__(self, selector, entity_id):
+        super().__init__()
+        self.selector = selector
+        self.entity_id = entity_id
+
+    def check(self, source):
+        entities = self.selector.eval(source.game, source)
+        for entity in entities:
+            if entity.id == self.entity_id:
+                return True
+        return False
 
 
 class EvenCost(Evaluator):

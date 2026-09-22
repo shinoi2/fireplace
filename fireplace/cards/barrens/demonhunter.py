@@ -82,7 +82,7 @@ class BAR_306:
     """Sigil of Flame"""
 
     # At the start of your next turn, deal $3 damage to all minions.
-    events = OWN_TURN_BEGIN.on(Hit(ALL_MINIONS, 3), Destroy(SELF))
+    events = OWN_TURN_BEGIN.on(Hit(ALL_MINIONS, 3))
 
 
 class BAR_327:
@@ -96,7 +96,7 @@ class BAR_705:
     """Sigil of Silence"""
 
     # At the start of your next turn, <b>Silence</b> all enemy minions.
-    events = OWN_TURN_BEGIN.on(Silence(ENEMY_MINIONS), Destroy(SELF))
+    events = OWN_TURN_BEGIN.on(Silence(ENEMY_MINIONS))
 
 
 class BAR_891:
@@ -141,7 +141,7 @@ class WC_003:
     """Sigil of Summoning"""
 
     # At the start of your next turn, summon two 2/2 Demons with <b>Taunt</b>.
-    events = OWN_TURN_BEGIN.on(Summon(CONTROLLER, "WC_003t") * 2, Destroy(SELF))
+    events = OWN_TURN_BEGIN.on(Summon(CONTROLLER, "WC_003t") * 2)
 
 
 ##

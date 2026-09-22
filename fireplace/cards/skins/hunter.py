@@ -53,6 +53,24 @@ class HERO_05dbp(HERO_05bp):
 
 
 class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Tavish Stormpike)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Tavish for Hire)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Lootmaster Tavish)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
     """Steady Shot (Robin Hood Rexxar)"""
 
     pass
@@ -60,6 +78,30 @@ class HERO_05dbp(HERO_05bp):
 
 class HERO_05dbp(HERO_05bp):
     """Steady Shot (Iron Hunter Rexxar)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Sniper Tavish)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Snowflipper Rexxar)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Black Ox Rexxar)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Denwatcher Rexxar)"""
 
     pass
 
@@ -117,6 +159,24 @@ class HERO_05dbp2(HERO_05bp2):
 
 
 class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Tavish Stormpike)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Tavish for Hire)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Lootmaster Tavish)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
     """Ballista Shot (Robin Hood Rexxar)"""
 
     pass
@@ -124,5 +184,29 @@ class HERO_05dbp2(HERO_05bp2):
 
 class HERO_05dbp2(HERO_05bp2):
     """Ballista Shot (Iron Hunter Rexxar)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Sniper Tavish)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Snowflipper Rexxar)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Black Ox Rexxar)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Denwatcher Rexxar)"""
 
     pass

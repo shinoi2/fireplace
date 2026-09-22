@@ -53,9 +53,9 @@ class LazyNum(LazyValue):
         ret.base *= other
         return ret
 
-    def __truediv__(self, other):
+    def __floordiv__(self, other):
         ret = copy.copy(self)
-        ret.base /= other
+        ret.base //= other
         return ret
 
     def __mod__(self, other):

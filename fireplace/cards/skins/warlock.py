@@ -82,6 +82,24 @@ class HERO_07ebp(HERO_07bp):
     pass
 
 
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Winter's Little Helper Nemsy)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Mogu'shan Gul'dan)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Hatcher Gul'dan)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -160,5 +178,23 @@ class HERO_07ebp2(HERO_07bp2):
 
 class HERO_07ebp2(HERO_07bp2):
     """Soul Tap (Fel Colossus Gul'dan)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Winter's Little Helper Nemsy)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Mogu'shan Gul'dan)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Hatcher Gul'dan)"""
 
     pass

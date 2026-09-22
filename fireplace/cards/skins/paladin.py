@@ -82,6 +82,36 @@ class HERO_04fbp(HERO_04bp):
     pass
 
 
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Trainee Cariel)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Northwatch Cariel)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Stalwart Cariel)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Dungeoneer Cariel)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Greench Uther)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -160,5 +190,35 @@ class HERO_04fbp2(HERO_04bp2):
 
 class HERO_04fbp2(HERO_04bp2):
     """The Silver Hand (Star Ascendant Uther)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Trainee Cariel)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Northwatch Cariel)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Stalwart Cariel)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Dungeoneer Cariel)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Greench Uther)"""
 
     pass

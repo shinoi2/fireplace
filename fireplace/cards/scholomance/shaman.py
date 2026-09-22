@@ -16,14 +16,16 @@ class SCH_507:
 
     # [x]<b>Battlecry:</b> <b>Discover</b> a spell that costs (1) or more. If
     # you play it this turn, repeat this effect.
-    play = DISCOVER(RandomSpell(cost=range(1, 100))).then(
-        Buff(Discover.CARD, "SCH_507e")
+    play = Discover(CONTROLLER, RandomSpell(cost=range(1, 100))).then(
+        Give(CONTROLLER, Discover.CARD), Buff(Discover.CARD, "SCH_507e")
     )
 
 
 class SCH_507e:
     events = Play(CONTROLLER, OWNER).after(
-        DISCOVER(RandomSpell(cost=range(1, 100))).then(Buff(Discover.CARD, "SCH_507e"))
+        Discover(CONTROLLER, RandomSpell(cost=range(1, 100))).then(
+            Give(CONTROLLER, Discover.CARD), Buff(Discover.CARD, "SCH_507e")
+        )
     )
 
 

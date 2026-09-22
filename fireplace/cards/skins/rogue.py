@@ -22,7 +22,7 @@ class HERO_03dbp(HERO_03bp):
     pass
 
 
-class HERO_03dbp(HERO_03bp):
+class HERO_03ebp(HERO_03bp):
     """Dagger Mastery (Diao Chan Valeera)"""
 
     pass
@@ -76,6 +76,18 @@ class HERO_03mbp(HERO_03bp):
     pass
 
 
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Valeera the Nice)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Garden Party Valeera)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -98,7 +110,7 @@ class HERO_03dbp2(HERO_03bp2):
     pass
 
 
-class HERO_03dbp2(HERO_03bp2):
+class HERO_03ebp2(HERO_03bp2):
     """Poisoned Daggers (Diao Chan Valeera)"""
 
     pass
@@ -148,5 +160,17 @@ class HERO_03dbp2(HERO_03bp2):
 
 class HERO_03mbp2(HERO_03bp2):
     """Poisoned Daggers (Edwin VanCleef)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Valeera the Nice)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Garden Party Valeera)"""
 
     pass

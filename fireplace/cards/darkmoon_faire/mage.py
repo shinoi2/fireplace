@@ -136,11 +136,14 @@ class DMF_105:
 
     # <b>Discover</b> a <b>Secret</b> and cast it. <b>Corrupt:</b>
     # <b>Discover</b> 2 instead.
-    play = DISCOVER(RandomSpell(secret=True)).then(CastSpell(Discover.CARD))
+    play = Discover(CONTROLLER, RandomSpell(secret=True)).then(CastSpell(Discover.CARD))
 
 
 class DMF_105t:
-    play = DISCOVER(RandomSpell(secret=True)).then(CastSpell(Discover.CARD)) * 2
+    play = (
+        Discover(CONTROLLER, RandomSpell(secret=True)).then(CastSpell(Discover.CARD))
+        * 2
+    )
 
 
 class DMF_107:

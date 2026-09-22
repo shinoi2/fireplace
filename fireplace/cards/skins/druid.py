@@ -94,6 +94,24 @@ class HERO_06pbp(HERO_06bp):
     pass
 
 
+class HERO_06pbp(HERO_06bp):
+    """Shapeshift (Ice Lord Malfurion)"""
+
+    pass
+
+
+class HERO_06rbp(HERO_06bp):
+    """Shapeshift (Xuen)"""
+
+    pass
+
+
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Cherry Blossom Lunara)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -184,5 +202,23 @@ class HERO_06ebp2(HERO_06bp2):
 
 class HERO_06pbp2(HERO_06bp2):
     """Dire Shapeshift (Steel Guardian Malfurion)"""
+
+    pass
+
+
+class HERO_06pbp2(HERO_06bp2):
+    """Dire Shapeshift (Ice Lord Malfurion)"""
+
+    pass
+
+
+class HERO_06rbp2(HERO_06bp2):
+    """Dire Shapeshift (Xuen)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Cherry Blossom Lunara)"""
 
     pass

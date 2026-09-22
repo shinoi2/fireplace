@@ -56,10 +56,10 @@ class BaseEntity(object):
     def log(self, message, *args):
         self.logger.info(message, *args)
 
-    def get_actions(self, name):
+    def get_actions(self, name, *args):
         actions = getattr(self.data.scripts, name)
         if callable(actions):
-            actions = actions(self)
+            actions = actions(self, *args)
         return actions
 
     def trigger_event(self, source, event, args):

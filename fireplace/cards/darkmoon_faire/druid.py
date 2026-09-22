@@ -17,6 +17,7 @@ class DMF_061:
     # [x]<b>Choose One - </b>Draw a card; or Summon a 2/2 Treant.
     # <b>Corrupt:</b> Do both.
     choose = ("DMF_061a", "DMF_061b")
+    play = ChooseBoth(CONTROLLER) & (Draw(CONTROLLER), Summon(CONTROLLER, "DMF_061t2"))
     corrupt_card = "DMF_061t"
 
 

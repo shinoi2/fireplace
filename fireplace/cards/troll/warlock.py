@@ -70,8 +70,8 @@ class TRL_246:
 
     # Destroy half of each player's deck.
     play = (
-        Destroy(RANDOM(FRIENDLY_DECK)) * (Count(FRIENDLY_DECK) / 2),
-        Destroy(RANDOM(ENEMY_DECK)) * (Count(ENEMY_DECK) / 2),
+        Destroy(RANDOM(FRIENDLY_DECK)) * (Count(FRIENDLY_DECK) // 2),
+        Destroy(RANDOM(ENEMY_DECK)) * (Count(ENEMY_DECK) // 2),
     )
 
 

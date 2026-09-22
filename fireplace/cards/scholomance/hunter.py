@@ -80,7 +80,7 @@ class SCH_300:
 
     # <b>Discover</b> a <b>Deathrattle</b> minion. Your next one costs (1)
     # less.
-    play = DISCOVER(RandomMinion(deathrattle=True)).then(Buff(CONTROLLER, "SCH_300e"))
+    play = DISCOVER(RandomMinion(deathrattle=True)), Buff(CONTROLLER, "SCH_300e")
 
 
 class SCH_300e:

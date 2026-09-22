@@ -24,8 +24,9 @@ class TB_GiftExchange_Treasure_Spell:
     RandomGift = RandomCollectible(
         cost=range(5, 100), card_class=Attr(Controller(OWNER), GameTag.CLASS)
     )
-    play = DISCOVER(RandomGift).then(
-        Buff(Discover.CARDS, "TB_GiftExchange_Enchantment")
+    play = Discover(RandomGift).then(
+        Give(CONTROLLER, Discover.CARD),
+        Buff(Discover.CARDS, "TB_GiftExchange_Enchantment"),
     )
 
 

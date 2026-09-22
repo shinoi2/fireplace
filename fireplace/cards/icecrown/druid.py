@@ -8,7 +8,7 @@ class ICC_047:
     """Fatespinner"""
 
     choose = ("ICC_047a", "ICC_047b")
-    player = ChooseBoth(CONTROLLER) & Morph(SELF, "ICC_047t2")
+    play = ChooseBoth(CONTROLLER) & Morph(SELF, "ICC_047t2")
 
 
 class ICC_047a:

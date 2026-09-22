@@ -22,7 +22,7 @@ class HERO_08bp(HERO_08bp):
     pass
 
 
-class CS2_034_H4(HERO_08bp):
+class HERO_08dbp(HERO_08bp):
     """Fireblast (Celeste)"""
 
     pass
@@ -88,6 +88,54 @@ class HERO_08fbp(HERO_08bp):
     pass
 
 
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Apprentice Dawngrasp)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Explorer Dawngrasp)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Elementalist Dawngrasp)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Pyromancer Dawngrasp)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Frost Fairy Jaina)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Red Crane Jaina)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Festival Jaina)"""
+
+    pass
+
+
+class HERO_08xbp(HERO_08bp):
+    """Fireblast (Queen Azshara)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -110,7 +158,7 @@ class HERO_08bp2(HERO_08bp2):
     pass
 
 
-class CS2_034_H3_AT_132(HERO_08bp2):
+class HERO_08dbp2(HERO_08bp2):
     """Fireblast Rank 2 (Celeste)"""
 
     pass
@@ -172,5 +220,53 @@ class HERO_08fbp2(HERO_08bp2):
 
 class HERO_08fbp2(HERO_08bp2):
     """Fireblast Rank 2 (Arcane Sentinel Jaina)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Apprentice Dawngrasp)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Explorer Dawngrasp)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Elementalist Dawngrasp)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Pyromancer Dawngrasp)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Frost Fairy Jaina)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Red Crane Jaina)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Festival Jaina)"""
+
+    pass
+
+
+class HERO_08xbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Queen Azshara)"""
 
     pass

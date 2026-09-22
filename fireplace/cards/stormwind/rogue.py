@@ -20,7 +20,7 @@ class SW_413:
     """SI:7 Operative"""
 
     # <b>Rush</b> After this attacks a minion, gain <b>Stealth</b>.
-    events = Attack(SELF, MINION).after(Stealth(SELF))
+    events = Attack(SELF, ALL_MINIONS).after(Stealth(SELF))
 
 
 class SW_417:

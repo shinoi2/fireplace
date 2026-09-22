@@ -74,3 +74,25 @@ def test_card_docstrings():
                 continue
             if name != card.name:
                 assert name == card.name
+
+
+def test_card_id():
+    import os
+    import re
+
+    # 正则匹配 卡牌ID格式
+    pattern = re.compile(r"\"[A-Z]{2,3}_[0-9]{3,4}[a-z0-9]*\"")
+    # 匹配 cards 目录内所有文件, 找出所有的卡牌 ID
+    card_ids = []  # 用于存储所有匹配的卡牌 ID
+    for root, dirs, files in os.walk("fireplace/cards"):
+        if root.endswith("debug"):
+            continue
+        for file in files:
+            if file.endswith(".py"):
+                with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                    for line in f:
+                        matches = pattern.findall(line)
+                        for match in matches:
+                            card_ids.append(match[1:-1])
+    for card_id in card_ids:
+        assert card_id in CARDS

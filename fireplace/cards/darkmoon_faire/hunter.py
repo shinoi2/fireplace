@@ -133,5 +133,5 @@ class DMF_088:
 
     # After your hero attacks, <b>Discover</b> a <b>Secret</b> and cast it.
     events = Attack(FRIENDLY_HERO).after(
-        DISCOVER(RandomSpell(secret=True)).then(CastSpell(Discover.CARD))
+        Discover(CONTROLLER, RandomSpell(secret=True)).then(CastSpell(Discover.CARD))
     )

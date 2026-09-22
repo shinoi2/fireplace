@@ -33,7 +33,7 @@ class BAR_313:
 
     # <b>Taunt</b>. <b>Battlecry:</b> If you've restored Health this turn, gain
     # +3/+3.
-    powered_up = Attr(CONTROLLER, "healed_this_turn") > 0
+    powered_up = HEALED_THIS_TURN(FRIENDLY_HERO) > 0
     play = powered_up & Buff(SELF, "BAR_313e")
 
 
@@ -72,8 +72,8 @@ class BAR_735:
 
     # <b>Battlecry:</b> If you've restored Health this turn, deal that much
     # damage to all enemy minions.
-    powered_up = Attr(CONTROLLER, "healed_this_turn") > 0
-    play = powered_up & Hit(ENEMY_MINIONS, Attr(CONTROLLER, "healed_this_turn"))
+    powered_up = HEALED_THIS_TURN(FRIENDLY_HERO) > 0
+    play = powered_up & Hit(ENEMY_MINIONS, HEALED_THIS_TURN(FRIENDLY_HERO))
 
 
 class WC_013:
@@ -96,7 +96,7 @@ class WC_803:
 
     # <b>Battlecry:</b> If you've restored Health this turn, <b>Discover</b> a
     # spell from your deck.
-    powered_up = Attr(CONTROLLER, "healed_this_turn") > 0
+    powered_up = HEALED_THIS_TURN(FRIENDLY_HERO) > 0
     play = powered_up & GenericChoice(CONTROLLER, RANDOM(FRIENDLY_DECK + SPELL, 3))
 
 

@@ -53,6 +53,12 @@ class HERO_10cbp(HERO_10bp):
 
 
 class HERO_10cbp(HERO_10bp):
+    """Demon Claws (Vengeant Kurtrus)"""
+
+    pass
+
+
+class HERO_10cbp(HERO_10bp):
     """Demon Claws (Ember Court Illidan)"""
 
     pass
@@ -60,6 +66,24 @@ class HERO_10cbp(HERO_10bp):
 
 class HERO_10lbp(HERO_10bp):
     """Demon Claws (Infernal Armor Illidan)"""
+
+    pass
+
+
+class HERO_10lbp(HERO_10bp):
+    """Demon Claws (Illidan the Naughty)"""
+
+    pass
+
+
+class HERO_10lbp(HERO_10bp):
+    """Demon Claws (Sha Illidan)"""
+
+    pass
+
+
+class HERO_10cbp(HERO_10bp):
+    """Demon Claws (Sabertender Illidan)"""
 
     pass
 
@@ -117,6 +141,12 @@ class HERO_10cbp2(HERO_10bp2):
 
 
 class HERO_10cbp2(HERO_10bp2):
+    """Demon's Bite (Vengeant Kurtrus)"""
+
+    pass
+
+
+class HERO_10cbp2(HERO_10bp2):
     """Demon's Bite (Ember Court Illidan)"""
 
     pass
@@ -124,5 +154,23 @@ class HERO_10cbp2(HERO_10bp2):
 
 class HERO_10lbp2(HERO_10bp2):
     """Demon's Bite (Infernal Armor Illidan)"""
+
+    pass
+
+
+class HERO_10lbp2(HERO_10bp2):
+    """Demon's Bite (Illidan the Naughty)"""
+
+    pass
+
+
+class HERO_10lbp2(HERO_10bp2):
+    """Demon's Bite (Sha Illidan)"""
+
+    pass
+
+
+class HERO_10cbp2(HERO_10bp2):
+    """Demon's Bite (Sabertender Illidan)"""
 
     pass

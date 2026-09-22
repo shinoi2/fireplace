@@ -71,6 +71,12 @@ class HERO_01dbp(HERO_01bp):
 
 
 class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Defiant Rokara)"""
+
+    pass
+
+
+class HERO_01dbp(HERO_01bp):
     """Armor Up! (Pirate King Garrosh)"""
 
     pass
@@ -84,6 +90,18 @@ class HERO_01dbp(HERO_01bp):
 
 class HERO_01obp(HERO_01bp):
     """Armor Up! (Vanndar Stormpike)"""
+
+    pass
+
+
+class HERO_01qbp(HERO_01bp):
+    """Armor Up! (Greatfather Winter Magni)"""
+
+    pass
+
+
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Garrosh the Wild)"""
 
     pass
 
@@ -159,6 +177,12 @@ class HERO_01dbp2(HERO_01bp2):
 
 
 class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Defiant Rokara)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
     """Tank Up! (Pirate King Garrosh)"""
 
     pass
@@ -170,7 +194,19 @@ class HERO_01dbp2(HERO_01bp2):
     pass
 
 
-class HERO_01dbp2(HERO_01bp2):
+class HERO_01obp2(HERO_01bp2):
     """Tank Up! (Vanndar Stormpike)"""
+
+    pass
+
+
+class HERO_01qbp2(HERO_01bp2):
+    """Tank Up! (Greatfather Winter Magni)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Garrosh the Wild)"""
 
     pass

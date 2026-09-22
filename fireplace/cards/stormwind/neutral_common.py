@@ -76,7 +76,9 @@ class SW_059:
     """Deeprun Engineer"""
 
     # <b>Battlecry:</b> <b>Discover</b> a Mech. It costs (1) less.
-    play = DISCOVER(RandomMech()).then(Buff(Discover.CARD, "SW_059e"))
+    play = Discover(CONTROLLER, RandomMech()).then(
+        Give(CONTROLLER, Discover.CARD), Buff(Discover.CARD, "SW_059e")
+    )
 
 
 class SW_059e:
