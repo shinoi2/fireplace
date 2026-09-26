@@ -402,10 +402,11 @@ class BaseGame(Entity):
         self.manager.turn(player)
         return ret
 
-    def _begin_turn(self, player: "Player"):
-        self.manager.step(self.next_step, Step.MAIN_START)
-        self.manager.step(self.next_step, Step.MAIN_ACTION)
-
+    def _ready_turn(self, player: "Player"):
+        """
+        Ready \a player's turn before "At the start of your turn" effects:
+        mana crystal and mana, overload, hero power, attacks.
+        """
         for p in self.players:
             p.cards_drawn_this_turn = 0
 
@@ -430,12 +431,6 @@ class BaseGame(Entity):
             if entity.type != CardType.PLAYER:
                 entity.turns_in_play += 1
 
-        for entity in player.live_entities:
-            if getattr(entity, "dormant_turns", 0):
-                entity.dormant_turns -= 1
-                if entity.dormant_turns == 0:
-                    self.queue_actions(player, [Awaken(entity)])
-
         if player.hero.power:
             player.hero.power.activations_this_turn = 0
             player.hero.power.additional_activations_this_turn = 0
@@ -446,6 +441,16 @@ class BaseGame(Entity):
             character.healed_this_turn = 0
             if character.controller != player:
                 character.damaged_on_opponent_turn = 0
+
+    def _begin_turn(self, player: "Player"):
+        self.manager.step(self.next_step, Step.MAIN_START)
+        self.manager.step(self.next_step, Step.MAIN_ACTION)
+
+        for entity in player.live_entities:
+            if getattr(entity, "dormant_turns", 0):
+                entity.dormant_turns -= 1
+                if entity.dormant_turns == 0:
+                    self.queue_actions(player, [Awaken(entity)])
 
         player.draw()
         self.manager.step(self.next_step, Step.MAIN_END)

@@ -306,6 +306,7 @@ class BeginTurn(GameAction):
         source.turn += 1
         source.log("%s begins turn %i", player, source.turn)
         source.current_player = player
+        source._ready_turn(player)
         source.manager.step(source.next_step, Step.MAIN_START_TRIGGERS)
         source.manager.step(source.next_step, source.next_step)
         source.game.manager.game_action(self, source, player)

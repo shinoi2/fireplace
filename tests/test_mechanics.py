@@ -1,6 +1,8 @@
 from utils import *
 
+from fireplace.actions import Destroy
 from fireplace.cards.utils import JOUST, Give
+from fireplace.managers import BaseObserver
 
 
 def test_armor():
@@ -822,6 +824,147 @@ def test_spell_power():
     game.player1.give("EX1_277").play()
     expected_health -= 3 + 1
     assert game.player2.hero.health == expected_health
+
+
+DOOMSAYER = "NEW1_021"
+HARVEST_GOLEM = "EX1_556"
+DAMAGED_GOLEM = "skele21"
+
+
+class StartOfTurnSnapshots(BaseObserver):
+    """
+    Records the state of \a player each time a minion is destroyed
+    (Doomsayer's "At the start of your turn" effect).
+    """
+
+    def __init__(self, game, player):
+        self.game = game
+        self.player = player
+        self.snapshots = []
+
+    def targeted_action(self, action, source, target, *args):
+        if not isinstance(action, Destroy):
+            return
+        player = self.player
+        self.snapshots.append(
+            {
+                "game_turn": self.game.turn,
+                "turn": player.turn,
+                "max_mana": player.max_mana,
+                "used_mana": player.used_mana,
+                "mana": player.mana,
+                "overloaded": player.overloaded,
+                "overload_locked": player.overload_locked,
+                "power_activations": player.hero.power.activations_this_turn,
+                "hero_attacks": player.hero.num_attacks,
+                "hero_health": player.hero.health,
+                "hand": len(player.hand),
+                "cards_drawn": player.cards_drawn_this_turn,
+            }
+        )
+
+    def at_turn(self, turn):
+        return [s for s in self.snapshots if s["game_turn"] == turn][0]
+
+
+def _snapshots(game, player):
+    observer = StartOfTurnSnapshots(game, player)
+    game.manager.register(observer)
+    return observer
+
+
+def test_start_of_turn_summoned_minion_is_exhausted():
+    # Mana, hero power and exhaustion are refreshed before "At the start
+    # of your turn" effects: a minion they summon cannot attack.
+    game = prepare_game()
+    game.player1.summon(DOOMSAYER)
+    game.player1.summon(HARVEST_GOLEM)
+    game.skip_turn()
+    assert len(game.player1.field) == 1
+    golem = game.player1.field[0]
+    assert golem.id == DAMAGED_GOLEM
+    assert golem.asleep
+    assert not golem.can_attack()
+
+
+def test_start_of_turn_alarmobot_swapped_minion_is_exhausted():
+    game = prepare_game()
+    game.player1.discard_hand()
+    game.player1.summon("EX1_006")
+    yeti = game.player1.give("CS2_182")
+    game.skip_turn()
+    assert yeti.zone == Zone.PLAY
+    assert yeti.asleep
+    assert not yeti.can_attack()
+
+
+def test_start_of_turn_mana_refreshed_before_effects():
+    game = prepare_game(CardClass.WARRIOR, CardClass.WARRIOR, game_class=Game)
+    player = game.player1
+    player.summon(DOOMSAYER)
+    player.give(GOLDSHIRE_FOOTMAN).play()
+    assert player.mana == 0
+    hand = len(player.hand)
+    observer = _snapshots(game, player)
+    game.skip_turn()
+    snapshot = observer.at_turn(3)
+    assert snapshot["turn"] == 3
+    assert snapshot["max_mana"] == 2
+    assert snapshot["used_mana"] == 0
+    assert snapshot["mana"] == 2
+    # The draw comes after the effects
+    assert snapshot["hand"] == hand
+    assert snapshot["cards_drawn"] == 0
+    assert len(player.hand) == hand + 1
+    assert player.mana == player.max_mana == 2
+
+
+def test_start_of_turn_hero_power_and_attacks_refreshed_before_effects():
+    game = prepare_game(CardClass.WARRIOR, CardClass.WARRIOR)
+    player = game.player1
+    player.summon(DOOMSAYER)
+    player.hero.power.use()
+    player.give(LIGHTS_JUSTICE).play()
+    player.hero.attack(target=game.player2.hero)
+    assert player.hero.power.activations_this_turn == 1
+    assert player.hero.num_attacks == 1
+    observer = _snapshots(game, player)
+    game.skip_turn()
+    snapshot = observer.at_turn(3)
+    assert snapshot["power_activations"] == 0
+    assert snapshot["hero_attacks"] == 0
+
+
+def test_start_of_turn_overload_locked_before_effects():
+    game = prepare_game(CardClass.SHAMAN, CardClass.SHAMAN, game_class=Game)
+    player = game.player1
+    player.give("EX1_243").play()  # Dust Devil, Overload: (2)
+    player.summon(DOOMSAYER)
+    assert player.overloaded == 2
+    observer = _snapshots(game, player)
+    game.skip_turn()
+    snapshot = observer.at_turn(3)
+    assert snapshot["max_mana"] == 2
+    assert snapshot["overload_locked"] == 2
+    assert snapshot["overloaded"] == 0
+    assert snapshot["mana"] == 0
+    assert player.overload_locked == 2
+    assert player.mana == 0
+
+
+def test_start_of_turn_fatigue_after_effects():
+    game = prepare_game()
+    player = game.player1
+    player.draw(len(player.deck))
+    assert len(player.deck) == 0
+    player.summon(DOOMSAYER)
+    player.summon(HARVEST_GOLEM)
+    observer = _snapshots(game, player)
+    game.skip_turn()
+    snapshot = observer.at_turn(3)
+    assert snapshot["hero_health"] == 30
+    assert player.hero.health == 30 - 1
+    assert [minion.id for minion in player.field] == [DAMAGED_GOLEM]
 
 
 def test_stealth_windfury():
