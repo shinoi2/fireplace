@@ -3003,6 +3003,20 @@ def test_shadowform():
     assert not game.player1.hero.power.is_usable()
 
 
+def test_shadowhoof_slayer():
+    game = prepare_game()
+    assert game.player1.hero.atk == 0
+    game.player1.give("BT_142").play()
+    assert game.player1.hero.atk == 1
+    assert game.player1.hero.can_attack()
+    game.player1.hero.attack(target=game.player2.hero)
+    assert game.player2.hero.health == 30 - 1
+    assert not game.player1.buffs
+    game.end_turn()
+    assert game.player1.hero.atk == 0
+    assert not game.player1.hero.buffs
+
+
 def test_shadowstep():
     game = prepare_game()
     shadowstep = game.player1.give("EX1_144")

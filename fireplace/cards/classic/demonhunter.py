@@ -8,7 +8,7 @@ class BT_142:
     """Shadowhoof Slayer"""
 
     # <b>Battlecry:</b> Give your hero +1_Attack this turn.
-    play = Buff(CONTROLLER, "BT_142e")
+    play = Buff(FRIENDLY_HERO, "BT_142e")
 
 
 BT_142e = buff(atk=1)
