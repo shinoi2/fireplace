@@ -3095,6 +3095,49 @@ def test_sightless_watcher():
     # game.player1.give("BT_323").play(choose=wisp)
 
 
+def test_sightless_watcher_put_on_top():
+    for i in range(3):
+        game = prepare_game()
+        deck = list(game.player1.deck)
+        game.player1.give("BT_323").play()
+        choice = game.player1.choice
+        assert len(choice.cards) == 3
+        assert len(set(card.id for card in choice.cards)) == 3
+        chosen = choice.cards[i]
+        choice.choose(chosen)
+        assert game.player1.deck[-1] is chosen
+        assert len(game.player1.deck) == len(deck)
+        assert [card for card in game.player1.deck if card is not chosen] == [
+            card for card in deck if card is not chosen
+        ]
+        game.skip_turn()
+        assert chosen.zone == Zone.HAND
+        assert chosen not in game.player1.deck
+
+
+def test_sightless_watcher_unfinished_choice():
+    # A choice left open in one game (conceded, abandoned)
+    # must not break the next Sightless Watcher in another game.
+    game1 = prepare_game()
+    game1.player1.give("BT_323").play()
+    assert game1.player1.choice
+    game2 = prepare_game()
+    game2.player1.give("BT_323").play()
+    chosen = game2.player1.choice.cards[0]
+    game2.player1.choice.choose(chosen)
+    assert game2.player1.deck[-1] is chosen
+
+    # Two choices open at the same time in two games
+    game3 = prepare_game()
+    game4 = prepare_game()
+    game3.player1.give("BT_323").play()
+    game4.player1.give("BT_323").play()
+    for game in (game3, game4):
+        chosen = game.player1.choice.cards[2]
+        game.player1.choice.choose(chosen)
+        assert game.player1.deck[-1] is chosen
+
+
 def test_slam():
     game = prepare_game()
     wisp = game.player1.summon(WISP)
