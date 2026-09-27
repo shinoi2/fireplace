@@ -1,4 +1,5 @@
 import copy
+import functools
 from collections import OrderedDict
 
 from hearthstone.enums import (
@@ -313,7 +314,11 @@ class BeginTurn(GameAction):
         source.game.manager.game_action(self, source, player)
         self.broadcast(source, EventListener.ON, player)
         if player.choice:
-            player.choice.choice_callback.append(lambda: source._begin_turn(player))
+            # A partial on a bound method, not a lambda: a deep copy of the
+            # game copies it with the game, and the copy draws in the copy.
+            player.choice.choice_callback.append(
+                functools.partial(source._begin_turn, player)
+            )
         else:
             source._begin_turn(player)
 
@@ -722,7 +727,10 @@ class TargetedAction(Action):
                 # Another play of the same choice (Brann Bronzebeard, "* 2")
                 # waits for the choice that is open, not for itself.
                 choice_callback = source.controller.choice.choice_callback
-            choice_callback.append(lambda: self._trigger(i, source))
+            # A partial on a bound method, not a lambda: a deep copy of the
+            # game made while the choice is open copies the action and its
+            # source with it, and the copy resumes in the copy.
+            choice_callback.append(functools.partial(self._trigger, i, source))
             return []
         ret = []
         self.trigger_index = i

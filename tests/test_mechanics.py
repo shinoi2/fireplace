@@ -1039,6 +1039,32 @@ def test_start_of_turn_fatigue_after_effects():
     assert [minion.id for minion in player.field] == [DAMAGED_GOLEM]
 
 
+def test_start_of_turn_draw_waits_for_choice_in_a_copy():
+    # Sphere of Sapience opens a choice at the start of the turn, and the
+    # draw waits for it. A copy of the game made while it is open draws in
+    # the copy when the copy makes the choice, not in the original game.
+    game = prepare_game()
+    player = game.player1
+    player.discard_hand()
+    player.give("SCH_259").play()
+    game.end_turn()
+    game.end_turn()
+    assert player.choice
+    assert not player.hand
+    deck = len(player.deck)
+    copy = _copy_game(game)
+    copy.player1.choice.choose(copy.player1.choice.cards[0])
+    assert not copy.player1.choice
+    assert len(copy.player1.hand) == 1
+    assert len(copy.player1.deck) == deck - 1
+    assert player.choice
+    assert not player.hand
+    assert len(player.deck) == deck
+    player.choice.choose(player.choice.cards[0])
+    assert len(player.hand) == 1
+    assert len(player.deck) == deck - 1
+
+
 def test_stealth_windfury():
     game = prepare_game(CardClass.MAGE, CardClass.MAGE)
     worgen = game.player1.give("EX1_010")
