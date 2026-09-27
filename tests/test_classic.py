@@ -1399,6 +1399,28 @@ def test_flame_leviathan():
     assert wisp.dead
 
 
+def test_flamestrike():
+    # Patch 21.8: "Deal $5 damage to all enemy minions."
+    game = prepare_empty_game()
+    game.end_turn()
+    yeti1 = game.player2.give("CS2_182")
+    yeti1.play()
+    yeti2 = game.player2.give("CS2_182")
+    yeti2.play()
+    wisp = game.player2.give(WISP)
+    wisp.play()
+    game.end_turn()
+
+    own_yeti = game.player1.summon("CS2_182")
+    game.player1.give("CS2_032").play()
+    assert yeti1.dead
+    assert yeti2.dead
+    assert wisp.dead
+    assert own_yeti.health == 5
+    assert game.player1.hero.health == 30
+    assert game.player2.hero.health == 30
+
+
 def test_force_of_nature():
     game = prepare_game()
     game.player1.give("EX1_571").play()
