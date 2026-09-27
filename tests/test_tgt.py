@@ -295,6 +295,23 @@ def test_dreadsteed():
     assert new_dreadsteed is not dreadsteed
 
 
+def test_dreadsteed_dies_during_opponent_turn():
+    # "Deathrattle: At the end of the turn, summon a Dreadsteed." Killed
+    # during the opponent's turn, it comes back at the end of that same turn.
+    game = prepare_empty_game()
+    dreadsteed = game.player1.summon("AT_019")
+    game.end_turn()
+    game.player2.give(MOONFIRE).play(target=dreadsteed)
+    assert dreadsteed.dead
+    assert len(game.player1.field) == 0
+    game.end_turn()
+    assert len(game.player1.field) == 1
+    assert game.player1.field[0].id == "AT_019"
+    assert not game.player2.field
+    game.end_turn()
+    assert len(game.player1.field) == 1
+
+
 def test_effigy():
     game = prepare_game()
     secret_effigy = game.player1.give("AT_002")
