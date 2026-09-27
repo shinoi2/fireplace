@@ -819,6 +819,25 @@ def test_the_skeleton_knight_full_hand():
     assert not game.player1.hand.contains("AT_128")
 
 
+def test_thunder_bluff_valiant():
+    # "Inspire: Give your Totems +2 Attack." (patch 21.8), the totem that
+    # the Hero Power summons included (wiki)
+    game = prepare_empty_game(CardClass.SHAMAN, CardClass.SHAMAN)
+    searing = game.player1.summon("CS2_050")
+    wisp = game.player1.summon(WISP)
+    enemy_totem = game.player2.summon("CS2_050")
+    game.player1.summon("AT_049")
+    game.player1.hero.power.use()
+    assert searing.atk == 1 + 2
+    assert searing.health == 1
+    assert wisp.atk == 1
+    assert enemy_totem.atk == 1
+    new_totem = game.player1.field[-1]
+    assert Race.TOTEM in new_totem.races
+    assert new_totem.atk == new_totem.data.atk + 2
+    assert new_totem.health == new_totem.data.health
+
+
 def test_tiny_knight_of_evil():
     game = prepare_empty_game()
     knight = game.player1.give("AT_021")
