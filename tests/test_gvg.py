@@ -1019,6 +1019,29 @@ def test_sneeds_old_shredder():
     assert pilot.data.collectible
 
 
+def test_tinkers_sharpsword_oil():
+    # "Give your weapon +3 Attack. Combo: Give a random friendly minion +3 Attack."
+    # Playable without a weapon (wiki); the combo goes to a minion, never the hero.
+    for i in range(12):
+        random.seed(i)
+        game = prepare_empty_game(CardClass.ROGUE, CardClass.ROGUE)
+        oil = game.player1.give("GVG_022")
+        assert oil.is_playable()
+        game.player1.give(THE_COIN).play()
+        wisp = game.player1.summon(WISP)
+        oil.play()
+        assert wisp.atk == 1 + 3
+        assert game.player1.hero.atk == 0
+    game = prepare_empty_game(CardClass.ROGUE, CardClass.ROGUE)
+    game.player1.give(THE_COIN).play()
+    game.player1.give("GVG_022").play()
+    assert game.player1.hero.atk == 0
+    game.player1.hero.power.use()
+    game.player1.give("GVG_022").play()
+    assert game.player1.weapon.atk == 1 + 3
+    assert game.player1.hero.atk == 1 + 3
+
+
 def test_tinkertown_technician():
     game = prepare_game()
     game.player1.discard_hand()
