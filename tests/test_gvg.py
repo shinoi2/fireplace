@@ -731,6 +731,22 @@ def test_metaltooth_leaper():
     assert dummy.atk == 0 + 2
 
 
+def test_metaltooth_leaper_all_mechs():
+    # "Battlecry: Give your other Mechs +2 Attack." All of them, not one
+    game = prepare_empty_game()
+    annoy = game.player1.summon("GVG_085")
+    minibot = game.player1.summon("GVG_058")
+    yeti = game.player1.summon("CS2_182")
+    enemy_dummy = game.player2.summon(TARGET_DUMMY)
+    metaltooth = game.player1.give("GVG_048")
+    metaltooth.play()
+    assert annoy.atk == 1 + 2
+    assert minibot.atk == 2 + 2
+    assert yeti.atk == 4
+    assert enemy_dummy.atk == 0
+    assert metaltooth.atk == 3
+
+
 def test_micro_machine():
     game = prepare_game()
     micro = game.player1.give("GVG_103")

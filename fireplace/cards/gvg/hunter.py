@@ -16,7 +16,7 @@ GVG_046e = buff(atk=1)
 class GVG_048:
     """Metaltooth Leaper"""
 
-    play = Buff(RANDOM(FRIENDLY_MINIONS + MECH - SELF), "GVG_048e")
+    play = Buff(FRIENDLY_MINIONS + MECH - SELF, "GVG_048e")
 
 
 GVG_048e = buff(atk=2)
