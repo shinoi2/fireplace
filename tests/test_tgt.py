@@ -523,6 +523,24 @@ def test_lowly_squire():
     assert squire.atk == 3
 
 
+def test_magnataur_alpha():
+    # "Also damages the minions next to whomever he attacks." His attack to
+    # each neighbour, after the combat, without any damage back (wiki).
+    game = prepare_empty_game()
+    left = game.player2.summon("CS2_186")  # War Golem 7/7
+    wisp = game.player2.summon(WISP)
+    right = game.player2.summon("CS2_186")
+    edge = game.player2.summon("CS2_186")
+    alpha = game.player1.summon("AT_067")
+    game.end_turn()
+    game.end_turn()
+    alpha.attack(wisp)
+    assert wisp.dead
+    assert left.health == right.health == 7 - 5
+    assert edge.health == 7
+    assert alpha.health == 3 - 1
+
+
 def test_master_of_ceremonies():
     game = prepare_game()
     master = game.player1.give("AT_117")
