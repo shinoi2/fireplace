@@ -113,6 +113,29 @@ def test_shaman():
     assert game.current_player.hero.power.is_usable()
 
 
+def test_strength_totem():
+    # Patch 21.8: 0/2, "At the end of your turn, give another friendly
+    # minion +1 Attack."
+    game = prepare_empty_game()
+    totem = game.player1.summon("CS2_058")
+    assert totem.atk == 0
+    assert totem.health == 2
+    game.end_turn()
+    # No other friendly minion: nothing happens
+    assert totem.atk == 0
+    game.end_turn()
+
+    wisp = game.player1.give(WISP)
+    wisp.play()
+    game.end_turn()
+    assert wisp.atk == 1 + 1
+    assert wisp.buffs[0].id == "CS2_058e"
+    assert totem.atk == 0
+    # Not at the end of the opponent's turn
+    game.end_turn()
+    assert wisp.atk == 1 + 1
+
+
 def test_healing_totem():
     game = prepare_game()
     footman = game.current_player.give(GOLDSHIRE_FOOTMAN)

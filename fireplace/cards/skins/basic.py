@@ -33,7 +33,7 @@ class CS2_058:
     events = OWN_TURN_END.on(Buff(RANDOM(FRIENDLY_MINIONS - SELF), "CS2_058e"))
 
 
-CS2_058 = buff(atk=1)
+CS2_058e = buff(atk=1)
 
 
 class HERO_03bp:

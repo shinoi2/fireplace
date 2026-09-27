@@ -117,7 +117,7 @@ class CS2_031:
 class CS2_032:
     """Flamestrike"""
 
-    play = Hit(ENEMY_MINIONS, 4)
+    play = Hit(ENEMY_MINIONS, 5)
 
 
 class EX1_275:

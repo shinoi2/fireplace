@@ -60,8 +60,7 @@ CS2_087e = buff(atk=3)
 class CS2_089:
     """Holy Light"""
 
-    requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0}
-    play = Heal(TARGET, 6)
+    play = Heal(FRIENDLY_HERO, 8)
 
 
 class CS2_092:
