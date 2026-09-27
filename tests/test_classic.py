@@ -3060,20 +3060,17 @@ def test_shadowform():
     game.end_turn()
     game.end_turn()
 
+    # Patch 21.8: "Your Hero Power becomes 'Deal 2 damage.'" -- no Mind Shatter
+    game.player1.hero.power.use(target=game.player2.hero)
+    assert game.player2.hero.health == 26
     shadowform2 = game.player1.give("EX1_625")
     shadowform2.play()
     assert game.player1.shadowform
-    assert game.player1.hero.power.id == "EX1_625t2"
+    assert game.player1.hero.power.id == "EX1_625t"
     assert game.player1.hero.power.is_usable()
     game.player1.hero.power.use(target=game.player2.hero)
     assert not game.player1.hero.power.is_usable()
-    assert game.player2.hero.health == 25
-
-    shadowform3 = game.player1.give("EX1_625")
-    shadowform3.play()
-    assert game.player1.shadowform
-    assert game.player1.hero.power.id == "EX1_625t2"
-    assert not game.player1.hero.power.is_usable()
+    assert game.player2.hero.health == 24
 
 
 def test_shadowhoof_slayer():

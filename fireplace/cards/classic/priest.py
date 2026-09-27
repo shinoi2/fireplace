@@ -279,14 +279,8 @@ class EX1_624:
 class EX1_625:
     """Shadowform"""
 
-    play = Switch(
-        FRIENDLY_HERO_POWER,
-        {
-            "EX1_625t": Summon(CONTROLLER, "EX1_625t2"),
-            "EX1_625t2": (),
-            None: Summon(CONTROLLER, "EX1_625t"),
-        },
-    )
+    # Your Hero Power becomes 'Deal 2 damage.'
+    play = Summon(CONTROLLER, "EX1_625t")
 
 
 class EX1_625t:
