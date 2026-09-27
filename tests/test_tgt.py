@@ -87,6 +87,36 @@ def test_astral_communion_full_mana():
     assert game.player1.mana == 6
 
 
+def test_astral_communion_filled_crystals():
+    # "Gain 10 Mana Crystals. Discard your hand." The wiki: 10 filled Mana
+    # Crystals, the counter at 10/10, replacing temporary, empty or
+    # Overloaded crystals; an Excess Mana instead if, once the card is paid,
+    # the available mana or the crystals are already at the maximum.
+    game = prepare_empty_game(CardClass.DRUID, CardClass.DRUID)
+    player = game.player1
+    player.max_mana = 5
+    player.overload_locked = 2
+    astral = player.give("AT_043")
+    player.give(WISP)
+    assert player.mana == 3
+    astral.cost = 0
+    astral.play()
+    assert not player.hand
+    assert player.max_mana == 10
+    assert player.overload_locked == 0
+    assert player.mana == 10
+
+    game = prepare_empty_game(CardClass.DRUID, CardClass.DRUID)
+    player = game.player1
+    player.max_mana = 8
+    player.temp_mana = 6
+    astral = player.give("AT_043")
+    astral.play()
+    assert player.mana == 10
+    assert player.max_mana == 8
+    assert [card.id for card in player.hand] == ["CS2_013t"]
+
+
 def test_aviana():
     game = prepare_game()
     aviana = game.player1.give("AT_045")
