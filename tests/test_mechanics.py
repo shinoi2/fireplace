@@ -1200,3 +1200,46 @@ def test_discover_left_open_in_another_game():
     assert pick in game2.player1.field
     assert pick.frozen
     assert all(card.game is game1 for card in choice1.cards)
+
+
+class PlayDuringHealBroadcast(BaseObserver):
+    """
+    Plays \a card in \a other_game while this game resolves its first heal
+    broadcast: two games run in two threads, and the thread switches there.
+    """
+
+    def __init__(self, other_game, card):
+        self.other_game = other_game
+        self.card = card
+        self.armed = False
+
+    def targeted_action(self, action, source, target, *args):
+        if isinstance(action, Heal):
+            self.armed = True
+
+    def action_start(self, type, source, index, target):
+        if self.armed and type == BlockType.TRIGGER:
+            self.armed = False
+            self.other_game.player1.give(self.card).play()
+
+
+def _lightwarden_and_two_damaged_minions(game):
+    lightwarden = game.player1.give("EX1_001").play()
+    for _ in range(2):
+        yeti = game.player1.give("CS2_182").play()
+        yeti.damage = 2
+    assert lightwarden.atk == 1
+    return lightwarden
+
+
+def test_heal_broadcasts_stay_in_their_game():
+    # Circle of Healing in two games at once: each heal of a game
+    # triggers that game's Lightwarden once, and only once.
+    game1 = prepare_game()
+    game2 = prepare_game()
+    lightwarden1 = _lightwarden_and_two_damaged_minions(game1)
+    lightwarden2 = _lightwarden_and_two_damaged_minions(game2)
+    game1.manager.register(PlayDuringHealBroadcast(game2, CIRCLE_OF_HEALING))
+    game1.player1.give(CIRCLE_OF_HEALING).play()
+    assert lightwarden1.atk == 1 + 2 * 2
+    assert lightwarden2.atk == 1 + 2 * 2

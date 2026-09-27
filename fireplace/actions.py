@@ -685,11 +685,12 @@ class TargetedAction(Action):
         return ret
 
     def trigger(self, source):
-        if hasattr(self, "choose") and not self._execution:
-            # A choice keeps its state on the action until it is made (player,
-            # cards, the callback held back), and the action of a card script
-            # is shared by every game of the process: each play of the card
-            # gets its own copy of the action.
+        if not self._execution:
+            # The action of a card script is shared by every game of the
+            # process, and an execution keeps its state on the action: a
+            # choice until it is made (player, cards, the callback held back),
+            # the broadcasts it queues, its trigger index. Each execution gets
+            # its own copy of the action.
             return self._copy_for_execution().trigger(source)
 
         ret = []
@@ -717,7 +718,7 @@ class TargetedAction(Action):
     def _trigger(self, i, source):
         if source.controller.choice:
             choice_callback = self.choice_callback
-            if self._execution:
+            if hasattr(self, "choose"):
                 # Another play of the same choice (Brann Bronzebeard, "* 2")
                 # waits for the choice that is open, not for itself.
                 choice_callback = source.controller.choice.choice_callback
