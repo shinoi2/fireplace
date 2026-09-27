@@ -102,6 +102,75 @@ def test_bounce():
     assert brewmaster2 in game.graveyard
 
 
+def test_bounce_silenced():
+    # Wiki (Silence): "returning a silenced minion to its owner's hand will
+    # restore the minion to its original stats and card text, removing the
+    # silence"
+    game = prepare_empty_game()
+    senjin = game.player1.give("CS2_179")
+    senjin.play()
+    game.player1.give("CS2_092").play(target=senjin)
+    assert senjin.atk == 3 + 4
+    game.player1.give(SILENCE).play(target=senjin)
+    assert senjin.silenced
+    assert not senjin.taunt
+    assert senjin.atk == 3
+    game.end_turn()
+
+    game.player2.give("EX1_581").play(target=senjin)
+    assert senjin.zone == Zone.HAND
+    assert not senjin.silenced
+    assert senjin.taunt
+    assert not senjin.buffs
+    game.end_turn()
+
+    senjin.play()
+    assert not senjin.silenced
+    assert senjin.taunt
+    assert senjin.atk == 3
+    assert senjin.health == 5
+
+
+def test_bounce_silenced_deathrattle():
+    game = prepare_empty_game()
+    golem = game.player1.give("EX1_556")
+    golem.play()
+    game.player1.give(SILENCE).play(target=golem)
+    assert not golem.has_deathrattle
+    game.player1.give("EX1_049").play(target=golem)
+    assert golem.zone == Zone.HAND
+    assert golem.has_deathrattle
+    game.end_turn()
+    game.end_turn()
+
+    golem.play()
+    game.player1.give(FIREBALL).play(target=golem)
+    assert golem.dead
+    assert game.player1.field[-1].id == "skele21"
+
+
+def test_bounce_keywords():
+    # Back in the hand, a minion has its keywords again
+    game = prepare_empty_game()
+    squire = game.player1.give("EX1_008")
+    squire.play()
+    game.player1.give(MOONFIRE).play(target=squire)
+    assert not squire.divine_shield
+    game.player1.give("EX1_049").play(target=squire)
+    assert squire.divine_shield
+
+
+def test_silenced_stays_silenced_in_graveyard():
+    game = prepare_empty_game()
+    golem = game.player1.give("EX1_556")
+    golem.play()
+    game.player1.give(SILENCE).play(target=golem)
+    game.player1.give(FIREBALL).play(target=golem)
+    assert golem.dead
+    assert golem.silenced
+    assert not game.player1.field
+
+
 def test_card_draw():
     game = prepare_game()
     # pass turn 1

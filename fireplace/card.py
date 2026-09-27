@@ -1328,9 +1328,21 @@ class Minion(Character):
         if self.zone == Zone.PLAY:
             self.log("%r is removed from the field", self)
             self.controller.field.remove(self)
-            for attr in self.silenceable_attributes:
-                if attr in self.data.tags:
-                    setattr(self, attr, self.data.tags[attr])
+            if value not in (Zone.GRAVEYARD, Zone.SETASIDE):
+                # Back in the hand or the deck, the minion is its card again:
+                # its keywords come back and the silence is gone.
+                for attr in self.silenceable_attributes:
+                    setattr(self, attr, False)
+                self.tags.update(
+                    {
+                        tag: tag_value
+                        for tag, tag_value in self.data.tags.items()
+                        if self.tags.map.get(tag) in self.silenceable_attributes
+                    }
+                )
+                if self.silenced:
+                    self.silenced = False
+                    self._events = self.data.scripts.events[:]
             if self.data.tags.get(GameTag.DORMANT, False):
                 self.dormant = True
             if getattr(self.data.scripts, "dormant_turns"):
