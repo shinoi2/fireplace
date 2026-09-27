@@ -28,6 +28,37 @@ def test_anubarak():
     assert len(game.player1.hand) == 0
 
 
+def test_argent_watchman():
+    # "Can't attack. Inspire: Can attack as normal this turn."
+    game = prepare_empty_game(CardClass.WARRIOR, CardClass.WARRIOR)
+    watchman = game.player1.summon("AT_109")
+    game.player1.hero.power.use()
+    # Not the turn it is summoned
+    assert not watchman.can_attack()
+    game.end_turn()
+    game.end_turn()
+    assert watchman.cant_attack
+    assert not watchman.can_attack()
+    game.player1.hero.power.use()
+    assert not watchman.cant_attack
+    assert watchman.can_attack()
+    watchman.attack(game.player2.hero)
+    assert game.player2.hero.health == 30 - 2
+    assert not watchman.can_attack()
+    game.end_turn()
+    assert watchman.cant_attack
+    game.end_turn()
+    assert watchman.cant_attack
+    assert not watchman.can_attack()
+    # Silenced after the inspiration: it can attack for good
+    game.player1.hero.power.use()
+    game.player1.give(SILENCE).play(target=watchman)
+    game.end_turn()
+    game.end_turn()
+    assert not watchman.cant_attack
+    assert watchman.can_attack()
+
+
 def test_astral_communion():
     game = prepare_game(game_class=Game)
     game.player1.discard_hand()
