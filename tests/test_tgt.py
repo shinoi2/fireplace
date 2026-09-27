@@ -121,6 +121,33 @@ def test_burgle():
     assert game.player2.hero.card_class in game.player1.hand[1].classes
 
 
+def test_coldarra_drake():
+    # "You can use your Hero Power any number of times."
+    game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE)
+    drake = game.player1.summon("AT_008")
+    power = game.player1.hero.power
+    for i in range(5):
+        assert power.is_usable()
+        power.use(target=game.player2.hero)
+    assert game.player2.hero.health == 30 - 5
+    assert game.player1.mana == 0
+    assert not power.is_usable()
+    # With Garrison Commander too, still any number of times
+    game.end_turn()
+    game.end_turn()
+    game.player1.summon("AT_080")
+    for i in range(5):
+        assert power.is_usable()
+        power.use(target=game.player2.hero)
+    # Without the drake, once a turn again
+    game.end_turn()
+    game.end_turn()
+    drake.destroy()
+    game.player1.field[0].destroy()
+    power.use(target=game.player2.hero)
+    assert not power.is_usable()
+
+
 def test_dalaran_aspirant():
     game = prepare_game(CardClass.ROGUE, CardClass.ROGUE)
     aspirant = game.player1.give("AT_006")

@@ -1729,10 +1729,23 @@ class HeroPower(PlayableCard):
         return data
 
     @property
+    def unlimited_activations(self):
+        # An aura that sets HEROPOWER_ADDITIONAL_ACTIVATIONS to -1 (Coldarra
+        # Drake) allows any number of uses, whatever else adds uses (Garrison
+        # Commander). int_property clamps the sum to 0: each aura is read.
+        for slot in self.slots:
+            value = getattr(slot, "additional_activations", 0)
+            if callable(value):
+                value = value(self, 0)
+            if value == -1:
+                return True
+        return self._getattr("additional_activations", 0) == -1
+
+    @property
     def exhausted(self):
         if self.heropower_disabled:
             return True
-        if self.additional_activations == -1:
+        if self.unlimited_activations:
             return False
         return self.activations_this_turn >= (
             1 + self.additional_activations + self.additional_activations_this_turn
