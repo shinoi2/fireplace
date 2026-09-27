@@ -1108,8 +1108,15 @@ def _copy_game(game):
     return deepcopy(game, memo)
 
 
+def _stack_deck(player):
+    # Three known minions on top of the deck: nothing transforms in hand.
+    for id in ("CS2_182", "CS2_231", "CS2_120"):
+        player.give(id).zone = Zone.DECK
+
+
 def _play_tracking(game):
     game.player1.discard_hand()
+    _stack_deck(game.player1)
     game.player1.give("DS1_184").play()
     choice = game.player1.choice
     assert choice
@@ -1120,9 +1127,9 @@ def _play_tracking(game):
 def test_choice_left_open_in_another_game():
     # A choice belongs to its game: a Tracking left open in one game
     # (conceded, abandoned) must not touch the Tracking of another game.
-    game1 = prepare_game()
+    game1 = prepare_empty_game()
     choice1, cards1 = _play_tracking(game1)
-    game2 = prepare_game()
+    game2 = prepare_empty_game()
     choice2, cards2 = _play_tracking(game2)
     assert choice2 is not choice1
     choice2.choose(cards2[0])
@@ -1139,11 +1146,13 @@ def test_choice_left_open_in_another_game():
 def test_choice_callback_left_open_in_another_game():
     # Southsea Scoundrel: the rest of the effect waits for the choice.
     # A Scoundrel left open in one game must not empty it in another game.
-    game1 = prepare_game()
+    game1 = prepare_empty_game()
+    _stack_deck(game1.player2)
     game1.player1.discard_hand()
     game1.player1.give("BAR_081").play()
     assert game1.player1.choice
-    game2 = prepare_game()
+    game2 = prepare_empty_game()
+    _stack_deck(game2.player2)
     game2.player1.discard_hand()
     game2.player1.give("BAR_081").play()
     pick = game2.player1.choice.cards[0]
@@ -1152,8 +1161,8 @@ def test_choice_callback_left_open_in_another_game():
 
 
 def test_choices_open_at_the_same_time_in_two_games():
-    game1 = prepare_game()
-    game2 = prepare_game()
+    game1 = prepare_empty_game()
+    game2 = prepare_empty_game()
     choice1, cards1 = _play_tracking(game1)
     choice2, cards2 = _play_tracking(game2)
     assert game1.player1.choice is choice1
@@ -1169,7 +1178,7 @@ def test_choices_open_at_the_same_time_in_two_games():
 def test_choice_open_in_a_copy_of_the_game():
     # A bot copies the game while a choice is open, chooses in the copy
     # and plays on (another Tracking, left open): the game is untouched.
-    game = prepare_game()
+    game = prepare_empty_game()
     choice, cards = _play_tracking(game)
     game_copy = _copy_game(game)
     copy_choice = game_copy.player1.choice
