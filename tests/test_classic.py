@@ -3501,15 +3501,58 @@ def test_totemic_might():
 
 
 def test_tracking():
-    game = prepare_game()
-    game.player1.discard_hand()
+    # Patch 21.8: "Discover a card from your deck."
+    game = prepare_empty_game()
+    deck_ids = [WISP, WISP, "CS2_182", "CS2_189", "CS2_120", "CS2_171"]
+    for id in deck_ids:
+        game.player1.card(id, zone=Zone.DECK)
+    deck = game.player1.deck[:]
+    assert len(deck) == 6
     tracking = game.player1.give("DS1_184")
     tracking.play()
-    assert game.player1.choice
-    assert len(game.player1.choice.cards) == 3
-    pick = game.player1.choice.cards[0]
-    game.player1.choice.choose(pick)
+    choice = game.player1.choice
+    assert choice
+    assert len(choice.cards) == 3
+    # Three different cards, all from the deck
+    assert len(set(card.id for card in choice.cards)) == 3
+    for card in choice.cards:
+        assert card in deck
+        assert card.zone == Zone.DECK
+    pick = choice.cards[0]
+    others = [card for card in choice.cards if card is not pick]
+    drawn = game.player1.cards_drawn_this_turn
+    choice.choose(pick)
+    assert not game.player1.choice
+    # The chosen card is drawn, the others stay in the deck
     assert game.player1.hand == [pick]
+    assert pick.zone == Zone.HAND
+    assert game.player1.cards_drawn_this_turn == drawn + 1
+    assert len(game.player1.deck) == 5
+    for card in others:
+        assert card.zone == Zone.DECK
+        assert card in game.player1.deck
+
+
+def test_tracking_duplicates():
+    game = prepare_empty_game()
+    for id in (WISP, WISP, WISP, "CS2_182"):
+        game.player1.card(id, zone=Zone.DECK)
+    game.player1.give("DS1_184").play()
+    choice = game.player1.choice
+    assert sorted(card.id for card in choice.cards) == sorted([WISP, "CS2_182"])
+    wisp = choice.cards[[card.id for card in choice.cards].index(WISP)]
+    choice.choose(wisp)
+    assert game.player1.hand == [wisp]
+    assert sorted(card.id for card in game.player1.deck) == sorted(
+        [WISP, WISP, "CS2_182"]
+    )
+
+
+def test_tracking_empty_deck():
+    game = prepare_empty_game()
+    game.player1.give("DS1_184").play()
+    assert not game.player1.choice
+    assert not game.player1.hand
 
 
 def test_truesilver_champion():
