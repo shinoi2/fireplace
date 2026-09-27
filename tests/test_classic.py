@@ -1993,6 +1993,21 @@ def test_leeroy():
     assert game.player2.field[0].id == game.player2.field[1].id == "EX1_116t"
 
 
+def test_lightning_storm():
+    # Patch 21.8: "Deal $3 damage to all enemy minions. Overload: (2)"
+    game = prepare_empty_game()
+    yetis = [game.player2.summon("CS2_182") for i in range(3)]
+    own_yeti = game.player1.summon("CS2_182")
+    # The damage is not random any more
+    with mock(RandomNumber, 2):
+        game.player1.give("EX1_259").play()
+    for yeti in yetis:
+        assert yeti.health == 5 - 3
+    assert own_yeti.health == 5
+    assert game.player2.hero.health == 30
+    assert game.player1.overloaded == 2
+
+
 def test_lightspawn():
     game = prepare_game()
     lightspawn = game.player1.give("EX1_335")

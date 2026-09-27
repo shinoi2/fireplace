@@ -170,4 +170,4 @@ class EX1_245:
 class EX1_259:
     """Lightning Storm"""
 
-    play = Hit(ENEMY_MINIONS, RandomNumber(2, 3))
+    play = Hit(ENEMY_MINIONS, 3)
