@@ -1642,6 +1642,23 @@ def test_houndmaster():
     assert hound.taunt
 
 
+def test_holy_light():
+    # Patch 21.8: "Restore #8 Health to your hero."
+    game = prepare_empty_game()
+    game.player1.hero.set_current_health(10)
+    game.player2.hero.set_current_health(10)
+    holy_light = game.player1.give(HOLY_LIGHT)
+    assert not holy_light.requires_target()
+    assert holy_light.is_playable()
+    holy_light.play()
+    assert game.player1.hero.health == 10 + 8
+    assert game.player2.hero.health == 10
+
+    game.player1.hero.set_current_health(25)
+    game.player1.give(HOLY_LIGHT).play()
+    assert game.player1.hero.health == 30
+
+
 def test_holy_wrath():
     game = prepare_empty_game()
     goldshire = game.player1.give(GOLDSHIRE_FOOTMAN)

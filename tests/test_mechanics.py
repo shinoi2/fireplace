@@ -801,9 +801,9 @@ def test_spell_power():
     game.player1.give(MOONFIRE).play(target=game.player2.hero)
     expected_health -= 1 + 1 + 5
     assert game.player2.hero.health == expected_health
-    # Test heals are not affected
-    game.player1.give(HOLY_LIGHT).play(target=game.player2.hero)
-    expected_health += 6
+    # Test heals are not affected (Healing Touch: Holy Light no longer targets)
+    game.player1.give("CS2_007").play(target=game.player2.hero)
+    expected_health += 8
     assert game.player2.hero.health == expected_health
     game.end_turn()
     game.end_turn()
