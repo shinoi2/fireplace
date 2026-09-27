@@ -289,6 +289,25 @@ def test_fel_reaver():
         assert len(game.player2.deck) == 25
 
 
+def test_finicky_cloakfield():
+    # "Give a friendly minion Stealth until your next turn."
+    game = prepare_empty_game()
+    yeti = game.player1.summon("CS2_182")
+    game.player1.give("PART_004").play(target=yeti)
+    assert yeti.stealthed
+    game.end_turn()
+    fireball = game.player2.give(FIREBALL)
+    assert yeti not in fireball.targets
+    game.end_turn()
+    assert not yeti.stealthed
+    assert not yeti.buffs
+    # Stealth goes when it attacks, like any Stealth
+    game.player1.give("PART_004").play(target=yeti)
+    assert yeti.stealthed
+    yeti.attack(game.player2.hero)
+    assert not yeti.stealthed
+
+
 def test_floating_watcher():
     game = prepare_game(CardClass.WARLOCK, CardClass.WARLOCK)
     watcher = game.player1.give("GVG_100")
