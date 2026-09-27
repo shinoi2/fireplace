@@ -318,6 +318,27 @@ def test_floating_watcher_armor():
     assert not game.player1.hero.damaged
 
 
+def test_foe_reaper_4000():
+    # "Also damages the minions next to whomever it attacks." Its attack to
+    # each neighbour, after the combat, without any damage back (wiki).
+    game = prepare_empty_game()
+    golems = [game.player2.summon("CS2_186") for i in range(3)]  # War Golem 7/7
+    edge = game.player2.summon("CS2_186")
+    reaper = game.player1.summon("GVG_113")
+    game.end_turn()
+    game.end_turn()
+    reaper.attack(golems[1])
+    for golem in golems:
+        assert golem.health == 7 - 6
+    assert edge.health == 7
+    assert reaper.health == 9 - 7
+    game.end_turn()
+    game.end_turn()
+    reaper.attack(game.player2.hero)
+    assert game.player2.hero.health == 30 - 6
+    assert edge.health == 7
+
+
 def test_gahzrilla():
     game = prepare_game()
     gahz = game.player1.give("GVG_049")
