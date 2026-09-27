@@ -77,8 +77,8 @@ class LOE_020:
     """Desert Camel"""
 
     play = (
-        Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + (COST == 1))),
-        Summon(OPPONENT, RANDOM(ENEMY_DECK + (COST == 1))),
+        Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION + (COST == 1))),
+        Summon(OPPONENT, RANDOM(ENEMY_DECK + MINION + (COST == 1))),
     )
 
 

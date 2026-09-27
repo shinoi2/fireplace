@@ -159,6 +159,27 @@ def test_desert_camel():
     assert goldshire2 in game.player2.field
 
 
+def test_desert_camel_minions_only():
+    # "Battlecry: Put a 1-Cost minion from each deck into the battlefield."
+    # A 1-Cost spell is never picked (wiki): it stays in the deck.
+    for i in range(10):
+        random.seed(i)
+        game = prepare_empty_game()
+        missiles = [game.player1.give("EX1_277") for j in range(5)]
+        for card in missiles:
+            card.shuffle_into_deck()
+        goldshire = game.player1.give(GOLDSHIRE_FOOTMAN)
+        goldshire.shuffle_into_deck()
+        game.player2.give("EX1_277").shuffle_into_deck()
+        game.player1.give("LOE_020").play()
+        assert goldshire in game.player1.field
+        assert len(game.player1.deck) == 5
+        assert not game.player1.graveyard
+        assert len(game.player2.deck) == 1
+        assert not game.player2.field
+        assert not game.player2.graveyard
+
+
 def test_djinni_of_zephyrs():
     game = prepare_game()
     game.player1.discard_hand()
