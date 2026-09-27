@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from utils import *
 
 
@@ -390,6 +392,57 @@ def test_obsidian_destroyer():
     scarab = game.player1.field[1]
     assert scarab.id == "LOE_009t"
     assert scarab.taunt
+
+
+def _make_choices(player, count):
+    for i in range(count):
+        assert player.choice
+        assert len(player.choice.cards) == 3
+        player.choice.choose(player.choice.cards[0])
+    assert not player.choice
+
+
+def test_raven_idol():
+    # Choose One - Discover a minion; or Discover a spell.
+    for option, card_type in (("LOE_115a", CardType.MINION), ("LOE_115b", CardType.SPELL)):
+        game = prepare_empty_game(CardClass.DRUID, CardClass.MAGE)
+        idol = game.player1.give("LOE_115")
+        idol.play(choose=option)
+        for card in game.player1.choice.cards:
+            assert card.type == card_type
+        _make_choices(game.player1, 1)
+        assert [card.type for card in game.player1.hand] == [card_type]
+
+
+def test_raven_idol_fandral_staghelm():
+    # Both effects: a minion is discovered, then a spell, and both reach the hand
+    game = prepare_empty_game(CardClass.DRUID, CardClass.MAGE)
+    game.player1.summon(FANDRAL_STAGHELM)
+    idol = game.player1.give("LOE_115")
+    assert not idol.must_choose_one
+    idol.play()
+    for card in game.player1.choice.cards:
+        assert card.type == CardType.MINION
+    game.player1.choice.choose(game.player1.choice.cards[0])
+    for card in game.player1.choice.cards:
+        assert card.type == CardType.SPELL
+    _make_choices(game.player1, 1)
+    assert [card.type for card in game.player1.hand] == [CardType.MINION, CardType.SPELL]
+
+
+def test_raven_idol_fandral_staghelm_copied_during_choice():
+    # A copy of the game made during the first choice (a bot looking ahead)
+    # makes both choices, and the original game opens none of its own.
+    game = prepare_empty_game(CardClass.DRUID, CardClass.MAGE)
+    game.player1.summon(FANDRAL_STAGHELM)
+    game.player1.give("LOE_115").play()
+    memo = {id(card): card for card in fireplace.cards.db.values()}
+    copy = deepcopy(game, memo)
+    _make_choices(copy.player1, 2)
+    assert [card.type for card in copy.player1.hand] == [CardType.MINION, CardType.SPELL]
+    assert not game.player1.hand
+    _make_choices(game.player1, 2)
+    assert [card.type for card in game.player1.hand] == [CardType.MINION, CardType.SPELL]
 
 
 def test_reliquary_seeker():
