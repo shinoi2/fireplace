@@ -3746,23 +3746,61 @@ def test_void_terror():
 
 
 def test_warsong_commander():
-    game = prepare_game()
+    # Patch 21.8: "After you summon another minion, give it Rush."
+    game = prepare_empty_game()
+    game.end_turn()
+    enemy_wisp = game.player2.give(WISP)
+    enemy_wisp.play()
+    game.end_turn()
+
     wisp = game.player1.give(WISP)
     wisp.play()
-    boar = game.player1.give("CS2_171")
-    boar.play()
-    assert wisp.atk == boar.atk == 1
-    assert not wisp.charge
-    assert boar.charge
     warsong = game.player1.give("EX1_084")
     warsong.play()
-    assert wisp.atk == 1
-    assert boar.atk == 1 + 1
-    assert not wisp.charge
-    assert boar.charge
-    game.player1.give(SILENCE).play(target=boar)
+    assert not warsong.rush
+    assert not wisp.rush
+    assert not wisp.can_attack()
+
+    boar = game.player1.give("CS2_171")
+    boar.play()
     assert boar.atk == 1
-    assert not boar.charge
+    assert boar.charge
+    assert boar.rush
+
+    yeti = game.player1.give("CS2_182")
+    yeti.play()
+    assert yeti.rush
+    assert yeti.atk == 4
+    assert yeti.buffs[0].id == "EX1_084e"
+    assert yeti.can_attack(enemy_wisp)
+    assert not yeti.can_attack(game.player2.hero)
+
+    # Summoned, not played: Razorfen Hunter and its Boar
+    game.end_turn()
+    game.end_turn()
+    razorfen = game.player1.give("CS2_196")
+    razorfen.play()
+    token = game.player1.field[-1]
+    assert token.id == "CS2_boar"
+    assert razorfen.rush
+    assert token.rush
+
+    # Not the opponent's minions
+    game.end_turn()
+    enemy_yeti = game.player2.give("CS2_182")
+    enemy_yeti.play()
+    assert not enemy_yeti.rush
+    game.end_turn()
+
+    # Rush is an enchantment: silenced away
+    game.player1.give(SILENCE).play(target=yeti)
+    assert not yeti.rush
+    # Silenced Warsong gives no more Rush, the given Rush stays
+    game.player1.give(SILENCE).play(target=warsong)
+    wisp2 = game.player1.give(WISP)
+    wisp2.play()
+    assert not wisp2.rush
+    assert razorfen.rush
 
 
 def test_water_elemental():
