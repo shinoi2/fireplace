@@ -413,6 +413,43 @@ def test_kezan_mystic():
     assert snipe in game.player1.secrets
 
 
+def test_kezan_mystic_duplicate_secret():
+    # "Battlecry: Take control of a random enemy Secret." The wiki: a Secret
+    # its player already has is not picked while another one can be; if they
+    # all are, a random enemy Secret is destroyed; at 5 Secrets, the chosen
+    # Secret is destroyed instead of stolen.
+    for i in range(10):
+        random.seed(i)
+        game = prepare_empty_game()
+        own = game.player1.summon("EX1_287")  # Counterspell
+        counterspell = game.player2.summon("EX1_287")
+        ice_barrier = game.player2.summon("EX1_289")
+        game.player1.give("GVG_074").play()
+        assert ice_barrier in game.player1.secrets
+        assert own in game.player1.secrets
+        assert counterspell in game.player2.secrets
+        assert not game.player2.graveyard
+
+    game = prepare_empty_game()
+    own = game.player1.summon("EX1_287")
+    counterspell = game.player2.summon("EX1_287")
+    game.player1.give("GVG_074").play()
+    assert game.player1.secrets == [own]
+    assert not game.player2.secrets
+    assert counterspell in game.player2.graveyard
+
+    game = prepare_empty_game()
+    for id in ("EX1_287", "EX1_289", "EX1_294", "EX1_295", "tt_010"):
+        game.player1.summon(id)
+    assert len(game.player1.secrets) == 5
+    vaporize = game.player2.summon("EX1_594")
+    game.player1.give("GVG_074").play()
+    assert len(game.player1.secrets) == 5
+    assert vaporize not in game.player1.secrets
+    assert not game.player2.secrets
+    assert vaporize in game.player2.graveyard
+
+
 def test_mirror_entity():
     game = prepare_game()
     mirror = game.player1.give("EX1_294")
