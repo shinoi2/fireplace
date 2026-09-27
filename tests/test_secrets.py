@@ -103,6 +103,22 @@ def test_dart_trap():
     assert game.player2.hero.health == 30 - 5 - 2
 
 
+def test_dart_trap_after_hero_power():
+    # "Secret: After an opposing Hero Power is used, deal $5 damage to a random
+    # enemy." The Hero Power resolves first (wiki): a minion it kills is not
+    # picked, and the Hero Power is not left without its target.
+    for i in range(10):
+        random.seed(i)
+        game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE)
+        game.player1.give("LOE_021").play()
+        game.end_turn()
+        wisp = game.player2.summon(WISP)
+        game.player2.hero.power.use(target=wisp)
+        assert game.player2.hero.health == 30 - 5
+        assert wisp.dead
+        assert not game.player1.secrets
+
+
 def test_duplicate():
     game = prepare_game()
     game.player1.discard_hand()
