@@ -1378,6 +1378,25 @@ def test_frothing_berserker():
     assert frothing.atk == 2 + 1
 
 
+def test_fire_elemental():
+    # Patch 21.8: "Battlecry: Deal 4 damage."
+    game = prepare_empty_game()
+    game.end_turn()
+    yeti = game.player2.give("CS2_182")
+    yeti.play()
+    game.end_turn()
+
+    fire1 = game.player1.give("CS2_042")
+    assert fire1.requires_target()
+    fire1.play(target=yeti)
+    assert yeti.health == 5 - 4
+    game.end_turn()
+    game.end_turn()
+
+    game.player1.give("CS2_042").play(target=game.player2.hero)
+    assert game.player2.hero.health == 30 - 4
+
+
 def test_flame_leviathan():
     game = prepare_empty_game()
     assert len(game.player1.deck) == 0

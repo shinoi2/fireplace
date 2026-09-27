@@ -8,7 +8,7 @@ class CS2_042:
     """Fire Elemental"""
 
     requirements = {PlayReq.REQ_TARGET_IF_AVAILABLE: 0}
-    play = Hit(TARGET, 3)
+    play = Hit(TARGET, 4)
 
 
 class EX1_258:
