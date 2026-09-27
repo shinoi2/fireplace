@@ -641,6 +641,19 @@ def test_master_of_ceremonies_enemy_jungle_moonkin():
     assert master.health == 2
 
 
+def test_muklas_champion():
+    # "Inspire: Give your other minions +1/+1."
+    game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE)
+    champion = game.player1.summon("AT_090")
+    wisp = game.player1.summon(WISP)
+    enemy_wisp = game.player2.summon(WISP)
+    game.player1.hero.power.use(target=game.player2.hero)
+    assert champion.atk == 4
+    assert champion.health == 3
+    assert wisp.atk == wisp.health == 1 + 1
+    assert enemy_wisp.atk == enemy_wisp.health == 1
+
+
 def test_the_mistcaller():
     game = prepare_empty_game()
     wisp1 = game.player1.give(WISP)
