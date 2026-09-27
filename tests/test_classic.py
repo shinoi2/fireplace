@@ -3635,6 +3635,36 @@ def test_unbound_elemental():
     assert unbound.health == 4 + 1
 
 
+def test_unbound_elemental_after():
+    # Patch 21.8: "After you play a card with Overload, gain +1/+1."
+    # The Overload card resolves first: a wounded 3/3 hit by its own
+    # Lightning Bolt dies before the buff.
+    game = prepare_empty_game()
+    unbound = game.player1.give("EX1_258")
+    unbound.play()
+    game.player1.give(MOONFIRE).play(target=unbound)
+    assert unbound.health == 3
+    game.player1.give("EX1_238").play(target=unbound)
+    assert unbound.dead
+
+
+def test_unbound_elemental_countered():
+    # Wiki: it gains +1/+1 even if the Overload spell is countered
+    game = prepare_empty_game()
+    game.end_turn()
+    counterspell = game.player2.give("EX1_287")
+    counterspell.play()
+    game.end_turn()
+
+    unbound = game.player1.give("EX1_258")
+    unbound.play()
+    game.player1.give("EX1_238").play(target=game.player2.hero)
+    assert counterspell not in game.player2.secrets
+    assert game.player2.hero.health == 30
+    assert unbound.atk == 3 + 1
+    assert unbound.health == 4 + 1
+
+
 def test_upgrade():
     game = prepare_game()
     weapon = game.player1.give(LIGHTS_JUSTICE)

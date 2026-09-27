@@ -913,6 +913,7 @@ class Counter(TargetedAction):
     def do(self, source, target):
         target.cant_play = True
         source.game.manager.targeted_action(self, source, target)
+        self.broadcast(source, EventListener.AFTER, target)
 
 
 class Predamage(TargetedAction):
