@@ -1019,6 +1019,36 @@ def test_sneeds_old_shredder():
     assert pilot.data.collectible
 
 
+def test_steamwheedle_sniper():
+    # "Your Hero Power can target minions." Steady Shot and Ballista Shot
+    # target any minion or the enemy hero, never their own hero (wiki).
+    game = prepare_empty_game(CardClass.HUNTER, CardClass.HUNTER)
+    power = game.player1.hero.power
+    assert not power.requires_target()
+    sniper = game.player1.summon("GVG_087")
+    yeti = game.player2.summon("CS2_182")
+    assert power.requires_target()
+    assert yeti in power.targets
+    assert sniper in power.targets
+    assert game.player2.hero in power.targets
+    assert game.player1.hero not in power.targets
+    power.use(target=yeti)
+    assert yeti.health == 5 - 2
+    assert game.player2.hero.health == 30
+    game.end_turn()
+    game.end_turn()
+
+    game.player1.give("AT_132").play()  # Justicar Trueheart: Ballista Shot
+    power = game.player1.hero.power
+    assert power.id == "HERO_05bp2"
+    assert yeti in power.targets
+    power.use(target=yeti)
+    assert yeti.dead
+    assert game.player2.hero.health == 30
+    sniper.destroy()
+    assert not power.requires_target()
+
+
 def test_tinkers_sharpsword_oil():
     # "Give your weapon +3 Attack. Combo: Give a random friendly minion +3 Attack."
     # Playable without a weapon (wiki); the combo goes to a minion, never the hero.

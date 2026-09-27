@@ -35,7 +35,7 @@ class GVG_049e:
 class GVG_087:
     """Steamwheedle Sniper"""
 
-    update = Refresh(CONTROLLER, {GameTag.STEADY_SHOT_CAN_TARGET: True})
+    update = Refresh(FRIENDLY_HERO_POWER, {GameTag.STEADY_SHOT_CAN_TARGET: True})
 
 
 ##
