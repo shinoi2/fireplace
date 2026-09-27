@@ -1,3 +1,4 @@
+import copy
 from collections import OrderedDict
 
 from hearthstone.enums import (
@@ -646,6 +647,15 @@ class TargetedAction(Action):
         self.times = value
         return self
 
+    _execution = False
+
+    def _copy_for_execution(self):
+        ret = copy.copy(self)
+        ret._execution = True
+        ret.event_queue = []
+        ret.choice_callback = []
+        return ret
+
     def eval(self, selector, source):
         if isinstance(selector, Entity):
             return [selector]
@@ -675,6 +685,13 @@ class TargetedAction(Action):
         return ret
 
     def trigger(self, source):
+        if hasattr(self, "choose") and not self._execution:
+            # A choice keeps its state on the action until it is made (player,
+            # cards, the callback held back), and the action of a card script
+            # is shared by every game of the process: each play of the card
+            # gets its own copy of the action.
+            return self._copy_for_execution().trigger(source)
+
         ret = []
 
         if self.source is not None and isinstance(self.source, Selector):
@@ -699,7 +716,12 @@ class TargetedAction(Action):
 
     def _trigger(self, i, source):
         if source.controller.choice:
-            self.choice_callback.append(lambda: self._trigger(i, source))
+            choice_callback = self.choice_callback
+            if self._execution:
+                # Another play of the same choice (Brann Bronzebeard, "* 2")
+                # waits for the choice that is open, not for itself.
+                choice_callback = source.controller.choice.choice_callback
+            choice_callback.append(lambda: self._trigger(i, source))
             return []
         ret = []
         self.trigger_index = i

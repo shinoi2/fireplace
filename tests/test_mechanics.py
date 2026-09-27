@@ -1,5 +1,8 @@
+from copy import deepcopy
+
 from utils import *
 
+import fireplace.cards
 from fireplace.actions import Destroy
 from fireplace.cards.utils import JOUST, Give
 from fireplace.managers import BaseObserver
@@ -1097,3 +1100,103 @@ def test_weapon_sheathing():
     game.end_turn()
 
     assert not weapon.exhausted
+
+
+def _copy_game(game):
+    # Like a bot looking ahead: a deep copy that shares the card database.
+    memo = {id(card): card for card in fireplace.cards.db.values()}
+    return deepcopy(game, memo)
+
+
+def _play_tracking(game):
+    game.player1.discard_hand()
+    game.player1.give("DS1_184").play()
+    choice = game.player1.choice
+    assert choice
+    assert len(choice.cards) == 3
+    return choice, list(choice.cards)
+
+
+def test_choice_left_open_in_another_game():
+    # A choice belongs to its game: a Tracking left open in one game
+    # (conceded, abandoned) must not touch the Tracking of another game.
+    game1 = prepare_game()
+    choice1, cards1 = _play_tracking(game1)
+    game2 = prepare_game()
+    choice2, cards2 = _play_tracking(game2)
+    assert choice2 is not choice1
+    choice2.choose(cards2[0])
+    assert game2.player1.hand == [cards2[0]]
+    assert not game2.player1.choice
+
+    assert game1.player1.choice is choice1
+    assert list(choice1.cards) == cards1
+    choice1.choose(cards1[1])
+    assert game1.player1.hand == [cards1[1]]
+    assert not game1.player1.choice
+
+
+def test_choice_callback_left_open_in_another_game():
+    # Southsea Scoundrel: the rest of the effect waits for the choice.
+    # A Scoundrel left open in one game must not empty it in another game.
+    game1 = prepare_game()
+    game1.player1.discard_hand()
+    game1.player1.give("BAR_081").play()
+    assert game1.player1.choice
+    game2 = prepare_game()
+    game2.player1.discard_hand()
+    game2.player1.give("BAR_081").play()
+    pick = game2.player1.choice.cards[0]
+    game2.player1.choice.choose(pick)
+    assert [card.id for card in game2.player1.hand] == [pick.id]
+
+
+def test_choices_open_at_the_same_time_in_two_games():
+    game1 = prepare_game()
+    game2 = prepare_game()
+    choice1, cards1 = _play_tracking(game1)
+    choice2, cards2 = _play_tracking(game2)
+    assert game1.player1.choice is choice1
+    assert list(choice1.cards) == cards1
+    choice1.choose(cards1[2])
+    assert game1.player1.hand == [cards1[2]]
+    assert game2.player1.choice is choice2
+    assert list(choice2.cards) == cards2
+    choice2.choose(cards2[1])
+    assert game2.player1.hand == [cards2[1]]
+
+
+def test_choice_open_in_a_copy_of_the_game():
+    # A bot copies the game while a choice is open, chooses in the copy
+    # and plays on (another Tracking, left open): the game is untouched.
+    game = prepare_game()
+    choice, cards = _play_tracking(game)
+    game_copy = _copy_game(game)
+    copy_choice = game_copy.player1.choice
+    assert copy_choice is not choice
+    copy_choice.choose(copy_choice.cards[0])
+    assert [card.id for card in game_copy.player1.hand] == [cards[0].id]
+    _play_tracking(game_copy)
+
+    assert game.player1.choice is choice
+    assert list(choice.cards) == cards
+    choice.choose(cards[2])
+    assert game.player1.hand == [cards[2]]
+    assert not game.player1.choice
+
+
+def test_discover_left_open_in_another_game():
+    # Glaciate: Discover an 8-Cost minion. Summon and Freeze it.
+    game1 = prepare_game()
+    game1.player1.give("AV_107").play()
+    choice1 = game1.player1.choice
+    assert choice1
+    game2 = prepare_game()
+    game2.player1.give("AV_107").play()
+    choice2 = game2.player1.choice
+    assert choice2 is not choice1
+    pick = choice2.cards[0]
+    choice2.choose(pick)
+    assert pick in game2.player1.field
+    assert pick.frozen
+    assert all(card.game is game1 for card in choice1.cards)
