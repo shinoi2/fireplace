@@ -824,6 +824,26 @@ def test_mogor_the_ogre():
     )
 
 
+def test_ogre_warmaul():
+    # "50% chance to attack the wrong enemy." The hero wielding it forgets:
+    # heads, its attack goes to another enemy, Taunt ignored (wiki).
+    def _attack(coin):
+        game = prepare_empty_game(CardClass.WARRIOR, CardClass.WARRIOR)
+        grunt = game.player2.summon("CS2_121")  # Frostwolf Grunt, Taunt
+        game.player1.give("GVG_054").play()
+        with mock(RandomNumber, coin):
+            game.player1.hero.attack(target=grunt)
+        return game, grunt
+
+    game, grunt = _attack(0)
+    assert grunt.dead
+    assert game.player2.hero.health == 30
+    game, grunt = _attack(1)
+    assert not grunt.dead
+    assert game.player2.hero.health == 30 - 4
+    assert game.player1.weapon.durability == 2 - 1
+
+
 def test_neptulon():
     game = prepare_game()
     game.player1.discard_hand()
