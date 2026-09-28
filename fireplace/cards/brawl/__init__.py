@@ -9,6 +9,7 @@ from .ktraf import *
 from .masked_ball import *
 from .mechwar import *
 from .miniature_warfare import *
+from .noblegarden import *
 from .pick_your_fate import *
 from .southshore_tarren_mill import *
 from .underdog_rules import *

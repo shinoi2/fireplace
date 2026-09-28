@@ -643,3 +643,104 @@ def test_visions_of_sayge():
             card.discard()
         game.end_turn()
 
+
+EGG = "TB_Noblegarden_002"
+BUNNY = "TB_Noblegarden_002t1"
+DYES = ["TB_Noblegarden_003t%i" % n for n in range(1, 9)]
+
+
+def _two_turns(game):
+    game.end_turn()
+    game.end_turn()
+
+
+def test_everybunny_egg_hatches_into_a_bunny():
+    # Noblegarden Egg: "Stealth. At the start of your turn, hatch this into
+    # something cute." The wiki: "Without any dyes applied, it will always
+    # spawn a Bunny".
+    game = prepare_empty_game()
+    egg = game.player1.summon(EGG)
+    assert egg.stealthed and Race.EGG in egg.races
+    game.end_turn()
+    assert game.player1.field[0].id == EGG
+    game.end_turn()
+    bunny = game.player1.field[0]
+    assert bunny.id == BUNNY and (bunny.atk, bunny.health) == (1, 3)
+    assert not bunny.stealthed
+
+
+def test_everybunny_dyes():
+    # "Dye an Egg. When it hatches, it grants <keyword>." (Red: +2/+2); the
+    # dyes of one egg stack; a dye needs an Egg.
+    game = prepare_empty_game()
+    p1 = game.player1
+    p1.max_mana = 10
+    wisp = p1.summon(WISP)
+    blue = p1.give("TB_Noblegarden_003t1")
+    assert not blue.is_playable()
+    egg1 = p1.summon(EGG)
+    egg2 = p1.summon(EGG)
+    assert blue.targets == [egg1, egg2] or set(blue.targets) == {egg1, egg2}
+    assert wisp not in blue.targets
+    blue.play(target=egg1)
+    assert "TB_Noblegarden_003t1e" in [b.id for b in egg1.buffs]
+    p1.give("TB_Noblegarden_003t8").play(target=egg2)
+    p1.give("TB_Noblegarden_003t7").play(target=egg2)
+    p1.give("TB_Noblegarden_003t4").play(target=egg2)
+    _two_turns(game)
+    first, second = p1.field[1], p1.field[2]
+    assert first.id == BUNNY and first.windfury and (first.atk, first.health) == (1, 3)
+    assert second.id == BUNNY and (second.atk, second.health) == (3, 5)
+    assert second.divine_shield and second.stealthed and not second.windfury
+    for n, keyword in ((2, "lifesteal"), (3, "poisonous"), (5, "rush"), (6, "taunt")):
+        egg = p1.summon(EGG)
+        p1.used_mana = 0
+        p1.give("TB_Noblegarden_003t%i" % n).play(target=egg)
+        p1.give("TB_Noblegarden_004").play()  # Noblegarden Spoon
+        assert egg.morphed.id == BUNNY and getattr(egg.morphed, keyword), keyword
+        egg.morphed.destroy()
+
+
+def test_everybunny_shifting_dye():
+    # Shifting Dye: "Each turn this is in your hand, transform it into a
+    # random dye." The wiki: it "can change on the same turn it's drawn".
+    game = prepare_empty_game()
+    p1 = game.player1
+    p1.card("TB_Noblegarden_003", zone=Zone.DECK)
+    p1.draw()
+    dye = p1.hand[-1]
+    assert dye.id in DYES
+    assert "TB_Noblegarden_003e" in [b.id for b in dye.buffs]
+    _two_turns(game)
+    shifted = p1.hand[-1]
+    assert shifted.id in DYES and shifted is not dye
+    # In the starting hand, it shifts at the start of the turn
+    game = prepare_empty_game()
+    shifting = game.player1.give("TB_Noblegarden_003")
+    _two_turns(game)
+    assert game.player1.hand[-1].id in DYES
+
+
+def test_everybunny_spoon_carrots_hen():
+    game = prepare_empty_game()
+    p1 = game.player1
+    p1.max_mana = 10
+    eggs = [p1.summon(EGG), p1.summon(EGG)]
+    enemy_egg = game.player2.summon(EGG)
+    # Noblegarden Spoon: "Hatch your Noblegarden Eggs!"
+    p1.give("TB_Noblegarden_004").play()
+    assert [m.id for m in p1.field] == [BUNNY, BUNNY]
+    assert enemy_egg.zone == Zone.PLAY and enemy_egg.id == EGG
+    # Carrots: "Give friendly minions +1/+1 or +2/+2 if it's a Bunny."
+    wisp = p1.summon(WISP)
+    p1.give("TB_Noblegarden_005").play()
+    assert [(m.atk, m.health) for m in p1.field] == [(3, 5), (3, 5), (2, 2)]
+    assert (enemy_egg.atk, enemy_egg.health) == (0, 2)
+    # Hawkstrider Hen: "Battlecry and Deathrattle: Summon a Noblegarden Egg."
+    p1.used_mana = 0
+    hen = p1.give("TB_Noblegarden_006")
+    hen.play()
+    assert [m.id for m in p1.field][-2:] == ["TB_Noblegarden_006", EGG]
+    hen.destroy()
+    assert [m.id for m in p1.field].count(EGG) == 2
+
