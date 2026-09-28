@@ -429,3 +429,41 @@ def test_banana_brawl():
     # Not for a spell, nor for a hero
     game.player1.give(MOONFIRE).play(target=game.player2.hero)
     assert len(game.player1.hand) == hand1 + 1
+
+
+LEEROY = "EX1_116"  # 5 mana, Legendary
+ONYXIA = "EX1_562"  # 9 mana, Legendary
+
+
+def test_cloneball_offensive_play():
+    # Offensive Play: "The next Legendary minion you play and all your other
+    # copies cost (3) less." The wiki (Cloneball!): it "lasts until the player
+    # plays a legendary minion card, and can stack multiple times".
+    game = prepare_empty_game()
+    player = game.player1
+    player.max_mana = 10
+    leeroys = [player.give(LEEROY) for _ in range(3)]
+    in_deck = player.card(LEEROY, zone=Zone.DECK)
+    onyxia = player.give(ONYXIA)
+    yeti = player.give("CS2_182")
+    player.give("TB_Superfriends001").play()
+    assert [c.cost for c in leeroys] == [2, 2, 2]
+    assert (onyxia.cost, yeti.cost) == (6, 4)
+    leeroys[0].play()
+    assert player.used_mana == 2
+    # The other copies keep the discount, the next legendary no longer has it
+    assert [c.cost for c in leeroys[1:]] == [2, 2]
+    assert in_deck.cost == 2
+    assert onyxia.cost == 9
+    assert "TB_Superfriends001e" not in [b.id for b in player.buffs]
+    # A minion that is not legendary does not use it up; two stack
+    player.give("TB_Superfriends001").play()
+    player.give("TB_Superfriends001").play()
+    assert onyxia.cost == 3
+    yeti.play()
+    assert onyxia.cost == 3
+    onyxia.play()
+    assert [c.cost for c in leeroys[1:]] == [2, 2]
+    # The opponent is untouched
+    other = game.player2.give(LEEROY)
+    assert other.cost == 5

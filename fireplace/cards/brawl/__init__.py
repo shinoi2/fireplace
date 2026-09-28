@@ -1,6 +1,7 @@
 from .banana_brawl import *
 from .blingbrawl import *
 from .clash_of_the_minions import *
+from .cloneball import *
 from .decks_assemble import *
 from .gift_exchange import *
 from .ktraf import *
