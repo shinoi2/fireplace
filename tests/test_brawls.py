@@ -409,3 +409,23 @@ def test_miniature_cannot_be_silenced():
     game.player2.give("EX1_581").play(target=yeti)  # Sap
     assert yeti.zone == Zone.HAND
     assert _mini(yeti)
+
+
+BANANAS = ("EX1_014t", "TB_006", "TB_007", "TB_008")
+
+
+def test_banana_brawl():
+    # Banana Brawl!: "Whenever one of your minions dies, he gives you a
+    # Banana to celebrate!" (the Game no longer calls _schedule_death)
+    game = _brawl_game(BananaBrawl)
+    hand1, hand2 = len(game.player1.hand), len(game.player2.hand)
+    game.player1.summon(WISP).destroy()
+    assert len(game.player1.hand) == hand1 + 1
+    assert game.player1.hand[-1].id in BANANAS
+    assert len(game.player2.hand) == hand2
+    game.player2.summon(WISP).destroy()
+    assert len(game.player2.hand) == hand2 + 1
+    assert game.player2.hand[-1].id in BANANAS
+    # Not for a spell, nor for a hero
+    game.player1.give(MOONFIRE).play(target=game.player2.hero)
+    assert len(game.player1.hand) == hand1 + 1

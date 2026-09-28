@@ -112,11 +112,11 @@ class BananaBrawl(Game):
     celebrate!
     """
 
-    def _schedule_death(self, card):
-        ret = super()._schedule_death(card)
-        if card.type == CardType.MINION:
-            ret.append(Give(card.controller, RandomBanana))
-        return ret
+    # The Game no longer calls _schedule_death: a rule of the game, acting
+    # for the player whose minion died (BaseGame.trigger_event).
+    base_events = [
+        Death(MINION).on(Give(ALL_PLAYERS + CONTROLLED_BY(Death.ENTITY), RandomBanana))
+    ]
 
 
 class SpidersEverywhereBrawl(Game):
