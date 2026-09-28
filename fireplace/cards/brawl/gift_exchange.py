@@ -17,6 +17,23 @@ class TB_GiftExchange_Treasure:
     deathrattle = Give(CURRENT_PLAYER, "TB_GiftExchange_Treasure_Spell")
 
 
+@custom_card
+class TB_GiftExchange_Rule:
+    """Greatfather Winter"""
+
+    # Not in CardDefs.xml: the rule of the brawl, on each player. The wiki
+    # (Gift Exchange): "If a player has no gifts at the start of their turn,
+    # Greatfather Winter delivers a fresh one."
+    tags = {
+        GameTag.CARDNAME: "Greatfather Winter",
+        GameTag.CARDTYPE: CardType.ENCHANTMENT,
+    }
+    events = OWN_TURN_BEGIN.on(
+        Find(FRIENDLY_MINIONS + ID("TB_GiftExchange_Treasure"))
+        | Summon(CONTROLLER, "TB_GiftExchange_Treasure")
+    )
+
+
 class GiftClass(LazyValue):
     """
     The class of the player who controlled the Winter Veil Gift: the gift

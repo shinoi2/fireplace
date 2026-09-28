@@ -334,3 +334,21 @@ def test_gift_exchange_stolen_gift():
         assert picked.cost == max(picked.data.cost - 5, 0)
         assert picked.controller is game.player1
 
+def test_gift_exchange_gift_for_everyone():
+    # "If a player has no gifts at the start of their turn, Greatfather
+    # Winter delivers a fresh one."
+    game = _brawl_game(Game)
+    for player in game.players:
+        game.queue_actions(player, [Buff(player, "TB_GiftExchange_Rule")])
+    game.end_turn()
+    assert len(game.player2.field.filter(id="TB_GiftExchange_Treasure")) == 1
+    assert len(game.player1.field) == 0
+    game.end_turn()
+    gift = game.player1.field.filter(id="TB_GiftExchange_Treasure")[0]
+    game.end_turn()
+    game.end_turn()
+    assert game.player1.field == [gift]
+    gift.destroy()
+    game.end_turn()
+    game.end_turn()
+    assert len(game.player1.field.filter(id="TB_GiftExchange_Treasure")) == 1
