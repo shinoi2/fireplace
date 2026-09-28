@@ -585,3 +585,31 @@ def test_yellow_brick_dorothee():
         p1.summon(WISP)
     assert len(p1.field) == 7
 
+
+def test_clockwork_card_dealer():
+    # "the card draw at the start of each turn will always try to draw a card
+    # whose mana cost matches the turn number [...] If the deck lacks an
+    # appropriate on-curve draw on a given turn, a random card will be drawn
+    # instead"; only the draw at the start of the turn.
+    curve = ["CS2_189", "CS2_172", "CS2_122", "CS2_182", "CS2_131", "CS2_200"]  # 1 to 6
+    deck = [WISP] * 24 + curve
+    game = _game_with_rule("TB_GreatCurves_01", deck, deck)
+    on_curve = 0
+    for _ in range(12):
+        player = game.current_player.opponent
+        costs = [c.cost for c in player.deck]
+        turn = len(player.turns) + 1
+        game.end_turn()
+        drawn = player.hand[-1]
+        if turn in costs:
+            assert drawn.cost == turn, (turn, drawn)
+            on_curve += 1
+        for card in list(player.hand):
+            if card.cost:
+                card.discard()
+    assert on_curve >= 4
+    # Another draw is a normal draw: the top of the deck
+    top = game.current_player.deck[-1]
+    game.current_player.draw()
+    assert game.current_player.hand[-1] is top
+
