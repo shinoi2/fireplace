@@ -19,21 +19,25 @@ def _brawl_game(game_class, deck1=(), deck2=(), hero1=None, hero2=None, mana=10)
 
 def test_great_summoner_brawl():
     # "When you cast a spell, a random minion of the same cost is summoned for you!"
+    # (a summoned minion may summon more: Kolkar Pack Runner, after the spell)
     game = _brawl_game(GreatSummonerBrawl)
     game.player1.give(MOONFIRE).play(target=game.player2.hero)
-    assert len(game.player1.field) == 1
+    assert len(game.player1.field) >= 1
     assert game.player1.field[0].cost == 0
     assert len(game.player2.field) == 0
+    before = list(game.player1.field)
     game.player1.give("CS2_023").play()  # Arcane Intellect, 3
-    assert len(game.player1.field) == 2
-    assert game.player1.field[1].cost == 3
+    new = [m for m in game.player1.field if m not in before]
+    assert new and new[0].cost == 3
+    assert len(game.player2.field) == 0
     game.end_turn()
     game.player2.give(MOONFIRE).play(target=game.player1.hero)
-    assert len(game.player2.field) == 1
+    assert len(game.player2.field) >= 1
     assert game.player2.field[0].controller is game.player2
     # A minion is not a spell
+    count = len(game.player2.field)
     game.player2.give(WISP).play()
-    assert len(game.player2.field) == 2
+    assert len(game.player2.field) == count + 1
 
 
 def test_masked_ball_brawl():
