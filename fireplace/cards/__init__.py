@@ -4,7 +4,7 @@ from importlib import import_module
 from hearthstone import cardxml
 from hearthstone.enums import CardSet, CardType, GameTag, Race, ZodiacYear
 
-from ..enums import BoardEnum
+from ..enums import PASSIVE_HERO_POWER, BoardEnum
 from ..logging import log
 from ..utils import CARD_SETS
 
@@ -24,6 +24,16 @@ standard_board_skins = [
 ]
 
 modules = {}
+
+
+def _passive_text(card):
+    """Whether the text of a hero power starts with "Passive" ("<b>Passive
+    Hero Power</b>", "[x]<b>Passive Hero Power</b>", "<b>Passive.</b>")."""
+    text = (card.strings.get(GameTag.CARDTEXT) or {}).get("enUS") or ""
+    text = text.strip()
+    if text.startswith("[x]"):
+        text = text[3:].lstrip()
+    return text.startswith("<b>Passive")
 
 
 def get_script_definition(id, card=None):
@@ -163,6 +173,12 @@ class CardDB(dict[str, cardxml.CardXML]):
         if hasattr(cardscript, "tags"):
             for tag, value in cardscript.tags.items():
                 card.tags[tag] = value
+
+        if card.type == CardType.HERO_POWER and _passive_text(card):
+            # A "Passive Hero Power" acts by its trigger or its aura and
+            # cannot be used; CardDefs.xml has no tag for it, the card text
+            # says it (Raise Dead, Intense Gaze, The Alchemist...).
+            card.tags[PASSIVE_HERO_POWER] = True
 
         if hasattr(cardscript, "requirements"):
             card.requirements = cardscript.requirements

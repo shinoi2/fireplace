@@ -1,5 +1,9 @@
+import pytest
 from utils import *
 from utils import _empty_mulligan
+
+from fireplace import enums
+from fireplace.exceptions import InvalidAction
 
 
 def _boss_game(hero1, hero2="HERO_01", deck=None):
@@ -91,3 +95,25 @@ def test_ancient_power_heroic():
         boss.hero.power.use()
         assert (len(boss.hand), len(other.hand)) == (hands[0] + 1, hands[1])
         assert boss.hand[-1].cost == 0
+
+
+def test_passive_hero_powers_cannot_be_used():
+    # A "Passive Hero Power" acts by itself: it cannot be used, so it never
+    # counts as a Hero Power used (Inspire), and its trigger still works.
+    for power in ("NAX4_04", "NAX4_04H", "BRMA08_2", "BRMA08_2H", "BRMA15_2",
+                  "BRMA15_2H", "LOEA01_02", "LOEA14_2", "LOEA16_2", "KARA_07_02"):
+        assert fireplace.cards.db[power].tags.get(enums.PASSIVE_HERO_POWER), power
+    for power in ("HERO_08bp", "NAX10_03H", "NAX15_02", "BRMA13_2"):  # active ones
+        assert not fireplace.cards.db[power].tags.get(enums.PASSIVE_HERO_POWER), power
+    game, noth, other = _boss_game("NAX4_01")
+    squire = noth.summon("AT_082")  # Lowly Squire: Inspire: Gain +1 Attack
+    assert noth.hero.power.id == "NAX4_04"
+    assert not noth.hero.power.is_usable()
+    with pytest.raises(InvalidAction):
+        noth.hero.power.use()
+    assert squire.atk == 1
+    assert noth.mana == 10
+    yeti = other.summon("CS2_182")
+    noth.give(FIREBALL).play(target=yeti)
+    assert yeti.dead
+    assert noth.field.filter(id="NAX4_03")  # a 1/1 Skeleton raised
