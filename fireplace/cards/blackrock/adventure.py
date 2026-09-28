@@ -600,13 +600,13 @@ class BRMA14_7H:
 class BRMA14_9:
     """Magmatron"""
 
-    events = Play().on(Hit(ALL_HEROES + CONTROLLED_BY(Play.PLAYER)))
+    events = Play().on(Hit(ALL_HEROES + CONTROLLED_BY(Play.PLAYER), 2))
 
 
 class BRMA14_9H:
     """Magmatron"""
 
-    events = Play().on(Hit(ALL_HEROES + CONTROLLED_BY(Play.PLAYER)))
+    events = Play().on(Hit(ALL_HEROES + CONTROLLED_BY(Play.PLAYER), 2))
 
 
 class BRMA16_3:
