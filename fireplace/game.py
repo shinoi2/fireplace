@@ -223,6 +223,46 @@ class BaseGame(Entity):
             self.trigger(self, [Reward(finished_card)], event_args=None)
             self.action_end(type, self)
 
+    def trigger_event(self, source, event, args):
+        """
+        An event of the game itself: the base_events of a Game subclass, the
+        rule of a Tavern Brawl ("When you cast a spell, ..."). The game has no
+        controller, and every action reads one from its source (a choice to
+        wait for, the owner of a card it creates); the rule acts for the
+        player its event names (Play.PLAYER, Death's controller...), as the
+        official brawls do with an enchantment on each player.
+        """
+        actor = next(
+            (a for a in args if getattr(a, "type", None) == CardType.PLAYER), None
+        )
+        if actor is None:
+            actor = next(
+                (
+                    a.controller
+                    for a in args
+                    if getattr(a, "type", CardType.INVALID) > CardType.PLAYER
+                ),
+                None,
+            )
+        if actor is None:
+            return super().trigger_event(source, event, args)
+        actions = []
+        for action in event.actions:
+            if callable(action):
+                ac = action(self, *args)
+                if not ac:
+                    continue
+                if not hasattr(ac, "__iter__"):
+                    actions.append(ac)
+                else:
+                    actions += ac
+            else:
+                actions.append(action)
+        ret = self.trigger(actor, actions, args)
+        if event.once:
+            self._events.remove(event)
+        return ret
+
     def trigger(self, source, actions, event_args):
         """
         Perform actions as a result of an event listener (TRIGGER)
