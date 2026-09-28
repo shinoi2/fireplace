@@ -346,7 +346,7 @@ class DoubleDeathrattlerBattler(Game):
 
     class Data:
         class scripts:
-            update = Refresh(ALL_PLAYERS, {GameTag.EXTRA_DEATHRATTLES: True})
+            update = (Refresh(ALL_PLAYERS, {GameTag.EXTRA_DEATHRATTLES: True}),)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -171,3 +171,19 @@ def test_brawl_decks_follow_the_seed():
         for _ in range(2)
     ]
     assert decks[0] == decks[1]
+
+
+def test_double_deathrattler_battler():
+    # "minions with Deathrattle now rattle twice", for both players
+    game = _brawl_game(
+        DoubleDeathrattlerBattler, deck1=[WISP] * 10, deck2=[WISP] * 10
+    )
+    for player in game.players:
+        hand = len(player.hand)
+        hoarder = player.summon("EX1_096")  # Loot Hoarder: Deathrattle: draw
+        hoarder.destroy()
+        assert len(player.hand) == hand + 2
+    game.end_turn()
+    hand = len(game.player2.hand)
+    game.player2.summon("EX1_096").destroy()
+    assert len(game.player2.hand) == hand + 2
