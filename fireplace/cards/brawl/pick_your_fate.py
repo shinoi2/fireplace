@@ -6,6 +6,22 @@ Deal Your Fate
 from ..utils import *
 from .banana_brawl import RandomBanana
 
+
+class BuffOwn(Buff):
+    """
+    A fate is a rule of the game, the same for both players: the enchantment
+    it leaves on a player or on a minion is controlled by that player (or
+    the minion's), not by the player who picked the fate. Its CONTROLLER,
+    FRIENDLY... and OWN_TURN_BEGIN are then its own player's.
+    """
+
+    TARGET = ActionArg()
+    BUFF = CardArg()
+
+    def do(self, source, target, buff):
+        buff.controller = target.controller
+        return super().do(source, target, buff)
+
 RandomFate = RandomID(
     "TB_PickYourFate_2",
     "TB_PickYourFate_5",
@@ -43,7 +59,7 @@ class TB_PickYourFate_2nd:
 class TB_PickYourFate_2:
     """Fate: Bananas"""
 
-    play = Buff(ALL_PLAYERS, "TB_PickYourFate_2_Ench")
+    play = BuffOwn(ALL_PLAYERS, "TB_PickYourFate_2_Ench")
 
 
 class TB_PickYourFate_2_Ench:
@@ -60,7 +76,7 @@ class TB_PickYourFate_2_EnchMinion:
 class TB_PickYourFate_5:
     """Fate: Spells"""
 
-    play = Buff(ALL_PLAYERS, "TB_PickYourFate_5_Ench")
+    play = BuffOwn(ALL_PLAYERS, "TB_PickYourFate_5_Ench")
 
 
 class TB_PickYourFate_5_Ench:
@@ -77,8 +93,8 @@ class TB_PickYourFate_7:
     """Fate: Coin"""
 
     play = (
-        Buff(ALL_PLAYERS, "TB_PickYourFate_7Ench"),
-        Buff(ALL_MINIONS, "TB_PickYourFate_7_EnchMinion"),
+        BuffOwn(ALL_PLAYERS, "TB_PickYourFate_7Ench"),
+        BuffOwn(ALL_MINIONS, "TB_PickYourFate_7_EnchMinion"),
     )
 
 
@@ -102,7 +118,7 @@ class TB_PickYourFate_7_EnchMinion:
 class TB_PickYourFate_8rand:
     """Fate: Armor"""
 
-    play = Buff(ALL_PLAYERS, "TB_PickYourFate_8_EnchRand")
+    play = BuffOwn(ALL_PLAYERS, "TB_PickYourFate_8_EnchRand")
 
 
 class TB_PickYourFate_8_EnchRand:
@@ -112,7 +128,7 @@ class TB_PickYourFate_8_EnchRand:
 class TB_PickYourFate_12:
     """Fate: Confusion"""
 
-    play = Buff(ALL_PLAYERS, "TB_PickYourFate_12_Ench")
+    play = BuffOwn(ALL_PLAYERS, "TB_PickYourFate_12_Ench")
 
 
 class TB_PickYourFate_12_Ench:
@@ -126,8 +142,8 @@ class TB_PickYourFate_1:
     """Dire Fate: Taunt and Charge"""
 
     play = (
-        Buff(ALL_PLAYERS, "TB_PickYourFate_1_Ench"),
-        Buff(ALL_MINIONS, "TB_AllMinionsTauntCharge"),
+        BuffOwn(ALL_PLAYERS, "TB_PickYourFate_1_Ench"),
+        BuffOwn(ALL_MINIONS, "TB_AllMinionsTauntCharge"),
     )
 
 
@@ -142,8 +158,8 @@ class TB_PickYourFate_3:
     """Dire Fate: Windfury"""
 
     play = (
-        Buff(ALL_PLAYERS, "TB_PickYourFate_3_Ench"),
-        Buff(ALL_MINIONS - WINDFURY, "TB_PickYourFate_Windfury"),
+        BuffOwn(ALL_PLAYERS, "TB_PickYourFate_3_Ench"),
+        BuffOwn(ALL_MINIONS - WINDFURY, "TB_PickYourFate_Windfury"),
     )
 
 
@@ -158,8 +174,8 @@ class TB_PickYourFate_4:
     """Dire Fate: Card"""
 
     play = (
-        Buff(ALL_PLAYERS, "TB_PickYourFate_4_Ench"),
-        Buff(ALL_MINIONS, "TB_PickYourFate_4_EnchMinion"),
+        BuffOwn(ALL_PLAYERS, "TB_PickYourFate_4_Ench"),
+        BuffOwn(ALL_MINIONS, "TB_PickYourFate_4_EnchMinion"),
     )
 
 
@@ -184,8 +200,8 @@ class TB_PickYourFate_7_2nd:
     """Dire Fate: Manaburst"""
 
     play = (
-        Buff(ALL_PLAYERS, "TB_PickYourFate_7_Ench_2nd"),
-        Buff(ALL_MINIONS, "TB_PickYourFate_7_EnchMiniom2nd"),
+        BuffOwn(ALL_PLAYERS, "TB_PickYourFate_7_Ench_2nd"),
+        BuffOwn(ALL_MINIONS, "TB_PickYourFate_7_EnchMiniom2nd"),
     )
 
 
@@ -220,7 +236,7 @@ class TB_PickYourFate_11rand:
 class TB_PickYourFate_11:
     """Murlocs (Unused)"""
 
-    play = Buff(ALL_PLAYERS, "TB_PickYourFate_11_Ench")
+    play = BuffOwn(ALL_PLAYERS, "TB_PickYourFate_11_Ench")
 
 
 class TB_PickYourFate_11_Ench:

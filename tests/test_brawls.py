@@ -204,3 +204,65 @@ def test_pick_your_fate_coin():
     assert game.player1.hand[-1].id == "TB_011"
     wisp2.destroy()
     assert game.player1.hand[-1].id == "TB_011"
+
+
+def _fate(fate, game=None):
+    game = game or prepare_empty_game()
+    game.player1.give(fate).play()
+    return game
+
+
+def _buff_ids(entity):
+    return [b.id for b in entity.buffs]
+
+
+def test_pick_your_fate_is_the_same_for_both_players():
+    # A fate is a rule of the game: the opponent of the player who picks it
+    # lives under it too, and nobody gets it twice.
+    game = _fate("TB_PickYourFate_7")
+    wisp = game.player2.summon(WISP)
+    assert _buff_ids(wisp).count("TB_PickYourFate_7_EnchMinion") == 1
+    mine = game.player1.summon(WISP)
+    assert _buff_ids(mine).count("TB_PickYourFate_7_EnchMinion") == 1
+    hand1, hand2 = len(game.player1.hand), len(game.player2.hand)
+    wisp.destroy()
+    assert len(game.player1.hand) == hand1
+    assert game.player2.hand[-1].id == "TB_011"
+    assert len(game.player2.hand) == hand2 + 1
+
+    # Fate: Bananas
+    game = _fate("TB_PickYourFate_2")
+    for player in game.players:
+        wisp = player.summon(WISP)
+        assert _buff_ids(wisp).count("TB_PickYourFate_2_EnchMinion") == 1
+        hand = len(player.hand)
+        wisp.destroy()
+        assert len(player.hand) == hand + 1
+
+    # Fate: Armor
+    game = _fate("TB_PickYourFate_8rand")
+    game.end_turn()
+    assert (game.player1.hero.armor, game.player2.hero.armor) == (0, 2)
+    game.end_turn()
+    assert (game.player1.hero.armor, game.player2.hero.armor) == (2, 2)
+
+    # Fate: Spells
+    game = _fate("TB_PickYourFate_5")
+    for player in game.players:
+        assert player.give(FIREBALL).cost == 4 - 1
+
+    # Dire Fate: Taunt and Charge
+    game = _fate("TB_PickYourFate_1")
+    game.end_turn()
+    wisp = game.player2.give(WISP)
+    wisp.play()
+    assert wisp.taunt and wisp.charge
+    assert _buff_ids(wisp).count("TB_AllMinionsTauntCharge") == 1
+
+    # Fate: Confusion, at the end of each turn
+    game = _fate("TB_PickYourFate_12")
+    yeti = game.player1.summon("CS2_182")
+    game.end_turn()
+    assert (yeti.atk, yeti.health) == (5, 4)
+    game.end_turn()
+    assert (yeti.atk, yeti.health) == (4, 5)
