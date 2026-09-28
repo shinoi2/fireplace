@@ -64,3 +64,20 @@ def test_the_alchemist():
     assert (yeti.atk, yeti.health) == (5, 4)
     mine = boss.summon("CS2_182")
     assert (mine.atk, mine.health) == (5 + 2, 4 + 2)
+
+
+def test_ancient_power():
+    # Skelesaurus Hex: "Give each player a random card. It costs (0)."
+    game, boss, other = _boss_game("LOEA13_1", deck=[])
+    hands = len(boss.hand), len(other.hand)
+    boss.hero.power.use()
+    assert (len(boss.hand), len(other.hand)) == (hands[0] + 1, hands[1] + 1)
+    for player in (boss, other):
+        card = player.hand[-1]
+        assert card.cost == 0
+        assert "LOEA13_2e" in [b.id for b in card.buffs]
+    # the Skelesaurus Hex minion of Rafaam's fight does it at the end of turn
+    game, boss, other = _boss_game("HERO_08", deck=[])
+    boss.summon("LOEA16_26")
+    game.end_turn()
+    assert other.hand[-1].cost == 0 and boss.hand[-1].cost == 0
