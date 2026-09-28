@@ -81,3 +81,13 @@ def test_ancient_power():
     boss.summon("LOEA16_26")
     game.end_turn()
     assert other.hand[-1].cost == 0 and boss.hand[-1].cost == 0
+
+
+def test_ancient_power_heroic():
+    # Skelesaurus Hex (Heroic): "Add a random card to your hand. It costs (0)."
+    for _ in range(3):
+        game, boss, other = _boss_game("LOEA13_1h", deck=[])
+        hands = len(boss.hand), len(other.hand)
+        boss.hero.power.use()
+        assert (len(boss.hand), len(other.hand)) == (hands[0] + 1, hands[1])
+        assert boss.hand[-1].cost == 0

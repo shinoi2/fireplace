@@ -468,7 +468,7 @@ class LOEA13_2e:
 class LOEA13_2H:
     """Ancient Power (Heroic)"""
 
-    activate = Give(CONTROLLER, RandomCollectible()).then(Buff(Give.CARD, "GBL_008e"))
+    activate = Give(CONTROLLER, RandomCollectible()).then(Buff(Give.CARD, "LOEA13_2e"))
 
 
 ##
