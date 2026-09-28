@@ -180,9 +180,9 @@ class AV_205:
     # [x]<b>Battlecry:</b> Set your maximum Mana to 20. Gain a Mana Crystal.
     # Draw a card.
     play = (
-        SetTags(CONTROLLER, {GameTag.MAXRESOURCES: SET(20)}),
+        SetTags(CONTROLLER, {GameTag.MAXRESOURCES: 20}),
         GainMana(CONTROLLER, 1),
-        Draw(CONTROLLER, 1),
+        Draw(CONTROLLER),
     )
 
 
@@ -192,7 +192,7 @@ class AV_205p:
     # [x]<b>Hero Power</b> <b>Choose One -</b> Draw a card; or Gain a Mana
     # Crystal.
     choose = ("AV_205a", "AV_205pb")
-    activate = ChooseBoth(CONTROLLER) & (GainMana(CONTROLLER, 1), Draw(CONTROLLER, 1))
+    activate = ChooseBoth(CONTROLLER) & (GainMana(CONTROLLER, 1), Draw(CONTROLLER))
 
 
 class AV_205a:
@@ -206,4 +206,4 @@ class AV_205pb:
     """Valley Root"""
 
     # Draw a card.
-    activate = Draw(CONTROLLER, 1)
+    activate = Draw(CONTROLLER)
