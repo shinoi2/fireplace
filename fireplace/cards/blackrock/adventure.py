@@ -336,8 +336,13 @@ class BRMA15_2:
     events = Summon(ALL_PLAYERS, MINION).on(Buff(Summon.CARD, "BRMA15_2e"))
 
 
+@custom_card
 class BRMA15_2e(AttackHealthSwapBuff()):
-    tags = {GameTag.CARDNAME: "The Alchemist Attack/Health Swap Buff" ""}
+    # Not in CardDefs.xml
+    tags = {
+        GameTag.CARDNAME: "The Alchemist Attack/Health Swap Buff",
+        GameTag.CARDTYPE: CardType.ENCHANTMENT,
+    }
 
 
 class BRMA15_2H:

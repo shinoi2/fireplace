@@ -49,3 +49,18 @@ def test_omnotron_defense_system():
             "BRMA14_10" + h,
         ]
         assert boss.field.filter(id="BRMA14_9" + h)
+
+
+def test_the_alchemist():
+    # Maloriak: "Passive Hero Power: Whenever a minion is summoned, swap its
+    # Attack and Health."; heroic: "Your minions have +2/+2."
+    game, boss, other = _boss_game("BRMA15_1")
+    yeti = other.summon("CS2_182")
+    assert (yeti.atk, yeti.health) == (5, 4)
+    mine = boss.summon("CS2_182")
+    assert (mine.atk, mine.health) == (5, 4)
+    game, boss, other = _boss_game("BRMA15_1H")
+    yeti = other.summon("CS2_182")
+    assert (yeti.atk, yeti.health) == (5, 4)
+    mine = boss.summon("CS2_182")
+    assert (mine.atk, mine.health) == (5 + 2, 4 + 2)
