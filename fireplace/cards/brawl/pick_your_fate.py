@@ -82,7 +82,13 @@ class TB_PickYourFate_7:
     )
 
 
+@custom_card
 class TB_PickYourFate_7Ench:
+    # Not in CardDefs.xml: the rule Fate: Coin leaves on each player.
+    tags = {
+        GameTag.CARDNAME: "Fate: Coin",
+        GameTag.CARDTYPE: CardType.ENCHANTMENT,
+    }
     events = Summon(CONTROLLER, MINION).on(
         Buff(Summon.CARD, "TB_PickYourFate_7_EnchMinion")
     )

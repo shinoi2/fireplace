@@ -187,3 +187,20 @@ def test_double_deathrattler_battler():
     hand = len(game.player2.hand)
     game.player2.summon("EX1_096").destroy()
     assert len(game.player2.hand) == hand + 2
+
+
+def test_pick_your_fate_coin():
+    # Fate: Coin: "When a minion dies, its owner gets a Coin.", for the
+    # minions in play and for those summoned later
+    game = prepare_empty_game()
+    wisp1 = game.player1.summon(WISP)
+    game.player1.give("TB_PickYourFate_7").play()
+    assert "TB_PickYourFate_7_EnchMinion" in [b.id for b in wisp1.buffs]
+    for player in game.players:
+        assert "TB_PickYourFate_7Ench" in [b.id for b in player.buffs]
+    wisp2 = game.player1.summon(WISP)
+    assert "TB_PickYourFate_7_EnchMinion" in [b.id for b in wisp2.buffs]
+    wisp1.destroy()
+    assert game.player1.hand[-1].id == "TB_011"
+    wisp2.destroy()
+    assert game.player1.hand[-1].id == "TB_011"
