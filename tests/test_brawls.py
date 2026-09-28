@@ -467,3 +467,66 @@ def test_cloneball_offensive_play():
     # The opponent is untouched
     other = game.player2.give(LEEROY)
     assert other.cost == 5
+
+
+def _game_with_rule(rule, deck1=(), deck2=()):
+    """A game whose rule (an enchantment) is on both players before the
+    mulligan, applied as the Hearthstone wrapper does (no action queued
+    during the mulligan)."""
+    player1 = Player("Player1", list(deck1), CardClass.MAGE.default_hero)
+    player2 = Player("Player2", list(deck2), CardClass.WARRIOR.default_hero)
+    player1.cant_fatigue = not deck1
+    player2.cant_fatigue = not deck2
+    game = Game(players=(player1, player2))
+    game.start()
+    for player in game.players:
+        player.card(rule, source=player.hero).apply(player)
+    _empty_mulligan(game)
+    return game
+
+
+def test_wacky_waxy_large_waxy_gift():
+    # Large Waxy Gift: "Deathrattle: Add a random Legendary minion to your
+    # opponent's hand. It costs (3) less."
+    game = prepare_empty_game()
+    gift = game.player1.summon("TB_KoboldGiftMinion")
+    assert (gift.atk, gift.health) == (0, 4)
+    hand1, hand2 = len(game.player1.hand), len(game.player2.hand)
+    gift.destroy()
+    assert len(game.player1.hand) == hand1
+    assert len(game.player2.hand) == hand2 + 1
+    legend = game.player2.hand[-1]
+    assert legend.type == CardType.MINION and legend.rarity == Rarity.LEGENDARY
+    assert legend.cost == max(0, legend.data.cost - 3)
+    game.end_turn()
+    game.player2.max_mana = 10
+    legend.play()
+    assert legend.cost == legend.data.cost
+
+
+def test_wacky_waxy_presents_drop_on_turns_1_and_7():
+    # "All gifts are summoned on turn 1" (four on each side), "At Turn 7, 4
+    # more presents will drop on each side of the board", as many as fit.
+    game = _game_with_rule("TB_KoboldGiftEnch")
+    assert game.turn == 1
+    for player in game.players:
+        assert [m.id for m in player.field] == ["TB_KoboldGiftMinion"] * 4
+    for _ in range(5):
+        game.end_turn()
+    assert game.turn == 6
+    for player in game.players:
+        assert len(player.field) == 4
+    game.player2.field[0].destroy()
+    game.player2.field[0].destroy()
+    game.end_turn()
+    assert game.turn == 7
+    assert len(game.player1.field) == 7
+    assert len(game.player2.field) == 6
+    for _ in range(4):
+        game.end_turn()
+    assert len(game.player2.field) == 6
+    # The spell drops four presents on its player's side
+    game = prepare_empty_game()
+    game.player1.give("TB_KoboldGiftSpell").play()
+    assert [m.id for m in game.player1.field] == ["TB_KoboldGiftMinion"] * 4
+    assert not game.player2.field
