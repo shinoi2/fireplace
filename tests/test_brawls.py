@@ -53,3 +53,18 @@ def test_masked_ball_brawl():
     assert pilot is not yeti
     assert pilot.controller is game.player1
     assert len(game.player2.field) == 0
+
+
+def test_masked_ball_pilot_costs_two_less():
+    # The wiki: "it will summon in its place a random minion that costs 2
+    # mana less"; the minion it summons has no disguise.
+    game = _brawl_game(MaskedBallBrawl)
+    for _ in range(2):
+        yeti = game.player1.give("CS2_182")
+        yeti.play()
+        yeti.destroy()
+        pilot = game.player1.field[-1]
+        assert pilot.cost == 4 - 2
+        assert not pilot.buffs
+        pilot.destroy()
+        assert len(game.player1.field) == 0
