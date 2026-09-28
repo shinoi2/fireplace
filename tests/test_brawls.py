@@ -306,3 +306,31 @@ def test_blingtron_blade_breaks_into_a_new_weapon():
     game.player1.hero.power.use()
     assert game.player1.weapon is not None
     assert game.player1.weapon is not before
+
+
+def test_gift_exchange_stolen_gift():
+    # The wiki (Gift Exchange): the destroyed Winter Veil Gift gives the
+    # current player a Stolen Gift: "Discover a card belonging to the class
+    # of the player who controlled the Winter Veil Gift minion, with its mana
+    # cost reduced by 5"; spells and minions of 5 or more only, no neutral.
+    for _ in range(5):
+        game = _brawl_game(Game, hero1="HERO_08", hero2="HERO_01")  # Mage, Warrior
+        assert game.player1.hero.card_class != game.player2.hero.card_class
+        gift = game.player2.summon("TB_GiftExchange_Treasure")
+        game.player1.give(FIREBALL).play(target=gift)
+        stolen = game.player1.hand[-1]
+        assert stolen.id == "TB_GiftExchange_Treasure_Spell"
+        assert not game.player2.hand.filter(id="TB_GiftExchange_Treasure_Spell")
+        stolen.play()
+        choice = game.player1.choice
+        assert len(choice.cards) == 3
+        for card in choice.cards:
+            assert game.player2.hero.card_class in card.classes
+            assert card.type in (CardType.MINION, CardType.SPELL)
+            assert card.data.cost >= 5
+        picked = choice.cards[0]
+        choice.choose(picked)
+        assert game.player1.hand[-1] is picked
+        assert picked.cost == max(picked.data.cost - 5, 0)
+        assert picked.controller is game.player1
+
