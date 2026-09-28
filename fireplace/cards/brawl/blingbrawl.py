@@ -20,15 +20,11 @@ class TB_BlingBrawl_Blade1e:
     tags = {GameTag.DEATHRATTLE: True}
 
 
-@custom_card
-class TB_BlingBrawl_Blade2:
+class TB_BlingBrawl_Blade2e:
     """Blingtron's Blade HERO"""
 
-    # Not in CardDefs.xml: the rule of the brawl, on each player.
-    tags = {
-        GameTag.CARDNAME: "Blingtron's Blade HERO",
-        GameTag.CARDTYPE: CardType.ENCHANTMENT,
-    }
+    # The rule of the brawl, on each player (CardDefs.xml names it with an
+    # "e", like every enchantment).
     events = Summon(CONTROLLER, WEAPON).on(Buff(Summon.CARD, "TB_BlingBrawl_Blade1e"))
 
 
