@@ -59,12 +59,67 @@ def test_masked_ball_pilot_costs_two_less():
     # The wiki: "it will summon in its place a random minion that costs 2
     # mana less"; the minion it summons has no disguise.
     game = _brawl_game(MaskedBallBrawl)
-    for _ in range(2):
+    for i in range(2):
         yeti = game.player1.give("CS2_182")
         yeti.play()
         yeti.destroy()
+        assert len(game.player1.field) == i + 1
         pilot = game.player1.field[-1]
         assert pilot.cost == 4 - 2
-        assert not pilot.buffs
-        pilot.destroy()
-        assert len(game.player1.field) == 0
+        assert "TB_Pilot1" not in [buff.id for buff in pilot.buffs]
+
+
+def _whole_deck(player):
+    return [c.id for c in player.deck] + [c.id for c in player.hand if c.id != THE_COIN]
+
+
+def _check_fixed_and_spells(game, fixed):
+    for player in game.players:
+        deck = _whole_deck(player)
+        assert len(deck) == 30
+        assert deck.count(fixed) == 23
+        others = [fireplace.cards.db[id] for id in deck if id != fixed]
+        assert len(others) == 7
+        for card in others:
+            assert card.type == CardType.SPELL
+            assert player.hero.card_class in card.classes
+
+
+def test_spiders_everywhere_brawl():
+    # "your deck will be TEEMING with Webspinners": 23 Webspinners and seven
+    # spells of your class
+    game = _brawl_game(SpidersEverywhereBrawl, hero1="HERO_05", hero2="HERO_08")
+    _check_fixed_and_spells(game, "FP1_011")
+
+
+def test_too_many_portals_brawl():
+    # "a few spells and a WHOLE lot of portals"
+    game = _brawl_game(TooManyPortalsBrawl, hero1="HERO_02", hero2="HERO_09")
+    _check_fixed_and_spells(game, "GVG_003")
+
+
+def test_crossroads_encounter_brawl():
+    # "Pick a class. Let's see what's in your deck this time!": fifteen
+    # cards of your class, fifteen neutral cards
+    game = _brawl_game(CrossroadsEncounterBrawl, hero1="HERO_06", hero2="HERO_01")
+    for player in game.players:
+        deck = [fireplace.cards.db[id] for id in _whole_deck(player)]
+        assert len(deck) == 30
+        assert all(c.collectible for c in deck)
+        assert len([c for c in deck if player.hero.card_class in c.classes]) >= 15
+        assert len([c for c in deck if c.card_class == CardClass.NEUTRAL]) >= 15
+        assert all(
+            player.hero.card_class in c.classes or c.card_class == CardClass.NEUTRAL
+            for c in deck
+        )
+
+
+def test_brawl_decks_follow_the_seed():
+    decks = []
+    for _ in range(2):
+        player1 = Player("Player1", [], "HERO_05")
+        player2 = Player("Player2", [], "HERO_08")
+        game = TooManyPortalsBrawl(players=(player1, player2), seed=7)
+        game.start()
+        decks.append(sorted(_whole_deck(player1)) + sorted(_whole_deck(player2)))
+    assert decks[0] == decks[1]

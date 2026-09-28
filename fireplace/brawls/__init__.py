@@ -128,18 +128,19 @@ class SpidersEverywhereBrawl(Game):
     Webspinners.
     """
 
-    def __init__(self, players):
+    def setup(self):
+        # The decks are drawn at setup, from the game's random and once the
+        # players know their game (find_cards reads game.is_standard).
         from .. import cards
 
-        super().__init__(players)
-        for player in players:
-            hero = player.starting_hero
-            player_class = getattr(cards, hero).card_class
+        for player in self.players:
+            player_class = cards.db[player.starting_hero].card_class
             spells = RandomSpell(card_class=player_class).find_cards(player)
             deck = ["FP1_011"] * 23
             for i in range(7):
                 deck.append(self.random.choice(spells))
-            player.starting_deck, player.starting_hero = deck, hero
+            player.starting_deck = deck
+        super().setup()
 
 
 class GreatSummonerBrawl(Game):
@@ -164,18 +165,17 @@ class CrossroadsEncounterBrawl(Game):
     Let's see what's in your deck this time!
     """
 
-    def __init__(self, players):
+    def setup(self):
         from .. import cards
 
-        super().__init__(players)
-        for player in players:
-            hero = player.starting_hero
-            player_class = getattr(cards, hero).card_class
+        for player in self.players:
+            player_class = cards.db[player.starting_hero].card_class
             pool = RandomCollectible(card_class=player_class).find_cards(player)
             deck = [self.random.choice(pool) for i in range(15)]
             pool = RandomCollectible(card_class=CardClass.NEUTRAL).find_cards(player)
             deck += [self.random.choice(pool) for i in range(15)]
-            player.starting_deck, player.starting_hero = deck, hero
+            player.starting_deck = deck
+        super().setup()
 
 
 class HeartOfTheSunwellBrawl(Game):
@@ -204,18 +204,17 @@ class TooManyPortalsBrawl(Game):
 
     UNSTABLE_PORTAL = "GVG_003"
 
-    def __init__(self, players):
+    def setup(self):
         from .. import cards
 
-        super().__init__(players)
-        for player in players:
-            hero = player.starting_hero
-            player_class = getattr(cards, hero).card_class
+        for player in self.players:
+            player_class = cards.db[player.starting_hero].card_class
             spells = RandomSpell(card_class=player_class).find_cards(player)
             deck = [self.UNSTABLE_PORTAL] * 23
             for i in range(7):
                 deck.append(self.random.choice(spells))
-            player.starting_deck, player.starting_hero = deck, hero
+            player.starting_deck = deck
+        super().setup()
 
 
 class MaskedBallBrawl(Game):

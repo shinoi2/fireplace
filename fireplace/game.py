@@ -77,7 +77,9 @@ class BaseGame(Entity):
 
     @property
     def is_standard(self):
-        return self.player1.is_standard and self.player2.is_standard
+        # self.players, not player1 and player2: those are only known once
+        # setup picks the first player.
+        return all(player.is_standard for player in self.players)
 
     @property
     def board(self):
