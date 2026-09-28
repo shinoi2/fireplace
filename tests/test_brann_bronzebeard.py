@@ -1,4 +1,8 @@
+from copy import deepcopy
+
 from utils import *
+
+import fireplace.cards
 
 BRANN_BRONZEBEARD = "LOE_077"
 
@@ -56,3 +60,33 @@ def test_brann_youthful_brewmaster():
     brewmaster = game.player1.give("EX1_049")
     brewmaster.play(target=brann)
     assert brann in game.player1.hand
+
+
+def _copy_game(game):
+    # Like a bot looking ahead: a deep copy that shares the card database.
+    memo = {id(card): card for card in fireplace.cards.db.values()}
+    return deepcopy(game, memo)
+
+
+def test_brann_jeweled_scarab_copied_during_choice():
+    # The second Discover waits for the first one. A copy of the game made
+    # while the first choice is open plays both in the copy, and the
+    # original game opens no choice of its own.
+    game, brann = _prepare_game()
+    game.player1.give("LOE_029").play()
+    assert game.player1.choice
+    copy = _copy_game(game)
+    for i in range(2):
+        choice = copy.player1.choice
+        assert choice
+        choice.choose(choice.cards[0])
+    assert not copy.player1.choice
+    assert len(copy.player1.hand) == 2
+    # The original game still has its first choice, and two in all
+    assert not game.player1.hand
+    for i in range(2):
+        choice = game.player1.choice
+        assert choice
+        choice.choose(choice.cards[0])
+    assert not game.player1.choice
+    assert len(game.player1.hand) == 2

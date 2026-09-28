@@ -16,7 +16,9 @@ AT_066e = buff(atk=1)
 class AT_067:
     """Magnataur Alpha"""
 
-    events = Attack(SELF).on(CLEAVE)
+    # CLEAVE reads TARGET, which an attack does not set: the neighbours of
+    # the defender, once the combat damage is dealt.
+    events = Attack(SELF).after(Hit(ADJACENT(Attack.DEFENDER), ATK(SELF)))
 
 
 class AT_069:

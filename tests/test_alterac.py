@@ -71,3 +71,27 @@ def test_magister_dawngrasp():
     game.player1.hero.power.use(target=game.player2.field[0])
     assert game.player2.field == []
     assert game.player1.hero.power.data_num_1 == 6
+
+
+def test_wildheart_guff():
+    # "Battlecry: Set your maximum Mana to 20. Gain a Mana Crystal. Draw a
+    # card." Nurture: "Choose One - Draw a card; or Gain a Mana Crystal."
+    game = prepare_game(CardClass.DRUID, CardClass.DRUID)
+    game.player1.discard_hand()
+    guff = game.player1.give("AV_205")
+    guff.play()
+    assert game.player1.hero.id == "AV_205"
+    assert len(game.player1.hand) == 1
+    power = game.player1.hero.power
+    assert power.id == "AV_205p"
+    game.end_turn()
+    game.end_turn()
+    hand = len(game.player1.hand)
+    power.use(choose="AV_205pb")  # Valley Root: draw a card
+    assert len(game.player1.hand) == hand + 1
+    game.end_turn()
+    game.end_turn()
+    crystals = game.player1.max_mana
+    game.player1.hero.power.use(choose="AV_205a")  # Ice Blossom
+    assert game.player1.max_mana == crystals + 1
+

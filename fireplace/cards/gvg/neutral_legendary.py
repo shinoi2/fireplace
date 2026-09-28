@@ -44,7 +44,9 @@ class GVG_112:
 class GVG_113:
     """Foe Reaper 4000"""
 
-    events = Attack(SELF).on(CLEAVE)
+    # CLEAVE reads TARGET, which an attack does not set: the neighbours of
+    # the defender, once the combat damage is dealt.
+    events = Attack(SELF).after(Hit(ADJACENT(Attack.DEFENDER), ATK(SELF)))
 
 
 class GVG_114:

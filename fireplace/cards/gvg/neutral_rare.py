@@ -1,5 +1,12 @@
 from ..utils import *
 
+# Kezan Mystic: the enemy Secrets its player does not already have
+GVG_074_SECRETS = ENEMY_SECRETS + FilterSelector(
+    lambda entity, source: not source.controller.secrets.contains(
+        getattr(entity, "id", None)
+    )
+)
+
 ##
 # Minions
 
@@ -7,7 +14,13 @@ from ..utils import *
 class GVG_074:
     """Kezan Mystic"""
 
-    play = Steal(RANDOM(ENEMY_SECRETS))
+    # A Secret its player already has is not picked while another one can
+    # be; if they all are, a random enemy Secret is destroyed. At 5 Secrets,
+    # the chosen one is destroyed instead of stolen.
+    play = Find(GVG_074_SECRETS) & (
+        (Count(FRIENDLY_SECRETS) >= 5) & Destroy(RANDOM(GVG_074_SECRETS))
+        | Steal(RANDOM(GVG_074_SECRETS))
+    ) | Destroy(RANDOM(ENEMY_SECRETS))
 
 
 class GVG_089:

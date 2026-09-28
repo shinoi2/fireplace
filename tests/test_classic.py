@@ -1378,6 +1378,25 @@ def test_frothing_berserker():
     assert frothing.atk == 2 + 1
 
 
+def test_fire_elemental():
+    # Patch 21.8: "Battlecry: Deal 4 damage."
+    game = prepare_empty_game()
+    game.end_turn()
+    yeti = game.player2.give("CS2_182")
+    yeti.play()
+    game.end_turn()
+
+    fire1 = game.player1.give("CS2_042")
+    assert fire1.requires_target()
+    fire1.play(target=yeti)
+    assert yeti.health == 5 - 4
+    game.end_turn()
+    game.end_turn()
+
+    game.player1.give("CS2_042").play(target=game.player2.hero)
+    assert game.player2.hero.health == 30 - 4
+
+
 def test_flame_leviathan():
     game = prepare_empty_game()
     assert len(game.player1.deck) == 0
@@ -1397,6 +1416,28 @@ def test_flame_leviathan():
     assert game.player1.hero.health == 28
     assert game.player2.hero.health == 28
     assert wisp.dead
+
+
+def test_flamestrike():
+    # Patch 21.8: "Deal $5 damage to all enemy minions."
+    game = prepare_empty_game()
+    game.end_turn()
+    yeti1 = game.player2.give("CS2_182")
+    yeti1.play()
+    yeti2 = game.player2.give("CS2_182")
+    yeti2.play()
+    wisp = game.player2.give(WISP)
+    wisp.play()
+    game.end_turn()
+
+    own_yeti = game.player1.summon("CS2_182")
+    game.player1.give("CS2_032").play()
+    assert yeti1.dead
+    assert yeti2.dead
+    assert wisp.dead
+    assert own_yeti.health == 5
+    assert game.player1.hero.health == 30
+    assert game.player2.hero.health == 30
 
 
 def test_force_of_nature():
@@ -1599,6 +1640,23 @@ def test_houndmaster():
     assert hound.atk == 3
     assert hound.health == 3
     assert hound.taunt
+
+
+def test_holy_light():
+    # Patch 21.8: "Restore #8 Health to your hero."
+    game = prepare_empty_game()
+    game.player1.hero.set_current_health(10)
+    game.player2.hero.set_current_health(10)
+    holy_light = game.player1.give(HOLY_LIGHT)
+    assert not holy_light.requires_target()
+    assert holy_light.is_playable()
+    holy_light.play()
+    assert game.player1.hero.health == 10 + 8
+    assert game.player2.hero.health == 10
+
+    game.player1.hero.set_current_health(25)
+    game.player1.give(HOLY_LIGHT).play()
+    assert game.player1.hero.health == 30
 
 
 def test_holy_wrath():
@@ -1933,6 +1991,21 @@ def test_leeroy():
     assert leeroy.can_attack()
     assert len(game.player2.field) == 2
     assert game.player2.field[0].id == game.player2.field[1].id == "EX1_116t"
+
+
+def test_lightning_storm():
+    # Patch 21.8: "Deal $3 damage to all enemy minions. Overload: (2)"
+    game = prepare_empty_game()
+    yetis = [game.player2.summon("CS2_182") for i in range(3)]
+    own_yeti = game.player1.summon("CS2_182")
+    # The damage is not random any more
+    with mock(RandomNumber, 2):
+        game.player1.give("EX1_259").play()
+    for yeti in yetis:
+        assert yeti.health == 5 - 3
+    assert own_yeti.health == 5
+    assert game.player2.hero.health == 30
+    assert game.player1.overloaded == 2
 
 
 def test_lightspawn():
@@ -2987,20 +3060,31 @@ def test_shadowform():
     game.end_turn()
     game.end_turn()
 
+    # Patch 21.8: "Your Hero Power becomes 'Deal 2 damage.'" -- no Mind Shatter
+    game.player1.hero.power.use(target=game.player2.hero)
+    assert game.player2.hero.health == 26
     shadowform2 = game.player1.give("EX1_625")
     shadowform2.play()
     assert game.player1.shadowform
-    assert game.player1.hero.power.id == "EX1_625t2"
+    assert game.player1.hero.power.id == "EX1_625t"
     assert game.player1.hero.power.is_usable()
     game.player1.hero.power.use(target=game.player2.hero)
     assert not game.player1.hero.power.is_usable()
-    assert game.player2.hero.health == 25
+    assert game.player2.hero.health == 24
 
-    shadowform3 = game.player1.give("EX1_625")
-    shadowform3.play()
-    assert game.player1.shadowform
-    assert game.player1.hero.power.id == "EX1_625t2"
-    assert not game.player1.hero.power.is_usable()
+
+def test_shadowhoof_slayer():
+    game = prepare_game()
+    assert game.player1.hero.atk == 0
+    game.player1.give("BT_142").play()
+    assert game.player1.hero.atk == 1
+    assert game.player1.hero.can_attack()
+    game.player1.hero.attack(target=game.player2.hero)
+    assert game.player2.hero.health == 30 - 1
+    assert not game.player1.buffs
+    game.end_turn()
+    assert game.player1.hero.atk == 0
+    assert not game.player1.hero.buffs
 
 
 def test_shadowstep():
@@ -3079,6 +3163,49 @@ def test_sightless_watcher():
     game.current_player.give(TARGET_DUMMY).shuffle_into_deck()
     # TODO how to play Choice card
     # game.player1.give("BT_323").play(choose=wisp)
+
+
+def test_sightless_watcher_put_on_top():
+    for i in range(3):
+        game = prepare_game()
+        deck = list(game.player1.deck)
+        game.player1.give("BT_323").play()
+        choice = game.player1.choice
+        assert len(choice.cards) == 3
+        assert len(set(card.id for card in choice.cards)) == 3
+        chosen = choice.cards[i]
+        choice.choose(chosen)
+        assert game.player1.deck[-1] is chosen
+        assert len(game.player1.deck) == len(deck)
+        assert [card for card in game.player1.deck if card is not chosen] == [
+            card for card in deck if card is not chosen
+        ]
+        game.skip_turn()
+        assert chosen.zone == Zone.HAND
+        assert chosen not in game.player1.deck
+
+
+def test_sightless_watcher_unfinished_choice():
+    # A choice left open in one game (conceded, abandoned)
+    # must not break the next Sightless Watcher in another game.
+    game1 = prepare_game()
+    game1.player1.give("BT_323").play()
+    assert game1.player1.choice
+    game2 = prepare_game()
+    game2.player1.give("BT_323").play()
+    chosen = game2.player1.choice.cards[0]
+    game2.player1.choice.choose(chosen)
+    assert game2.player1.deck[-1] is chosen
+
+    # Two choices open at the same time in two games
+    game3 = prepare_game()
+    game4 = prepare_game()
+    game3.player1.give("BT_323").play()
+    game4.player1.give("BT_323").play()
+    for game in (game3, game4):
+        chosen = game.player1.choice.cards[2]
+        game.player1.choice.choose(chosen)
+        assert game.player1.deck[-1] is chosen
 
 
 def test_slam():
@@ -3386,15 +3513,58 @@ def test_totemic_might():
 
 
 def test_tracking():
-    game = prepare_game()
-    game.player1.discard_hand()
+    # Patch 21.8: "Discover a card from your deck."
+    game = prepare_empty_game()
+    deck_ids = [WISP, WISP, "CS2_182", "CS2_189", "CS2_120", "CS2_171"]
+    for id in deck_ids:
+        game.player1.card(id, zone=Zone.DECK)
+    deck = game.player1.deck[:]
+    assert len(deck) == 6
     tracking = game.player1.give("DS1_184")
     tracking.play()
-    assert game.player1.choice
-    assert len(game.player1.choice.cards) == 3
-    pick = game.player1.choice.cards[0]
-    game.player1.choice.choose(pick)
+    choice = game.player1.choice
+    assert choice
+    assert len(choice.cards) == 3
+    # Three different cards, all from the deck
+    assert len(set(card.id for card in choice.cards)) == 3
+    for card in choice.cards:
+        assert card in deck
+        assert card.zone == Zone.DECK
+    pick = choice.cards[0]
+    others = [card for card in choice.cards if card is not pick]
+    drawn = game.player1.cards_drawn_this_turn
+    choice.choose(pick)
+    assert not game.player1.choice
+    # The chosen card is drawn, the others stay in the deck
     assert game.player1.hand == [pick]
+    assert pick.zone == Zone.HAND
+    assert game.player1.cards_drawn_this_turn == drawn + 1
+    assert len(game.player1.deck) == 5
+    for card in others:
+        assert card.zone == Zone.DECK
+        assert card in game.player1.deck
+
+
+def test_tracking_duplicates():
+    game = prepare_empty_game()
+    for id in (WISP, WISP, WISP, "CS2_182"):
+        game.player1.card(id, zone=Zone.DECK)
+    game.player1.give("DS1_184").play()
+    choice = game.player1.choice
+    assert sorted(card.id for card in choice.cards) == sorted([WISP, "CS2_182"])
+    wisp = choice.cards[[card.id for card in choice.cards].index(WISP)]
+    choice.choose(wisp)
+    assert game.player1.hand == [wisp]
+    assert sorted(card.id for card in game.player1.deck) == sorted(
+        [WISP, WISP, "CS2_182"]
+    )
+
+
+def test_tracking_empty_deck():
+    game = prepare_empty_game()
+    game.player1.give("DS1_184").play()
+    assert not game.player1.choice
+    assert not game.player1.hand
 
 
 def test_truesilver_champion():
@@ -3461,6 +3631,36 @@ def test_unbound_elemental():
     game.end_turn()
 
     game.player2.give("EX1_238").play(target=game.player2.hero)
+    assert unbound.atk == 3 + 1
+    assert unbound.health == 4 + 1
+
+
+def test_unbound_elemental_after():
+    # Patch 21.8: "After you play a card with Overload, gain +1/+1."
+    # The Overload card resolves first: a wounded 3/3 hit by its own
+    # Lightning Bolt dies before the buff.
+    game = prepare_empty_game()
+    unbound = game.player1.give("EX1_258")
+    unbound.play()
+    game.player1.give(MOONFIRE).play(target=unbound)
+    assert unbound.health == 3
+    game.player1.give("EX1_238").play(target=unbound)
+    assert unbound.dead
+
+
+def test_unbound_elemental_countered():
+    # Wiki: it gains +1/+1 even if the Overload spell is countered
+    game = prepare_empty_game()
+    game.end_turn()
+    counterspell = game.player2.give("EX1_287")
+    counterspell.play()
+    game.end_turn()
+
+    unbound = game.player1.give("EX1_258")
+    unbound.play()
+    game.player1.give("EX1_238").play(target=game.player2.hero)
+    assert counterspell not in game.player2.secrets
+    assert game.player2.hero.health == 30
     assert unbound.atk == 3 + 1
     assert unbound.health == 4 + 1
 
@@ -3588,23 +3788,61 @@ def test_void_terror():
 
 
 def test_warsong_commander():
-    game = prepare_game()
+    # Patch 21.8: "After you summon another minion, give it Rush."
+    game = prepare_empty_game()
+    game.end_turn()
+    enemy_wisp = game.player2.give(WISP)
+    enemy_wisp.play()
+    game.end_turn()
+
     wisp = game.player1.give(WISP)
     wisp.play()
-    boar = game.player1.give("CS2_171")
-    boar.play()
-    assert wisp.atk == boar.atk == 1
-    assert not wisp.charge
-    assert boar.charge
     warsong = game.player1.give("EX1_084")
     warsong.play()
-    assert wisp.atk == 1
-    assert boar.atk == 1 + 1
-    assert not wisp.charge
-    assert boar.charge
-    game.player1.give(SILENCE).play(target=boar)
+    assert not warsong.rush
+    assert not wisp.rush
+    assert not wisp.can_attack()
+
+    boar = game.player1.give("CS2_171")
+    boar.play()
     assert boar.atk == 1
-    assert not boar.charge
+    assert boar.charge
+    assert boar.rush
+
+    yeti = game.player1.give("CS2_182")
+    yeti.play()
+    assert yeti.rush
+    assert yeti.atk == 4
+    assert yeti.buffs[0].id == "EX1_084e"
+    assert yeti.can_attack(enemy_wisp)
+    assert not yeti.can_attack(game.player2.hero)
+
+    # Summoned, not played: Razorfen Hunter and its Boar
+    game.end_turn()
+    game.end_turn()
+    razorfen = game.player1.give("CS2_196")
+    razorfen.play()
+    token = game.player1.field[-1]
+    assert token.id == "CS2_boar"
+    assert razorfen.rush
+    assert token.rush
+
+    # Not the opponent's minions
+    game.end_turn()
+    enemy_yeti = game.player2.give("CS2_182")
+    enemy_yeti.play()
+    assert not enemy_yeti.rush
+    game.end_turn()
+
+    # Rush is an enchantment: silenced away
+    game.player1.give(SILENCE).play(target=yeti)
+    assert not yeti.rush
+    # Silenced Warsong gives no more Rush, the given Rush stays
+    game.player1.give(SILENCE).play(target=warsong)
+    wisp2 = game.player1.give(WISP)
+    wisp2.play()
+    assert not wisp2.rush
+    assert razorfen.rush
 
 
 def test_water_elemental():

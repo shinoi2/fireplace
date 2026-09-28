@@ -44,7 +44,7 @@ class PART_004:
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_TARGET_TO_PLAY: 0,
     }
-    play = Buff(TARGET - STEALTH, "PART_004e")
+    play = Buff(TARGET - STEALTH, "PART_004e"), Stealth(TARGET)
     tags = {GameTag.SPARE_PART: True}
 
 

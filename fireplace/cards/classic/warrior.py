@@ -195,10 +195,11 @@ NEW1_036e = buff(health_minimum=1)
 class EX1_084:
     """Warsong Commander"""
 
-    update = Refresh(FRIENDLY_MINIONS + CHARGE, buff="EX1_084e")
+    # After you summon another minion, give it <b>Rush</b>.
+    events = Summon(CONTROLLER, MINION - SELF).after(Buff(Summon.CARD, "EX1_084e"))
 
 
-EX1_084e = buff(atk=1)
+EX1_084e = buff(rush=True)
 
 
 ##

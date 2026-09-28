@@ -16,7 +16,7 @@ GVG_046e = buff(atk=1)
 class GVG_048:
     """Metaltooth Leaper"""
 
-    play = Buff(RANDOM(FRIENDLY_MINIONS + MECH - SELF), "GVG_048e")
+    play = Buff(FRIENDLY_MINIONS + MECH - SELF, "GVG_048e")
 
 
 GVG_048e = buff(atk=2)
@@ -35,7 +35,7 @@ class GVG_049e:
 class GVG_087:
     """Steamwheedle Sniper"""
 
-    update = Refresh(CONTROLLER, {GameTag.STEADY_SHOT_CAN_TARGET: True})
+    update = Refresh(FRIENDLY_HERO_POWER, {GameTag.STEADY_SHOT_CAN_TARGET: True})
 
 
 ##

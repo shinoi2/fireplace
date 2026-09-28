@@ -289,6 +289,25 @@ def test_fel_reaver():
         assert len(game.player2.deck) == 25
 
 
+def test_finicky_cloakfield():
+    # "Give a friendly minion Stealth until your next turn."
+    game = prepare_empty_game()
+    yeti = game.player1.summon("CS2_182")
+    game.player1.give("PART_004").play(target=yeti)
+    assert yeti.stealthed
+    game.end_turn()
+    fireball = game.player2.give(FIREBALL)
+    assert yeti not in fireball.targets
+    game.end_turn()
+    assert not yeti.stealthed
+    assert not yeti.buffs
+    # Stealth goes when it attacks, like any Stealth
+    game.player1.give("PART_004").play(target=yeti)
+    assert yeti.stealthed
+    yeti.attack(game.player2.hero)
+    assert not yeti.stealthed
+
+
 def test_floating_watcher():
     game = prepare_game(CardClass.WARLOCK, CardClass.WARLOCK)
     watcher = game.player1.give("GVG_100")
@@ -316,6 +335,27 @@ def test_floating_watcher_armor():
     assert watcher.atk == watcher.health == 6
     assert game.player1.hero.armor == 2
     assert not game.player1.hero.damaged
+
+
+def test_foe_reaper_4000():
+    # "Also damages the minions next to whomever it attacks." Its attack to
+    # each neighbour, after the combat, without any damage back (wiki).
+    game = prepare_empty_game()
+    golems = [game.player2.summon("CS2_186") for i in range(3)]  # War Golem 7/7
+    edge = game.player2.summon("CS2_186")
+    reaper = game.player1.summon("GVG_113")
+    game.end_turn()
+    game.end_turn()
+    reaper.attack(golems[1])
+    for golem in golems:
+        assert golem.health == 7 - 6
+    assert edge.health == 7
+    assert reaper.health == 9 - 7
+    game.end_turn()
+    game.end_turn()
+    reaper.attack(game.player2.hero)
+    assert game.player2.hero.health == 30 - 6
+    assert edge.health == 7
 
 
 def test_gahzrilla():
@@ -731,6 +771,22 @@ def test_metaltooth_leaper():
     assert dummy.atk == 0 + 2
 
 
+def test_metaltooth_leaper_all_mechs():
+    # "Battlecry: Give your other Mechs +2 Attack." All of them, not one
+    game = prepare_empty_game()
+    annoy = game.player1.summon("GVG_085")
+    minibot = game.player1.summon("GVG_058")
+    yeti = game.player1.summon("CS2_182")
+    enemy_dummy = game.player2.summon(TARGET_DUMMY)
+    metaltooth = game.player1.give("GVG_048")
+    metaltooth.play()
+    assert annoy.atk == 1 + 2
+    assert minibot.atk == 2 + 2
+    assert yeti.atk == 4
+    assert enemy_dummy.atk == 0
+    assert metaltooth.atk == 3
+
+
 def test_micro_machine():
     game = prepare_game()
     micro = game.player1.give("GVG_103")
@@ -806,6 +862,26 @@ def test_mogor_the_ogre():
     assert (mogor.health == 5 and wisp.dead) ^ (
         game.player1.hero.health == 29 and not wisp.dead
     )
+
+
+def test_ogre_warmaul():
+    # "50% chance to attack the wrong enemy." The hero wielding it forgets:
+    # heads, its attack goes to another enemy, Taunt ignored (wiki).
+    def _attack(coin):
+        game = prepare_empty_game(CardClass.WARRIOR, CardClass.WARRIOR)
+        grunt = game.player2.summon("CS2_121")  # Frostwolf Grunt, Taunt
+        game.player1.give("GVG_054").play()
+        with mock(RandomNumber, coin):
+            game.player1.hero.attack(target=grunt)
+        return game, grunt
+
+    game, grunt = _attack(0)
+    assert grunt.dead
+    assert game.player2.hero.health == 30
+    game, grunt = _attack(1)
+    assert not grunt.dead
+    assert game.player2.hero.health == 30 - 4
+    assert game.player1.weapon.durability == 2 - 1
 
 
 def test_neptulon():
@@ -1001,6 +1077,59 @@ def test_sneeds_old_shredder():
     pilot = game.player1.field[0]
     assert pilot.rarity == Rarity.LEGENDARY
     assert pilot.data.collectible
+
+
+def test_steamwheedle_sniper():
+    # "Your Hero Power can target minions." Steady Shot and Ballista Shot
+    # target any minion or the enemy hero, never their own hero (wiki).
+    game = prepare_empty_game(CardClass.HUNTER, CardClass.HUNTER)
+    power = game.player1.hero.power
+    assert not power.requires_target()
+    sniper = game.player1.summon("GVG_087")
+    yeti = game.player2.summon("CS2_182")
+    assert power.requires_target()
+    assert yeti in power.targets
+    assert sniper in power.targets
+    assert game.player2.hero in power.targets
+    assert game.player1.hero not in power.targets
+    power.use(target=yeti)
+    assert yeti.health == 5 - 2
+    assert game.player2.hero.health == 30
+    game.end_turn()
+    game.end_turn()
+
+    game.player1.give("AT_132").play()  # Justicar Trueheart: Ballista Shot
+    power = game.player1.hero.power
+    assert power.id == "HERO_05bp2"
+    assert yeti in power.targets
+    power.use(target=yeti)
+    assert yeti.dead
+    assert game.player2.hero.health == 30
+    sniper.destroy()
+    assert not power.requires_target()
+
+
+def test_tinkers_sharpsword_oil():
+    # "Give your weapon +3 Attack. Combo: Give a random friendly minion +3 Attack."
+    # Playable without a weapon (wiki); the combo goes to a minion, never the hero.
+    for i in range(12):
+        random.seed(i)
+        game = prepare_empty_game(CardClass.ROGUE, CardClass.ROGUE)
+        oil = game.player1.give("GVG_022")
+        assert oil.is_playable()
+        game.player1.give(THE_COIN).play()
+        wisp = game.player1.summon(WISP)
+        oil.play()
+        assert wisp.atk == 1 + 3
+        assert game.player1.hero.atk == 0
+    game = prepare_empty_game(CardClass.ROGUE, CardClass.ROGUE)
+    game.player1.give(THE_COIN).play()
+    game.player1.give("GVG_022").play()
+    assert game.player1.hero.atk == 0
+    game.player1.hero.power.use()
+    game.player1.give("GVG_022").play()
+    assert game.player1.weapon.atk == 1 + 3
+    assert game.player1.hero.atk == 1 + 3
 
 
 def test_tinkertown_technician():

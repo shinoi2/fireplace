@@ -11,7 +11,7 @@ class AT_019:
 
 
 class AT_019e:
-    events = OWN_TURN_END.on(Summon(CONTROLLER, "AT_019"), Destroy(SELF))
+    events = TURN_END.on(Summon(CONTROLLER, "AT_019"), Destroy(SELF))
 
 
 class AT_021:
