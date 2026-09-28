@@ -1303,6 +1303,12 @@ class Minion(Character):
 
     @property
     def update_scripts(self):
+        if self.dormant and not self.silenced:
+            # A permanent (a minion that is dormant for good, such as
+            # Dorothee of Yellow-Brick Brawl) keeps its aura, as its
+            # dormant_events keep its triggers.
+            yield from getattr(self.data.scripts, "dormant_update", ())
+            return
         yield from super().update_scripts
         if self.enraged:
             yield from self.data.scripts.enrage

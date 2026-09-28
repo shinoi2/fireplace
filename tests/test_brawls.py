@@ -530,3 +530,58 @@ def test_wacky_waxy_presents_drop_on_turns_1_and_7():
     game.player1.give("TB_KoboldGiftSpell").play()
     assert [m.id for m in game.player1.field] == ["TB_KoboldGiftMinion"] * 4
     assert not game.player2.field
+
+
+def test_yellow_brick_dorothee():
+    # Dorothee: "Minions to the left have Charge. Minions to the right have
+    # Taunt." The wiki (Yellow-Brick Brawl): a permanent; "She cannot be
+    # targeted or attacked", "will not be affected by auras", "is not affected
+    # by AoE effects", "does not count as a minion for effects that require a
+    # certain number of minions", "She does however still take up a minion
+    # space"; "Silence does not remove the Charge or Taunt effects".
+    game = prepare_empty_game()
+    p1, p2 = game.player1, game.player2
+    p1.max_mana = p2.max_mana = 10
+    dorothee = p1.summon("TB_Dorothee_001")
+    assert dorothee.dormant
+    left = p1.give(WISP)
+    left.play(index=0)
+    right = p1.give("CS2_182")
+    right.play(index=2)
+    assert [m.id for m in p1.field] == [WISP, "TB_Dorothee_001", "CS2_182"]
+    assert left.charge and not left.taunt and left.can_attack()
+    assert right.taunt and not right.charge and not right.can_attack()
+    assert not dorothee.charge and not dorothee.taunt
+    # Silence does not take the aura away
+    p1.give(SILENCE).play(target=right)
+    assert right.taunt
+    # Not a target, not attackable, not hit by an area of effect, not
+    # counted, not buffed by an aura
+    fireball = p1.give(FIREBALL)
+    assert dorothee not in fireball.targets
+    assert dorothee not in left.attack_targets
+    game.end_turn()
+    wolf = p2.summon("CS2_boar")
+    wolf.turns_in_play = 1
+    assert dorothee not in wolf.attack_targets
+    p2.give("CS2_032").play()  # Flamestrike: 4 damage to all enemy minions
+    assert dorothee.zone == Zone.PLAY and dorothee.health == 10
+    game.end_turn()
+    p1.give("CS2_222").play()  # Stormwind Champion: other friendly minions +1/+1
+    assert (dorothee.atk, dorothee.health) == (0, 10)
+    p1.used_mana = 0
+    p1.give("EX1_312").play()  # Twisting Nether: destroy all minions
+    assert dorothee.zone == Zone.PLAY
+    assert len(p1.field) == 1
+    game.end_turn()
+    p2.summon(WISP)
+    tech = p2.give("EX1_085")  # Mind Control Tech: 4 or more enemy minions
+    for _ in range(3):
+        p1.summon(WISP)
+    tech.play()
+    assert dorothee.controller is p1 and len(p1.field) == 4
+    # She takes up a space
+    for _ in range(3):
+        p1.summon(WISP)
+    assert len(p1.field) == 7
+

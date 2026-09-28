@@ -107,6 +107,7 @@ class CardDB(dict[str, cardxml.CardXML]):
             "spellburst",
             "frenzy",
             "trade",
+            "dormant_update",
         )
 
         for script in scriptnames:
