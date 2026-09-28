@@ -744,3 +744,171 @@ def test_everybunny_spoon_carrots_hen():
     hen.destroy()
     assert [m.id for m in p1.field].count(EGG) == 2
 
+
+class _FirstPlayerFirst(BaseTestGame):
+    def pick_first_player(self):
+        return self.players[0], self.players[1]
+
+
+def _monster(hero):
+    """An empty game where player1 (the first player) is the Monster Smash
+    hero `hero`, with its own hero power (HERO_POWER of CardDefs.xml), at 10
+    mana."""
+    player1 = Player("Player1", [], hero)
+    player2 = Player("Player2", [], CardClass.WARRIOR.default_hero)
+    player1.cant_fatigue = player2.cant_fatigue = True
+    game = _FirstPlayerFirst(players=(player1, player2))
+    game.start()
+    _empty_mulligan(game)
+    player1.max_mana = player2.max_mana = 10
+    return game
+
+
+def test_monster_smash_heroes_have_their_powers():
+    # The nine heroes of Monster Smash, and the power each one's HERO_POWER
+    # names (Brushwood Centurion: "Axe Around" on the wiki, GILA_BOSS_41p).
+    powers = {
+        "TB_BountyHunt_Chupacabran": "TB_Chupacabran_HP",
+        "TB_BountyHunt_Winslow": "GILA_BOSS_64p",
+        "TB_BountyHunt_Experiment3C": "GILA_BOSS_27p",
+        "TB_BountyHunt_Wharrgarbl": "GILA_BOSS_37p",
+        "TB_BountyHunt_Azalina": "GILA_BOSS_55p",
+        "TB_BountyHunt_BloodWitch": "GILA_BOSS_30p",
+        "TB_BountyHunter_Plaguemaster": "GILA_BOSS_68p",
+        "TB_BountyHunt_Shudderwock": "GILA_BOSS_47p",
+        "TB_BountyHunt_Brushwood": "GILA_BOSS_41p",
+    }
+    for hero, power in powers.items():
+        game = _monster(hero)
+        assert game.player1.hero.power.id == power, hero
+
+
+def test_monster_smash_bloodthirst_consume_hypnotize():
+    # Bloodthirst: "Give a friendly minion +1/+1 and Lifesteal."
+    game = _monster("TB_BountyHunt_Chupacabran")
+    p1 = game.player1
+    wisp = p1.summon(WISP)
+    assert game.player2.summon(WISP) not in p1.hero.power.targets
+    p1.hero.power.use(target=wisp)
+    assert (wisp.atk, wisp.health) == (2, 2) and wisp.lifesteal
+    # Consume: "Destroy a friendly minion, then draw 3 cards." (both ids)
+    for power in ("GILA_BOSS_27p", "TB_BountyHunt_Consume"):
+        game = _monster("TB_BountyHunt_Experiment3C")
+        p1 = game.player1
+        p1.summon(power)
+        for _ in range(5):
+            p1.card(WISP, zone=Zone.DECK)
+        wisp = p1.summon(WISP)
+        hand = len(p1.hand)
+        p1.hero.power.use(target=wisp)
+        assert wisp.dead or wisp.zone == Zone.GRAVEYARD
+        assert len(p1.hand) == hand + 3
+    # Hypnotize: "Each player shuffles their hand into their deck and draws
+    # that many cards." (both ids)
+    for power in ("GILA_BOSS_64p", "TB_BountyHunt_Hypnotize"):
+        game = _monster("TB_BountyHunt_Winslow")
+        p1, p2 = game.player1, game.player2
+        p1.summon(power)
+        for player in game.players:
+            for _ in range(10):
+                player.card("CS2_182", zone=Zone.DECK)
+        mine = [p1.give(WISP), p1.give(WISP)]
+        theirs = [p2.give(FIREBALL)]
+        hands = (len(p1.hand), len(p2.hand))
+        decks = (len(p1.deck), len(p2.deck))
+        p1.hero.power.use()
+        assert (len(p1.hand), len(p2.hand)) == hands
+        assert (len(p1.deck), len(p2.deck)) == decks
+        assert all(c.zone == Zone.DECK or c in p1.hand for c in mine)
+        assert theirs[0].zone in (Zone.DECK, Zone.HAND)
+
+
+def test_monster_smash_boss_powers():
+    # It's Raining Fin: "Draw 3 Murlocs from your deck."
+    game = _monster("TB_BountyHunt_Wharrgarbl")
+    p1 = game.player1
+    for _ in range(4):
+        p1.card("CS2_168", zone=Zone.DECK)  # Murloc Raider
+    for _ in range(4):
+        p1.card("CS2_182", zone=Zone.DECK)
+    p1.hero.power.use()
+    assert [c.id for c in p1.hand].count("CS2_168") == 3
+    # Unfinished Business: "Summon three 1/1 Wisps."
+    game = _monster("TB_BountyHunt_Azalina")
+    game.player1.hero.power.use()
+    assert [(m.id, m.atk, m.health) for m in game.player1.field] == [("GILA_BOSS_55t", 1, 1)] * 3
+    # Blood Red Apple: "Passive Hero Power: Spells cost Health instead of Mana."
+    game = _monster("TB_BountyHunt_BloodWitch")
+    p1 = game.player1
+    assert not p1.hero.power.is_usable()
+    p1.give(FIREBALL).play(target=game.player2.hero)
+    assert p1.used_mana == 0 and p1.hero.health == 30 - 4
+    # Frumiousity: "Passive Hero Power: All Battlecries trigger twice."
+    game = _monster("TB_BountyHunt_Shudderwock")
+    p1, p2 = game.player1, game.player2
+    p1.give("CS2_189").play(target=p2.hero)  # Elven Archer: 1 damage
+    assert p2.hero.health == 30 - 2
+    game.end_turn()
+    p2.give("CS2_189").play(target=p1.hero)
+    assert p1.hero.health == 50 - 2
+    # Poison Flask: "Deal 2 damage to a minion. If it survives, give it
+    # Poisonous."
+    game = _monster("TB_BountyHunter_Plaguemaster")
+    p1 = game.player1
+    yeti = game.player2.summon("CS2_182")
+    p1.hero.power.use(target=yeti)
+    assert yeti.health == 3 and yeti.poisonous
+    game.end_turn()
+    game.end_turn()
+    wisp = game.player2.summon(WISP)
+    p1.hero.power.use(target=wisp)
+    assert wisp.dead or wisp.zone == Zone.GRAVEYARD
+    # Survival of the Fittest: "All minions attack random enemy minions."
+    game = _monster("TB_BountyHunt_Brushwood")
+    p1, p2 = game.player1, game.player2
+    mine = p1.summon("CS2_182")
+    theirs = p2.summon("CS2_182")
+    p1.hero.power.use()
+    # Each yeti attacked the other one: 4 damage twice
+    assert mine.dead and theirs.dead
+
+
+def test_monster_smash_boss_cards():
+    game = _monster("TB_BountyHunt_Experiment3C")
+    p1, p2 = game.player1, game.player2
+    # Witchwood's Touch: "Draw a card. Gain 6 Armor."
+    p1.card(WISP, zone=Zone.DECK)
+    touch = p1.give("GILA_BOSS_99t")
+    hand = len(p1.hand)
+    touch.play()
+    assert len(p1.hand) == hand and p1.hand[-1].id == WISP and p1.hero.armor == 6
+    # Amalgamate: "Destroy all minions. Summon an Amalgamation with the
+    # combined Attack and Health."
+    p1.used_mana = 0
+    p1.summon("CS2_182")  # 4/5
+    p2.summon("CS2_120")  # 2/3
+    p1.give("GILA_BOSS_27t").play()
+    assert [m.id for m in p1.field] == ["GILA_BOSS_27t2"] and not p2.field
+    amalgamation = p1.field[0]
+    assert (amalgamation.atk, amalgamation.health) == (6, 8)
+    # Hack: "Deal 1 damage to a minion. Then do it four more times."
+    p1.used_mana = 0
+    ogre = p2.summon("CS2_200")  # 6/7
+    p1.give("GILA_BOSS_41t").play(target=ogre)
+    assert ogre.health == 2
+    # Infected Quillflinger: "Whenever this minion takes damage, deal 1
+    # damage to a random enemy minion."
+    quill = p1.summon("GILA_BOSS_68t")
+    p1.give(MOONFIRE).play(target=quill)
+    assert ogre.health == 1
+    # Soul Assimilation: "Destroy your Wisps. Gain control of a random enemy
+    # minion for each Wisp destroyed."
+    game = _monster("TB_BountyHunt_Azalina")
+    p1, p2 = game.player1, game.player2
+    wisps = [p1.summon("GILA_BOSS_55t"), p1.summon(WISP)]
+    enemies = [p2.summon("CS2_182") for _ in range(3)]
+    p1.give("GILA_BOSS_55t2").play()
+    assert all(w.zone == Zone.GRAVEYARD for w in wisps)
+    assert len(p1.field) == 2 and len(p2.field) == 1
+    assert all(m.controller is p1 for m in p1.field)
+
