@@ -69,57 +69,105 @@ def test_masked_ball_pilot_costs_two_less():
         assert "TB_Pilot1" not in [buff.id for buff in pilot.buffs]
 
 
-def _whole_deck(player):
-    return [c.id for c in player.deck] + [c.id for c in player.hand if c.id != THE_COIN]
+def _drawn_decks(game_class, hero1, hero2, seed=None):
+    """The decks a brawl draws, as it gives them to the players: before the
+    game starts, and a card transforms in the deck or in the hand (Transfer
+    Student)."""
+    drawn = []
+
+    class Recording(game_class):
+        def pick_first_player(self):
+            drawn.extend(list(player.starting_deck) for player in self.players)
+            return super().pick_first_player()
+
+    game = Recording(
+        players=(Player("Player1", [], hero1), Player("Player2", [], hero2)),
+        seed=seed,
+    )
+    game.start()
+    return [
+        (player.hero.card_class, [fireplace.cards.db[id] for id in deck])
+        for player, deck in zip(game.players, drawn)
+    ]
 
 
-def _check_fixed_and_spells(game, fixed):
-    for player in game.players:
-        deck = _whole_deck(player)
+def _check_fixed_and_spells(decks, fixed):
+    for card_class, deck in decks:
         assert len(deck) == 30
-        assert deck.count(fixed) == 23
-        others = [fireplace.cards.db[id] for id in deck if id != fixed]
+        assert [c.id for c in deck].count(fixed) == 23
+        others = [c for c in deck if c.id != fixed]
         assert len(others) == 7
         for card in others:
             assert card.type == CardType.SPELL
-            assert player.hero.card_class in card.classes
+            assert card.collectible
+            assert card_class in card.classes
 
 
 def test_spiders_everywhere_brawl():
     # "your deck will be TEEMING with Webspinners": 23 Webspinners and seven
     # spells of your class
+    _check_fixed_and_spells(
+        _drawn_decks(SpidersEverywhereBrawl, "HERO_05", "HERO_08"), "FP1_011"
+    )
     game = _brawl_game(SpidersEverywhereBrawl, hero1="HERO_05", hero2="HERO_08")
-    _check_fixed_and_spells(game, "FP1_011")
+    assert len(game.player1.deck) + len(game.player1.hand) >= 30
 
 
 def test_too_many_portals_brawl():
     # "a few spells and a WHOLE lot of portals"
-    game = _brawl_game(TooManyPortalsBrawl, hero1="HERO_02", hero2="HERO_09")
-    _check_fixed_and_spells(game, "GVG_003")
+    _check_fixed_and_spells(
+        _drawn_decks(TooManyPortalsBrawl, "HERO_02", "HERO_09"), "GVG_003"
+    )
 
 
 def test_crossroads_encounter_brawl():
     # "Pick a class. Let's see what's in your deck this time!": fifteen
-    # cards of your class, fifteen neutral cards
-    game = _brawl_game(CrossroadsEncounterBrawl, hero1="HERO_06", hero2="HERO_01")
-    for player in game.players:
-        deck = [fireplace.cards.db[id] for id in _whole_deck(player)]
+    # cards of your class, fifteen neutral cards (a card of two classes
+    # counts as neutral and of its classes)
+    for card_class, deck in _drawn_decks(CrossroadsEncounterBrawl, "HERO_06", "HERO_01"):
         assert len(deck) == 30
         assert all(c.collectible for c in deck)
-        assert len([c for c in deck if player.hero.card_class in c.classes]) >= 15
+        assert len([c for c in deck if card_class in c.classes]) >= 15
         assert len([c for c in deck if c.card_class == CardClass.NEUTRAL]) >= 15
-        assert all(
-            player.hero.card_class in c.classes or c.card_class == CardClass.NEUTRAL
+        assert [
+            c
             for c in deck
+            if card_class not in c.classes and c.card_class != CardClass.NEUTRAL
+        ] == []
+
+
+def test_brawl_fixed_decks():
+    for deck, hero in (
+        GrandTournamentBrawl.ALLERIA_DECK,
+        GrandTournamentBrawl.MEDIVH_DECK,
+        BlackrockShowdownBrawl.NEFARIAN_DECK,
+        BlackrockShowdownBrawl.RAGNAROS_DECK,
+    ):
+        assert len(deck) == 30
+        assert [id for id in deck if id not in fireplace.cards.db] == []
+        assert fireplace.cards.db[hero].type == CardType.HERO
+    assert GrandTournamentBrawl.ALLERIA_DECK[0].count("AT_103") == 1
+    assert GrandTournamentBrawl.ALLERIA_DECK[0].count("AT_108") == 2
+
+
+def test_grand_tournament_brawl():
+    # Alleria and Medivh, each with their own deck, drawn between the seats
+    for _ in range(4):
+        game = GrandTournamentBrawl.new_game(
+            Player("Player1", [], "HERO_01"), Player("Player2", [], "HERO_01")
         )
+        game.start()
+        heroes = sorted(player.hero.id for player in game.players)
+        assert heroes == ["HERO_05a", "HERO_08a"]
+        for player in game.players:
+            assert len(player.deck) + len(player.hand) == 30 + (
+                1 if player.hand.filter(id=THE_COIN) else 0
+            )
 
 
 def test_brawl_decks_follow_the_seed():
-    decks = []
-    for _ in range(2):
-        player1 = Player("Player1", [], "HERO_05")
-        player2 = Player("Player2", [], "HERO_08")
-        game = TooManyPortalsBrawl(players=(player1, player2), seed=7)
-        game.start()
-        decks.append(sorted(_whole_deck(player1)) + sorted(_whole_deck(player2)))
+    decks = [
+        [[c.id for c in deck] for _, deck in _drawn_decks(TooManyPortalsBrawl, "HERO_05", "HERO_08", seed=7)]
+        for _ in range(2)
+    ]
     assert decks[0] == decks[1]
