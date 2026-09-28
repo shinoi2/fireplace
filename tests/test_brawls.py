@@ -266,3 +266,24 @@ def test_pick_your_fate_is_the_same_for_both_players():
     assert (yeti.atk, yeti.health) == (5, 4)
     game.end_turn()
     assert (yeti.atk, yeti.health) == (4, 5)
+
+
+def _blingtron_game():
+    game = prepare_empty_game()
+    for player in game.players:
+        game.queue_actions(player, [Buff(player, "TB_BlingBrawl_Blade2")])
+    return game
+
+
+def test_blingtron_blade_hero():
+    # Blingtron's Beauteous Brawl: the rule on each player gives Blingtron's
+    # Blade to the weapons they equip
+    game = _blingtron_game()
+    for player in game.players:
+        assert "TB_BlingBrawl_Blade2" in [b.id for b in player.buffs]
+    axe = game.player1.give("CS2_106")
+    axe.play()
+    assert [b.id for b in axe.buffs] == ["TB_BlingBrawl_Blade1e"]
+    game.end_turn()
+    axe = game.player2.summon("CS2_106")
+    assert [b.id for b in axe.buffs] == ["TB_BlingBrawl_Blade1e"]

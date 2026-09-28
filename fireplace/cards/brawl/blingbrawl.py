@@ -17,9 +17,15 @@ class TB_BlingBrawl_Blade1e:
     events = Death(OWNER).on(Summon(CONTROLLER, RandomWeapon()))
 
 
+@custom_card
 class TB_BlingBrawl_Blade2:
     """Blingtron's Blade HERO"""
 
+    # Not in CardDefs.xml: the rule of the brawl, on each player.
+    tags = {
+        GameTag.CARDNAME: "Blingtron's Blade HERO",
+        GameTag.CARDTYPE: CardType.ENCHANTMENT,
+    }
     events = Summon(CONTROLLER, WEAPON).on(Buff(Summon.CARD, "TB_BlingBrawl_Blade1e"))
 
 
