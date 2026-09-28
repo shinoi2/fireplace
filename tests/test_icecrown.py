@@ -75,6 +75,27 @@ def test_deathstalker_rexxar():
     assert game.player1.hand[0].cost == card1.cost + card2.cost
 
 
+def test_deathstalker_rexxar_zombeast_is_its_own_card():
+    # A Zombeast takes the text of the first beast it is built from; the
+    # card ICC_828t of the database, shared by every game, keeps its own.
+    scripts = fireplace.cards.db["ICC_828t"].scripts
+    zombeasts = []
+    for _ in range(2):
+        game = prepare_empty_game()
+        game.player1.give("ICC_828").play()
+        game.player1.hero.power.use()
+        first = game.player1.choice.cards[0]
+        game.player1.choice.choose(first)
+        game.player1.choice.choose(game.player1.choice.cards[0])
+        zombeast = game.player1.hand[0]
+        assert zombeast.id == "ICC_828t"
+        assert zombeast.data.scripts is first.data.scripts
+        zombeasts.append((zombeast, first))
+    assert fireplace.cards.db["ICC_828t"].scripts is scripts
+    for zombeast, first in zombeasts:
+        assert zombeast.data.scripts is first.data.scripts
+
+
 def test_bolvar_fireblood():
     game = prepare_game()
     fireblood = game.player1.give("ICC_858").play()
