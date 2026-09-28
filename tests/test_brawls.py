@@ -287,3 +287,22 @@ def test_blingtron_blade_hero():
     game.end_turn()
     axe = game.player2.summon("CS2_106")
     assert [b.id for b in axe.buffs] == ["TB_BlingBrawl_Blade1e"]
+
+
+def test_blingtron_blade_breaks_into_a_new_weapon():
+    # Blingtron's Blade: "When this breaks, randomly summon a new weapon.";
+    # the new one has the Blade too. Cash In: "Destroy your weapon, gaining
+    # a random one."
+    game = _blingtron_game()
+    axe = game.player1.give("CS2_106")
+    axe.play()
+    axe.destroy()
+    weapon = game.player1.weapon
+    assert weapon is not None and weapon is not axe
+    assert [b.id for b in weapon.buffs] == ["TB_BlingBrawl_Blade1e"]
+    assert game.player2.weapon is None
+    game.player1.summon("TP_Bling_HP2")
+    before = game.player1.weapon
+    game.player1.hero.power.use()
+    assert game.player1.weapon is not None
+    assert game.player1.weapon is not before
