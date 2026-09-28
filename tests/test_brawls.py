@@ -613,3 +613,33 @@ def test_clockwork_card_dealer():
     game.current_player.draw()
     assert game.current_player.hand[-1] is top
 
+
+def test_visions_of_sayge():
+    # "At the start of each turn, the player is offered a choice between two
+    # cards to add to their hand. The card they don't choose is given to the
+    # opponent." and "Cards are still drawn from the deck at the start of the
+    # turn."
+    deck = [WISP] * 30
+    game = _game_with_rule("TB_VisionsOfSayge_Rule", deck, deck)
+    for _ in range(4):
+        player = game.current_player
+        opponent = player.opponent
+        choice = player.choice
+        assert choice is not None and len(choice.cards) == 2
+        assert all(c.data.collectible for c in choice.cards)
+        kept, given = choice.cards
+        deck_before = len(player.deck)
+        hand, other_hand = len(player.hand), len(opponent.hand)
+        choice.choose(kept)
+        assert player.choice is None
+        assert kept.zone == Zone.HAND and kept.controller is player
+        assert given.zone == Zone.HAND and given.controller is opponent
+        assert given in opponent.hand
+        # The draw of the turn came after the choice
+        assert len(player.deck) == deck_before - 1
+        assert len(player.hand) == hand + 2
+        assert len(opponent.hand) == other_hand + 1
+        for card in list(player.hand) + list(opponent.hand):
+            card.discard()
+        game.end_turn()
+
