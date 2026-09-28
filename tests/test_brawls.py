@@ -352,3 +352,56 @@ def test_gift_exchange_gift_for_everyone():
     game.end_turn()
     game.end_turn()
     assert len(game.player1.field.filter(id="TB_GiftExchange_Treasure")) == 1
+
+
+def _miniature_game():
+    game = _brawl_game(Game, deck1=["CS2_182", FIREBALL] * 10, deck2=["CS2_182"] * 20)
+    for player in game.players:
+        game.queue_actions(player, [Buff(player, "TB_Mini_Rule")])
+    return game
+
+
+def _mini(card):
+    return (card.atk, card.health, card.cost) == (1, 1, 1)
+
+
+def test_miniature_warfare():
+    # The wiki (Miniature Warfare): the Miniature enchantment ("Mini-sized,
+    # set to 1/1", and it costs (1)) "is granted to all minions while still
+    # in the hand, and affects all minions whether played from the hand, or
+    # summoned by spells, Hero Powers, or other minions' effects"; only
+    # minions.
+    game = _miniature_game()
+    for player in game.players:
+        for card in list(player.hand) + list(player.deck):
+            if card.type == CardType.MINION:
+                assert _mini(card), card
+                assert "TB_Mini_1e" in [b.id for b in card.buffs]
+            elif card.id == FIREBALL:
+                assert card.cost == 4
+    yeti = game.player1.hand.filter(id="CS2_182")[0]
+    yeti.play()
+    assert _mini(yeti)
+    tidehunter = game.player1.give("EX1_506")  # Battlecry: summon a 2/1 Murloc Scout
+    tidehunter.play()
+    assert _mini(tidehunter)
+    assert _mini(game.player1.field[-1]) and game.player1.field[-1].id == "EX1_506a"
+    wolf = game.player2.summon("CS2_boar")
+    assert _mini(wolf)
+    assert [b.id for b in yeti.buffs].count("TB_Mini_1e") == 1
+
+
+def test_miniature_cannot_be_silenced():
+    # "applied through a game-wide aura, and as a result cannot be removed
+    # through Silences"; a buff still counts on top of it.
+    game = _miniature_game()
+    yeti = game.player1.summon("CS2_182")
+    game.player1.give(SILENCE).play(target=yeti)
+    assert _mini(yeti)
+    game.player1.give("CS2_092").play(target=yeti)  # Blessing of Kings, +4/+4
+    assert (yeti.atk, yeti.health) == (5, 5)
+    # back in hand, it is still mini
+    game.end_turn()
+    game.player2.give("EX1_581").play(target=yeti)  # Sap
+    assert yeti.zone == Zone.HAND
+    assert _mini(yeti)
