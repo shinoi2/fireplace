@@ -140,7 +140,7 @@ class AV_147:
 
 
 class AV_147e:
-    tags = {GameTag.COST: SET(1)}
+    cost = SET(1)
     events = REMOVED_IN_PLAY
 
 

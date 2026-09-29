@@ -48,7 +48,9 @@ class TSC_641(HoldingSpellThresholdUtils):
     )
 
 
-TSC_641tde = cost_buff(SET(1))
+class TSC_641tde:
+    cost = SET(1)
+    events = REMOVED_IN_PLAY
 
 
 class TSC_641ta:
@@ -84,8 +86,7 @@ class TSC_641td:
     # Shuffle 5 random spells into your deck. Set their Cost to (1). Draw two
     # cards.
     play = (
-        Shuffle(FRIENDLY_DECK, RandomSpell()).then(Buff(Shuffle.CARD, "TSC_641tde"))
-        * 5,
+        Shuffle(CONTROLLER, RandomSpell()).then(Buff(Shuffle.CARD, "TSC_641tde")) * 5,
         Draw(CONTROLLER) * 2,
     )
 

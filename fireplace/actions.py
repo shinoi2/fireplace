@@ -872,7 +872,8 @@ class CopyDeathrattleBuff(TargetedAction):
     """
 
     TARGET = ActionArg()
-    Buff = ActionArg()
+    BUFF = ActionArg()
+    OTHER = ActionArg()
 
     def get_target_args(self, source, target):
         buff = self._args[1]
@@ -888,12 +889,13 @@ class CopyDeathrattleBuff(TargetedAction):
         buff.source = source
         return buff
 
-    def do(self, source, target, buff):
-        log.info("%r copy deathrattle from %r by %r", source, target, buff)
+    def do(self, source, target, buff, other=None):
+        minion = other if other else source
+        log.info("%r copy deathrattle from %r by %r", minion, target, buff)
         if target.has_deathrattle:
             for deathrattle in target.deathrattles:
-                source.additional_deathrattles.append(deathrattle)
-            buff.apply(source)
+                minion.additional_deathrattles.append(deathrattle)
+            buff.apply(minion)
             for entity in target.buffs:
                 if not entity.has_deathrattle:
                     continue
@@ -902,8 +904,8 @@ class CopyDeathrattleBuff(TargetedAction):
                     new_buff.store_card = entity.store_card
                 for deathrattle in entity.deathrattles:
                     new_buff.additional_deathrattles.append(deathrattle)
-                new_buff.apply(source)
-        source.game.manager.targeted_action(self, source, target, buff)
+                new_buff.apply(minion)
+        source.game.manager.targeted_action(self, source, target, buff, other)
 
 
 class Counter(TargetedAction):
@@ -1510,6 +1512,9 @@ class Give(TargetedAction):
             # Support Give on multiple cards at once (eg. Echo of Medivh)
             cards = [cards]
         for card in cards:
+            if card.controller != target:
+                card.zone = Zone.SETASIDE
+                card.controller = target
             if len(target.hand) >= target.max_hand_size:
                 log.info("Give(%r) fails because %r's hand is full", card, target)
                 continue

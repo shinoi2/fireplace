@@ -55,7 +55,9 @@ class TID_700:
     play = DredgeOpponent(OPPONENT).then(Buff(DredgeOpponent.CARD, "TID_700e"))
 
 
-TID_700e = buff(cost=SET(6))
+class TID_700e:
+    cost = SET(6)
+    events = REMOVED_IN_PLAY
 
 
 class TID_085:
@@ -110,7 +112,10 @@ class TSC_211:
         PlayReq.REQ_FRIENDLY_TARGET: 0,
         PlayReq.REQ_MINION_TARGET: 0,
     }
-    play = Silence(TARGET), (Hit(RANDOM_ENEMY_MINION, 1) * SPELL_DAMAGE(ATK(TARGET)))
+
+    def play(self):
+        yield Silence(TARGET)
+        yield Hit(RANDOM_ENEMY_MINION, 1) * SPELL_DAMAGE(self.target.atk)
 
 
 class TSC_215:
@@ -160,7 +165,11 @@ class TSC_702:
     """Switcheroo"""
 
     # Draw 2 minions. Swap their Health.
-    play = SwapStateBuff(FORCE_DRAW(MINION), FORCE_DRAW(MINION), "TSC_702e")
+    def play(self):
+        minions = RANDOM(FRIENDLY_DECK + MINION, 2).eval(self.game, self)
+        yield ForceDraw(minions)
+        if len(minions) == 2:
+            yield SwapStateBuff(minions[0], minions[1], "TSC_702e")
 
 
 class TSC_702e:

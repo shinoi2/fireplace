@@ -81,6 +81,8 @@ class BaseCard(BaseEntity):
         self.multi_class_group = MultiClassGroup.INVALID
         self.data_num_1 = 0
         self.data_num_2 = 0
+        self.entity_1 = None
+        self.entity_2 = None
         self.tags.update(data.tags)
 
     def dump(self):

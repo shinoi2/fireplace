@@ -59,7 +59,7 @@ class ONY_028:
 
     # [x]<b>Divine Shield</b>, <b>Lifesteal</b> <b>Deathrattle:</b> Shuffle a
     # Fragment into your deck that resummons Mi'da when drawn.
-    deathrattle = Shuffle("ONY_028t")
+    deathrattle = Shuffle(CONTROLLER, "ONY_028t")
 
 
 class ONY_028t:

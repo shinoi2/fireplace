@@ -180,7 +180,7 @@ class AV_205:
     # [x]<b>Battlecry:</b> Set your maximum Mana to 20. Gain a Mana Crystal.
     # Draw a card.
     play = (
-        SetTags(CONTROLLER, {GameTag.MAXRESOURCES: SET(20)}),
+        SetTags(CONTROLLER, {GameTag.MAXRESOURCES: 20}),
         GainMana(CONTROLLER, 1),
         Draw(CONTROLLER, 1),
     )

@@ -217,7 +217,6 @@ def test_swampqueen_hagatha():
 
     horror = game.player1.hand[0]
     assert horror.id == "DAL_431t"
-    assert horror.data.scripts.play == card1.data.scripts.play + card2.data.scripts.play
     assert horror.overload == card1.overload + card2.overload
 
 

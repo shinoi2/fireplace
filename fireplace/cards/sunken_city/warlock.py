@@ -70,7 +70,7 @@ class TSC_959:
 
     # [x]Your Abyssal Curses heal you for the damage they deal.
     # <b>Battlecry:</b> Give your opponent an Abyssal Curse.
-    events = Damage(source=ENEMY_HAND + ID("TSC_955t")).then(
+    events = Damage(source=ENEMY_HAND + ID("TSC_955t")).on(
         Heal(FRIENDLY_HERO, Damage.AMOUNT)
     )
     play = GiveAbyssalCurse(OPPONENT)
@@ -174,4 +174,4 @@ class TID_718:
 
     # Light every card in the opponent's hand on fire. In 3 turns, any still in
     # hand are destroyed!
-    play = SetTag(ENEMY_HAND, {GameTag.IMMOLATESTAGE: 3})
+    play = SetTags(ENEMY_HAND, {GameTag.IMMOLATESTAGE: 3})

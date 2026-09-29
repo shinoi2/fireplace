@@ -50,7 +50,7 @@ class TSC_660:
 
     # [x]<b>Colossal +1</b> <b>Battlecry:</b> <b>Discover</b> 3 Pirates to crew
     # Nellie's Ship!
-    colossal = Summon(CONTROLLER, "TSC_660t").then(Retarget(Summon.CARD))
+    colossal = Summon(CONTROLLER, "TSC_660t").then(Retarget(SELF, Summon.CARD))
     play = Discover(CONTROLLER, RandomMinion(race=Race.PIRATE)).then(
         StoringBuff(TARGET, "TSC_660e", Discover.CARD)
     )
@@ -61,7 +61,9 @@ class TSC_660e:
     deathrattle = Give(CONTROLLER, STORE_CARD).then(Buff(Give.CARD, "TSC_660e2"))
 
 
-TSC_660e2 = cost_buff(SET(1))
+class TSC_660e2:
+    cost = SET(1)
+    events = REMOVED_IN_PLAY
 
 
 class TID_714:
@@ -120,7 +122,9 @@ class TSC_944:
     )
 
 
-TSC_944e = cost_buff(SET(5))
+class TSC_944e:
+    cost = SET(5)
+    events = REMOVED_IN_PLAY
 
 
 class TID_715:

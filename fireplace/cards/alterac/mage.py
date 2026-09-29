@@ -109,7 +109,7 @@ class AV_212:
 
 
 class AV_212e:
-    tags = {GameTag.COST: SET(1)}
+    cost = SET(1)
     events = REMOVED_IN_PLAY
 
 
@@ -229,7 +229,7 @@ class AV_200:
 
     # [x]<b>Battlecry:</b> Recast a spell from each spell school you've cast
     # this game.
-    play = (
+    play = tuple(
         CastSpell(RANDOM(CARDS_PLAYED_THIS_GAME + SPELL + EnumSelector(school)))
         for school in SPELL_SCHOOLS
     )

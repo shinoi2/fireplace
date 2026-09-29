@@ -2,7 +2,7 @@
 Targeting logic
 """
 
-from hearthstone.enums import CardType, Rarity
+from hearthstone.enums import CardType, Rarity, Race
 
 from .enums import PlayReq
 
@@ -102,6 +102,9 @@ def is_valid_target(self, target, requirements=None):
                 return False
         elif req == PlayReq.REQ_TARGET_WITH_RACE:
             if target.type != CardType.MINION or param not in target.races:
+                return False
+        elif req == PlayReq.REQ_TARGET_HAS_RACE:
+            if target.type != CardType.MINION or target.race == Race.INVALID:
                 return False
         elif req == PlayReq.REQ_HERO_TARGET:
             if target.type != CardType.HERO:

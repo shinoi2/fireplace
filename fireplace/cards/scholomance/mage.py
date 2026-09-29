@@ -32,26 +32,12 @@ class SCH_351:
     # [x]<b>Battlecry:</b> Summon two random 5-Cost minions. Secretly pick one
     # that dies _when it takes damage.
 
-    # TODO need to be tested
-    play = (
-        SetTags(
-            SELF,
-            {
-                GameTag.TAG_SCRIPT_DATA_ENT_1: RandomMinion(cost=5),
-                GameTag.TAG_SCRIPT_DATA_ENT_2: RandomMinion(cost=5),
-            },
-        ),
-        Summon(CONTROLLER, GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_1)),
-        Summon(CONTROLLER, GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_2)),
-        Choice(
-            CONTROLLER,
-            (
-                GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_1),
-                GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_2),
-            ),
-        ).then(Buff(Choice.CARD, "SCH_351e")),
-        UnsetTags(SELF, (GameTag.TAG_SCRIPT_DATA_ENT_1, GameTag.TAG_SCRIPT_DATA_ENT_2)),
-    )
+    def play(self):
+        minion1 = RandomMinion(cost=5).evaluate(self)
+        minion2 = RandomMinion(cost=5).evaluate(self)
+        yield Summon(CONTROLLER, minion1)
+        yield Summon(CONTROLLER, minion2)
+        yield Choice(CONTROLLER, [minion1, minion2]).then(Buff(Choice.CARD, "SCH_351e"))
 
 
 class SCH_351e:

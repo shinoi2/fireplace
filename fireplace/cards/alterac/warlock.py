@@ -76,7 +76,7 @@ class AV_317:
     play = GenericChoice(
         CONTROLLER,
         Copy(RANDOM(DeDuplicate(FRIENDLY + KILLED + DEATHRATTLE + MINION)) * 3),
-    ).then(CopyDeathrattleBuff(FRIENDLY_MINIONS, "AV_317e", source=GenericChoice.CARD))
+    ).then(CopyDeathrattleBuff(FRIENDLY_MINIONS, "AV_317e", GenericChoice.CARD))
 
 
 class AV_277:

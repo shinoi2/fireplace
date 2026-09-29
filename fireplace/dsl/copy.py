@@ -90,10 +90,15 @@ class Teach(Copy):
 
     def copy(self, source, entity):
         student = source.controller.card(self.id, source)
-        student.play = entity.play
-        student.requirements = entity.requirements
-        student.tags[GameTag.CARDTEXT_ENTITY_0] = student.data.name
-        student.tags[GameTag.OVERLOAD] = student.tags[GameTag.OVERLOAD]
+
+        def create_custom_card(student):
+            student.entity_1 = entity
+            student.tags[GameTag.CARDTEXT_ENTITY_0] = entity.data.name
+            student.tags[GameTag.OVERLOAD] = entity.tags[GameTag.OVERLOAD]
+            student.requirements = entity.requirements
+
+        student.create_custom_card = create_custom_card
+        student.create_custom_card(student)
         return student
 
 

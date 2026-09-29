@@ -99,9 +99,8 @@ class CFM_621:
             new_card.custom_card = True
 
             def create_custom_card(new_card):
-                new_card.data.scripts.play = (
-                    card1.data.scripts.play + card2.data.scripts.play
-                )
+                new_card.entity_1 = card1
+                new_card.entity_2 = card2
                 new_card.requirements = card1.requirements | card2.requirements
                 new_card.tags[GameTag.CARDTEXT_ENTITY_0] = card1.description
                 new_card.tags[GameTag.CARDTEXT_ENTITY_1] = card2.description
@@ -112,6 +111,22 @@ class CFM_621:
 
     powered_up = -FindDuplicates(FRIENDLY_DECK)
     play = powered_up & KazakusAction(CONTROLLER)
+
+
+class CFM_621t:
+    def play(self):
+        if self.entity_1:
+            yield CastSpell(self.entity_1, self.target)
+        if self.entity_2:
+            yield CastSpell(self.entity_2, self.target)
+
+
+class CFM_621t14(CFM_621t):
+    pass
+
+
+class CFM_621t15(CFM_621t):
+    pass
 
 
 class CFM_637:

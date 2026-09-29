@@ -170,7 +170,6 @@ class PlayerManager(Manager):
         GameTag.TURN_START: "turn_start",
         enums.CANT_OVERLOAD: "cant_overload",
         enums.ELEMENTAL_PLAYED_LAST_TURN: "elemental_played_last_turn",
-        enums.HEALED_THIS_TURN: "healed_this_turn",
         enums.HERO_HEALTH_CHANGED_THIS_TURN: "hero_health_changed_this_turn",
     }
 
@@ -340,6 +339,7 @@ CARD_ATTRIBUTE_MAP = {
     GameTag.CARDTEXT_INHAND: "description",
     GameTag.CardTextInPlay: None,
     enums.CUSTOM_CARDTEXT: "custom_description",
+    enums.HEALED_THIS_TURN: "healed_this_turn",
     GameTag.COLLECTIBLE: None,
     GameTag.DevState: None,
     GameTag.ELITE: None,

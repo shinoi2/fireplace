@@ -65,6 +65,20 @@ BLACKLIST = (
     "SCH_147",  # Boneweb Egg
     "DMF_254",  # C'Thun, the Shattered
     "SW_306",  # Encumbered Pack Mule
+    # Colossal
+    "TSC_219",
+    "TSC_026",
+    "TSC_950",
+    "TSC_029",
+    "TID_711",
+    "TID_712",
+    "TSC_030",
+    "TSC_216",
+    "TSC_937",
+    "TSC_639",
+    "TSC_962",
+    "TSC_660",
+    "REV_018",  # Prince Renathal
 )
 
 _draftcache = {}

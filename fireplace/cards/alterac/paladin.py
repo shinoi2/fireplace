@@ -32,7 +32,7 @@ class AV_343:
 
 
 class AV_343e:
-    tags = {GameTag.COST: SET(0)}
+    cost = SET(0)
     events = REMOVED_IN_PLAY
 
 

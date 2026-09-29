@@ -28,6 +28,12 @@ class TSC_052:
     )
 
 
+class TSC_052t:
+    def play(self):
+        if self.entity_1:
+            yield CastSpell(self.entity_1, self.target)
+
+
 class TSC_064(HoldingSpellThresholdUtils):
     """Slithering Deathscale"""
 
@@ -44,7 +50,8 @@ class TSC_069:
     requirements = {
         PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
         PlayReq.REQ_FRIENDLY_TARGET: 0,
+        PlayReq.REQ_TARGET_HAS_RACE: 0,
     }
 
     def play(self):
-        yield DISCOVER(RandomMinion(race=self.target.races))
+        yield DISCOVER(RandomMinion(race=self.target.race))

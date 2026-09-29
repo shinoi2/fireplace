@@ -78,9 +78,8 @@ class DAL_431:
             horror.custom_card = True
 
             def create_custom_card(horror):
-                horror.data.scripts.play = (
-                    card1.data.scripts.play + card2.data.scripts.play
-                )
+                horror.entity_1 = card1
+                horror.entity_2 = card2
                 horror.requirements = card1.requirements | card2.requirements
                 horror.tags[GameTag.CARDTEXT_ENTITY_0] = card1.data.name
                 horror.tags[GameTag.CARDTEXT_ENTITY_1] = card2.data.name
@@ -93,6 +92,14 @@ class DAL_431:
             self.player.give(horror)
 
     play = SwampqueenHagathaAction(CONTROLLER)
+
+
+class DAL_431t:
+    def play(self):
+        if self.entity_1:
+            yield CastSpell(self.entity_1, self.target)
+        if self.entity_2:
+            yield CastSpell(self.entity_2, self.target)
 
 
 class DAL_433:

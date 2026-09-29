@@ -63,7 +63,7 @@ class TSC_648:
 
     # [x]<b>Battlecry:</b> Summon a 3/3 Elemental for each spell school you've
     # cast this game.
-    play = (
+    play = tuple(
         Find(CARDS_PLAYED_THIS_GAME + EnumSelector(school))
         & Summon(CONTROLLER, "TSC_648t")
         for school in SPELL_SCHOOLS

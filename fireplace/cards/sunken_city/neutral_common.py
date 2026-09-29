@@ -8,7 +8,7 @@ class TID_713:
     """Bubbler"""
 
     # [x]After this minion takes exactly one damage, destroy it. <i>(Pop!)</i>
-    events = Damage(SELF, 1).after(Destroy(SELF))
+    events = Damage(SELF, lambda i: i == 1).after(Destroy(SELF))
 
 
 class TSC_001:
