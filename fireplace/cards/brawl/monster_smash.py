@@ -66,7 +66,9 @@ class DestroyWispsAndSteal(TargetedAction):
             enemies = [m for m in target.opponent.field if not m.dead and not m.dormant]
             if not enemies or len(target.field) >= source.game.MAX_MINIONS_ON_FIELD:
                 break
-            source.game.queue_actions(source, [Steal(source.game.random.choice(enemies))])
+            source.game.queue_actions(
+                source, [Steal(source.game.random.choice(enemies))]
+            )
 
 
 class Amalgamate(TargetedAction):

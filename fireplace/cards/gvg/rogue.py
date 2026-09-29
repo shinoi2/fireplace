@@ -55,9 +55,7 @@ class GVG_022:
 
     requirements = {PlayReq.REQ_MINION_TARGET: 0}
     play = Buff(FRIENDLY_WEAPON, "GVG_022a")
-    combo = Buff(FRIENDLY_WEAPON, "GVG_022a"), Buff(
-        RANDOM_FRIENDLY_MINION, "GVG_022b"
-    )
+    combo = Buff(FRIENDLY_WEAPON, "GVG_022a"), Buff(RANDOM_FRIENDLY_MINION, "GVG_022b")
 
 
 GVG_022a = buff(atk=3)  # Weapon

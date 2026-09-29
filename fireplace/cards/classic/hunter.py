@@ -93,9 +93,9 @@ class DS1_184:
     """Tracking"""
 
     # <b>Discover</b> a card from your deck.
-    play = Choice(
-        CONTROLLER, RANDOM(DeDuplicate(SHUFFLE(FRIENDLY_DECK))) * 3
-    ).then(ForceDraw(Choice.CARD))
+    play = Choice(CONTROLLER, RANDOM(DeDuplicate(SHUFFLE(FRIENDLY_DECK))) * 3).then(
+        ForceDraw(Choice.CARD)
+    )
 
 
 class DS1_185:

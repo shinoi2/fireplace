@@ -128,7 +128,9 @@ def test_crossroads_encounter_brawl():
     # "Pick a class. Let's see what's in your deck this time!": fifteen
     # cards of your class, fifteen neutral cards (a card of two classes
     # counts as neutral and of its classes)
-    for card_class, deck in _drawn_decks(CrossroadsEncounterBrawl, "HERO_06", "HERO_01"):
+    for card_class, deck in _drawn_decks(
+        CrossroadsEncounterBrawl, "HERO_06", "HERO_01"
+    ):
         assert len(deck) == 30
         assert all(c.collectible for c in deck)
         assert len([c for c in deck if card_class in c.classes]) >= 15
@@ -171,7 +173,12 @@ def test_grand_tournament_brawl():
 
 def test_brawl_decks_follow_the_seed():
     decks = [
-        [[c.id for c in deck] for _, deck in _drawn_decks(TooManyPortalsBrawl, "HERO_05", "HERO_08", seed=7)]
+        [
+            [c.id for c in deck]
+            for _, deck in _drawn_decks(
+                TooManyPortalsBrawl, "HERO_05", "HERO_08", seed=7
+            )
+        ]
         for _ in range(2)
     ]
     assert decks[0] == decks[1]
@@ -179,9 +186,7 @@ def test_brawl_decks_follow_the_seed():
 
 def test_double_deathrattler_battler():
     # "minions with Deathrattle now rattle twice", for both players
-    game = _brawl_game(
-        DoubleDeathrattlerBattler, deck1=[WISP] * 10, deck2=[WISP] * 10
-    )
+    game = _brawl_game(DoubleDeathrattlerBattler, deck1=[WISP] * 10, deck2=[WISP] * 10)
     for player in game.players:
         hand = len(player.hand)
         hoarder = player.summon("EX1_096")  # Loot Hoarder: Deathrattle: draw
@@ -337,6 +342,7 @@ def test_gift_exchange_stolen_gift():
         assert game.player1.hand[-1] is picked
         assert picked.cost == max(picked.data.cost - 5, 0)
         assert picked.controller is game.player1
+
 
 def test_gift_exchange_gift_for_everyone():
     # "If a player has no gifts at the start of their turn, Greatfather
@@ -836,7 +842,9 @@ def test_monster_smash_boss_powers():
     # Unfinished Business: "Summon three 1/1 Wisps."
     game = _monster("TB_BountyHunt_Azalina")
     game.player1.hero.power.use()
-    assert [(m.id, m.atk, m.health) for m in game.player1.field] == [("GILA_BOSS_55t", 1, 1)] * 3
+    assert [(m.id, m.atk, m.health) for m in game.player1.field] == [
+        ("GILA_BOSS_55t", 1, 1)
+    ] * 3
     # Blood Red Apple: "Passive Hero Power: Spells cost Health instead of Mana."
     game = _monster("TB_BountyHunt_BloodWitch")
     p1 = game.player1
@@ -911,4 +919,3 @@ def test_monster_smash_boss_cards():
     assert all(w.zone == Zone.GRAVEYARD for w in wisps)
     assert len(p1.field) == 2 and len(p2.field) == 1
     assert all(m.controller is p1 for m in p1.field)
-

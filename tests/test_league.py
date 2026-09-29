@@ -425,7 +425,10 @@ def _make_choices(player, count):
 
 def test_raven_idol():
     # Choose One - Discover a minion; or Discover a spell.
-    for option, card_type in (("LOE_115a", CardType.MINION), ("LOE_115b", CardType.SPELL)):
+    for option, card_type in (
+        ("LOE_115a", CardType.MINION),
+        ("LOE_115b", CardType.SPELL),
+    ):
         game = prepare_empty_game(CardClass.DRUID, CardClass.MAGE)
         idol = game.player1.give("LOE_115")
         idol.play(choose=option)
@@ -448,7 +451,10 @@ def test_raven_idol_fandral_staghelm():
     for card in game.player1.choice.cards:
         assert card.type == CardType.SPELL
     _make_choices(game.player1, 1)
-    assert [card.type for card in game.player1.hand] == [CardType.MINION, CardType.SPELL]
+    assert [card.type for card in game.player1.hand] == [
+        CardType.MINION,
+        CardType.SPELL,
+    ]
 
 
 def test_raven_idol_fandral_staghelm_copied_during_choice():
@@ -460,10 +466,16 @@ def test_raven_idol_fandral_staghelm_copied_during_choice():
     memo = {id(card): card for card in fireplace.cards.db.values()}
     copy = deepcopy(game, memo)
     _make_choices(copy.player1, 2)
-    assert [card.type for card in copy.player1.hand] == [CardType.MINION, CardType.SPELL]
+    assert [card.type for card in copy.player1.hand] == [
+        CardType.MINION,
+        CardType.SPELL,
+    ]
     assert not game.player1.hand
     _make_choices(game.player1, 2)
-    assert [card.type for card in game.player1.hand] == [CardType.MINION, CardType.SPELL]
+    assert [card.type for card in game.player1.hand] == [
+        CardType.MINION,
+        CardType.SPELL,
+    ]
 
 
 def test_reliquary_seeker():

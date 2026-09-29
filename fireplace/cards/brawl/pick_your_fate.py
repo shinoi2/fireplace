@@ -22,6 +22,7 @@ class BuffOwn(Buff):
         buff.controller = target.controller
         return super().do(source, target, buff)
 
+
 RandomFate = RandomID(
     "TB_PickYourFate_2",
     "TB_PickYourFate_5",

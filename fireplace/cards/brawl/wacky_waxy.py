@@ -4,7 +4,6 @@ Wacky Waxy Winter's Veil
 
 from ..utils import *
 
-
 GIFTS_PER_DROP = 4
 # The wiki (Wacky Waxy Winter's Veil): "All gifts are summoned on turn 1. This
 # allows player 2 to immediately attack with theirs if they're given a buff."

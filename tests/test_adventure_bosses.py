@@ -100,8 +100,18 @@ def test_ancient_power_heroic():
 def test_passive_hero_powers_cannot_be_used():
     # A "Passive Hero Power" acts by itself: it cannot be used, so it never
     # counts as a Hero Power used (Inspire), and its trigger still works.
-    for power in ("NAX4_04", "NAX4_04H", "BRMA08_2", "BRMA08_2H", "BRMA15_2",
-                  "BRMA15_2H", "LOEA01_02", "LOEA14_2", "LOEA16_2", "KARA_07_02"):
+    for power in (
+        "NAX4_04",
+        "NAX4_04H",
+        "BRMA08_2",
+        "BRMA08_2H",
+        "BRMA15_2",
+        "BRMA15_2H",
+        "LOEA01_02",
+        "LOEA14_2",
+        "LOEA16_2",
+        "KARA_07_02",
+    ):
         assert fireplace.cards.db[power].tags.get(enums.PASSIVE_HERO_POWER), power
     for power in ("HERO_08bp", "NAX10_03H", "NAX15_02", "BRMA13_2"):  # active ones
         assert not fireplace.cards.db[power].tags.get(enums.PASSIVE_HERO_POWER), power

@@ -11,7 +11,9 @@ def _other_copies(entities, source):
     card = source.event_args[1]
     player = source.controller
     return [
-        e for e in list(player.hand) + list(player.deck) if e.id == card.id and e is not card
+        e
+        for e in list(player.hand) + list(player.deck)
+        if e.id == card.id and e is not card
     ]
 
 

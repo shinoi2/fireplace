@@ -4,13 +4,14 @@ Everybunny Get in Here!
 
 from ..utils import *
 
-
 EGG = "TB_Noblegarden_002"
 BUNNY = "TB_Noblegarden_002t1"
 DYES = tuple("TB_Noblegarden_003t%i" % n for n in range(1, 9))
 # The egg a dye leaves ("Blue Egg": "The minion inside has Windfury."), and
 # what the minion inside gets when it hatches ("Blue Hatchling": Windfury).
-HATCHLING = {"TB_Noblegarden_003t%ie" % n: "TB_Noblegarden_003t%ie2" % n for n in range(1, 9)}
+HATCHLING = {
+    "TB_Noblegarden_003t%ie" % n: "TB_Noblegarden_003t%ie2" % n for n in range(1, 9)
+}
 RandomDye = RandomID(*DYES)
 
 
@@ -33,7 +34,9 @@ class Hatch(TargetedAction):
         action = Morph(target, BUNNY)
         if hatchlings:
             then = [Buff(Morph.CARD, h) for h in hatchlings]
-            then += [ON_THE_MINION[h](Morph.CARD) for h in hatchlings if h in ON_THE_MINION]
+            then += [
+                ON_THE_MINION[h](Morph.CARD) for h in hatchlings if h in ON_THE_MINION
+            ]
             action = action.then(*then)
         source.game.queue_actions(source, [action])
 

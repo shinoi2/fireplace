@@ -94,4 +94,3 @@ def test_wildheart_guff():
     crystals = game.player1.max_mana
     game.player1.hero.power.use(choose="AV_205a")  # Ice Blossom
     assert game.player1.max_mana == crystals + 1
-
