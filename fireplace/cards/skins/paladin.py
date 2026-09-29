@@ -112,6 +112,30 @@ class HERO_04fbp(HERO_04bp):
     pass
 
 
+class HERO_04ubp(HERO_04bp):
+    """Reinforce (Leeroy Jenkins)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Admiral Liadrin)"""
+
+    pass
+
+
+class HERO_04wbp(HERO_04bp):
+    """Reinforce (Sir Finley Mrrgglton)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Fire Glaive Liadrin)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -220,5 +244,29 @@ class HERO_04fbp2(HERO_04bp2):
 
 class HERO_04fbp2(HERO_04bp2):
     """The Silver Hand (Greench Uther)"""
+
+    pass
+
+
+class HERO_04ubp2(HERO_04bp2):
+    """The Silver Hand (Leeroy Jenkins)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Admiral Liadrin)"""
+
+    pass
+
+
+class HERO_04wbp2(HERO_04bp2):
+    """The Silver Hand (Sir Finley Mrrgglton)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Fire Glaive Liadrin)"""
 
     pass

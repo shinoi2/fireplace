@@ -241,9 +241,5 @@ class AV_200p2:
     # [x]<b>Hero Power</b> Deal $@ damage. <b>Honorable Kill:</b> Gain +2
     # damage.
     requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0}
-
-    def activate(self):
-        yield Hit(TARGET, self.data_num_1)
-
-    def honorable_kill(self, target):
-        self.data_num_1 += 2
+    activate = Hit(TARGET, DATA_NUM_1(SELF))
+    honorable_kill = AddTag(SELF, GameTag.TAG_SCRIPT_DATA_NUM_1, 2)

@@ -11,7 +11,7 @@ class CS3_013:
     deathrattle = Hit(ENEMY_HERO, 3)
 
 
-class CS3_014:
+class CORE_CS3_014:
     """Crimson Clergy"""
 
     # After a friendly character is healed, gain +1 Attack.

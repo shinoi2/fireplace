@@ -106,6 +106,24 @@ class HERO_01dbp(HERO_01bp):
     pass
 
 
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Shipwrecked Magni)"""
+
+    pass
+
+
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Roaster Magni)"""
+
+    pass
+
+
+class HERO_01vbp(HERO_01bp):
+    """Armor Up! (Sire Denathrius)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -208,5 +226,23 @@ class HERO_01qbp2(HERO_01bp2):
 
 class HERO_01dbp2(HERO_01bp2):
     """Tank Up! (Garrosh the Wild)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Shipwrecked Magni)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Roaster Magni)"""
+
+    pass
+
+
+class HERO_01vbp2(HERO_01bp2):
+    """Tank Up! (Sire Denathrius)"""
 
     pass

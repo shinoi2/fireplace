@@ -100,6 +100,24 @@ class HERO_07ebp(HERO_07bp):
     pass
 
 
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Diver Nemsy)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Feast Nemsy)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Sparkspinner Nemsy)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -196,5 +214,23 @@ class HERO_07ebp2(HERO_07bp2):
 
 class HERO_07ebp2(HERO_07bp2):
     """Soul Tap (Hatcher Gul'dan)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Diver Nemsy)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Feast Nemsy)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Sparkspinner Nemsy)"""
 
     pass

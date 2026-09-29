@@ -67,7 +67,7 @@ class Attacking(Evaluator):
     any target in \a selector2.
     """
 
-    def __init__(self, selector1, selector2):
+    def __init__(self, selector1, selector2=None):
         super().__init__()
         self.selector1 = selector1
         self.selector2 = selector2
@@ -77,9 +77,13 @@ class Attacking(Evaluator):
 
     def check(self, source):
         t1 = self.selector1.eval(source.game, source)
-        t2 = self.selector2.eval(source.game, source)
+        t2 = None
+        if self.selector2:
+            t2 = self.selector2.eval(source.game, source)
         for entity in t1:
             if entity.attacking:
+                if t2 is None:
+                    return True
                 return entity.attack_target in t2
         return False
 

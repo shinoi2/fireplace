@@ -112,6 +112,30 @@ class HERO_06ebp(HERO_06bp):
     pass
 
 
+class HERO_06ubp(HERO_06bp):
+    """Shapeshift (Ambassador Faelin)"""
+
+    pass
+
+
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Sea Dryad Lunara)"""
+
+    pass
+
+
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Guff Murtotem)"""
+
+    pass
+
+
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Fireflower Lunara)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -220,5 +244,29 @@ class HERO_06rbp2(HERO_06bp2):
 
 class HERO_06ebp2(HERO_06bp2):
     """Dire Shapeshift (Cherry Blossom Lunara)"""
+
+    pass
+
+
+class HERO_06ubp2(HERO_06bp2):
+    """Dire Shapeshift (Ambassador Faelin)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Sea Dryad Lunara)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Guff Murtotem)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Fireflower Lunara)"""
 
     pass

@@ -132,8 +132,10 @@ class AttrValue(SelectorEntityValue):
 
 ARMOR = AttrValue(GameTag.ARMOR)
 ATK = AttrValue(GameTag.ATK)
+ORIGIN_ATK = AttrValue("_atk")
 CONTROLLER = AttrValue(GameTag.CONTROLLER)
 MAX_HEALTH = AttrValue(GameTag.HEALTH)
+ORIGIN_MAX_HEALTH = AttrValue("_max_health")
 CURRENT_HEALTH = AttrValue("health")
 CURRENT_DURABILITY = AttrValue("durability")
 CURRENT_PROGRESS = AttrValue(GameTag.QUEST_PROGRESS)
@@ -154,6 +156,8 @@ NUM_ATTACKS = AttrValue("num_attacks")
 MAX_HAND_SIZE = AttrValue("max_hand_size")
 MINION_SLOTS = AttrValue("minion_slots")
 HERO_ATTACKS_THIS_GAME = AttrValue(enums.NUM_HERO_ATTACKS_THIS_GAME)
+DATA_NUM_1 = AttrValue(GameTag.TAG_SCRIPT_DATA_NUM_1)
+DATA_NUM_2 = AttrValue(GameTag.TAG_SCRIPT_DATA_NUM_2)
 
 
 class ComparisonSelector(Selector):
@@ -603,8 +607,15 @@ EXHAUSTED = AttrValue(GameTag.EXHAUSTED) == True
 THE_TURN_SUMMONED = AttrValue(GameTag.NUM_TURNS_IN_PLAY) == 0
 TO_BE_DESTROYED = AttrValue("to_be_destroyed") == True
 
+DRUID = EnumSelector(CardClass.DRUID)
+HUNTER = EnumSelector(CardClass.HUNTER)
+MAGE = EnumSelector(CardClass.MAGE)
+PALADIN = EnumSelector(CardClass.PALADIN)
+PRIEST = EnumSelector(CardClass.PRIEST)
 ROGUE = EnumSelector(CardClass.ROGUE)
+SHAMAN = EnumSelector(CardClass.SHAMAN)
 WARLOCK = EnumSelector(CardClass.WARLOCK)
+WARRIOR = EnumSelector(CardClass.WARRIOR)
 
 IN_PLAY = EnumSelector(Zone.PLAY)
 IN_DECK = EnumSelector(Zone.DECK)
@@ -635,6 +646,7 @@ MURLOC = EnumSelector(Race.MURLOC)
 PIRATE = EnumSelector(Race.PIRATE)
 TOTEM = EnumSelector(Race.TOTEM)
 ELEMENTAL = EnumSelector(Race.ELEMENTAL)
+NAGA = EnumSelector(Race.NAGA)
 TREANT = FuncSelector(
     lambda entities, src: [
         e for e in entities if getattr(e, "name_enUS", "").endswith("Treant")
@@ -731,6 +743,10 @@ CARDS_PLAYED_THIS_TURN = FuncSelector(
     lambda entities, source: [
         e for e in entities if getattr(e, "played_this_turn", False)
     ]
+)
+
+CARDS_PLAYED_WHEN_HOLDING = FuncSelector(
+    lambda entities, source: source.cards_played_when_holding
 )
 
 CARDS_PLAYED_THIS_GAME = FuncSelector(
@@ -835,18 +851,6 @@ UPGRADED_HERO_POWER = FuncSelector(
     )
 )
 
-UPGRADED_HERO_POWER = FuncSelector(
-    lambda entities, source: (
-        [
-            source.controller.card(
-                source.controller.hero.power.upgraded_hero_power, source=source
-            )
-        ]
-        if source.controller.hero.power.upgraded_hero_power
-        else []
-    )
-)
-
 GAME_SKIN = FuncSelector(lambda entites, source: [source.game.skin])
 
 DRAWN_THIS_TURN = FuncSelector(
@@ -866,3 +870,5 @@ def SAME_RACE(entity1, entity2):
 SAME_RACE_TARGET = FuncSelector(
     lambda entites, source: [e for e in entites if SAME_RACE(e, source.target)]
 )
+
+RACE = FuncSelector(lambda entites, source: source.races)

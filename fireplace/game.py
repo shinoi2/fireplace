@@ -375,7 +375,10 @@ class BaseGame(Entity):
     def end_turn_cleanup(self):
         self.manager.step(self.next_step, Step.MAIN_NEXT)
         for character in self.current_player.characters.filter(frozen=True):
-            if not character.num_attacks and not character.exhausted:
+            if (
+                character.num_attacks < character.max_attacks
+                and not character.exhausted
+            ):
                 self.log("Freeze fades from %r", character)
                 character.frozen = False
         for buff in self.entities.filter(one_turn_effect=True):
@@ -385,6 +388,10 @@ class BaseGame(Entity):
             for buff in CardList(entity.entities).filter(one_turn_effect=True):
                 self.log("Ending One-Turn effect: %r", buff)
                 buff.remove()
+            if entity.immolatestage > 0:
+                entity.immolatestage -= 1
+                if entity.immolatestage == 0:
+                    entity.discard()
         # Extra turn
         if self.next_players:
             next_player = self.next_players.pop(0)
@@ -442,6 +449,9 @@ class BaseGame(Entity):
 
         for character in self.characters:
             character.num_attacks = 0
+            character.num_attacks_only_minion = 0
+            character.additional_attacks = 0
+            character.additional_attacks_only_minion = 0
             character.damaged_this_turn = 0
             character.healed_this_turn = 0
             if character.controller != player:

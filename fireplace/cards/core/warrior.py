@@ -20,7 +20,7 @@ class CS3_008e:
 # Spells
 
 
-class CS3_009:
+class CORE_CS3_009:
     """War Cache"""
 
     # Add a random Warrior minion, spell, and weapon to your hand.

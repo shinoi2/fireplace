@@ -10,13 +10,13 @@ A Hearthstone simulator and implementation, written in Python.
 
 ## Cards Implementation
 
-Now updated to [Patch 22.6.0.134558](https://hearthstone.wiki.gg/wiki/Patch_22.6.0.134558)
+Now updated to [Patch 23.6.2.144772](https://hearthstone.wiki.gg/wiki/Patch_23.6.2.144772)
 * **100%** Classic (245 of 245 cards)
 * **100%** Curse of Naxxramas (30 of 30 cards)
 * **100%** Goblins vs Gnomes (123 of 123 cards)
 * **100%** Blackrock Mountain (31 of 31 cards)
 * **100%** The Grand Tournament (132 of 132 cards)
-* **100%** Hero Skins (181 of 181 cards)
+* **100%** Hero Skins (215 of 215 cards)
 * **100%** The League of Explorers (45 of 45 cards)
 * **100%** Whispers of the Old Gods (134 of 134 cards)
 * **100%** One Night in Karazhan (45 of 45 cards)
@@ -38,10 +38,12 @@ Now updated to [Patch 22.6.0.134558](https://hearthstone.wiki.gg/wiki/Patch_22.6
 * **100%** Forged in the Barrens (170 of 170 cards)
 * **100%** United in Stormwind (170 of 170 cards)
 * **100%** Fractured in Alterac Valley (170 of 170 cards)
-* **100%** Legacy (167 of 167 cards)
-* **100%** Core (235 of 235 cards)
+* **100%** Legacy (174 of 174 cards)
+* **100%** Core (250 of 250 cards)
 * **100%** Vanilla (382 of 382 cards)
-* **100%** Voyage to the Sunken City (1 of 1 card)
+* **100%** Voyage to the Sunken City (170 of 170 cards)
+* **100%** Murder at Castle Nathria (1 of 1 card)
+* **100%** Core Hidden (57 of 57 cards)
 
 
 ## Requirements

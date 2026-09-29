@@ -38,14 +38,14 @@ def main():
         "--card_set",
         dest="card_set",
         type=int,
-        default=CardSet.THE_SUNKEN_CITY,
+        default=CardSet.REVENDRETH,
         help="Generate cards of card set",
     )
     p.add_argument("--card_id", dest="card_id", help="Generate single card")
     p.add_argument(
         "--output_dir",
         dest="output_dir",
-        default="./fireplace/cards/sunken_city",
+        default="./fireplace/cards/revendreth",
         help="Generate code output dir",
     )
     args = p.parse_args(sys.argv[1:])

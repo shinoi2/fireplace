@@ -106,6 +106,18 @@ class HERO_05dbp(HERO_05bp):
     pass
 
 
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Naga Sylvanas)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Flameshot Sylvanas)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -208,5 +220,17 @@ class HERO_05dbp2(HERO_05bp2):
 
 class HERO_05dbp2(HERO_05bp2):
     """Ballista Shot (Denwatcher Rexxar)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Naga Sylvanas)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Flameshot Sylvanas)"""
 
     pass

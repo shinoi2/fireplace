@@ -414,6 +414,22 @@ def buff(atk=0, health=0, **kwargs):
     return Buff
 
 
+def cost_buff(cost=0, **kwargs):
+    buff_tags = {
+        GameTag.COST: cost,
+    }
+
+    if kwargs:
+        other_buff = buff(**kwargs)
+        buff_tags.update(other_buff.tags)
+
+    class CostBuff:
+        tags = buff_tags
+        events = REMOVED_IN_PLAY
+
+    return CostBuff
+
+
 def AttackHealthSwapBuff():
     def apply(self, target):
         self._xatk = target.health
@@ -563,6 +579,69 @@ class ThresholdUtils(type):
         player_tag_threshold_value = cardscript.tags[GameTag.PLAYER_TAG_THRESHOLD_VALUE]
         powered_up = (
             Attr(CONTROLLER, player_tag_threshold_tag_id) >= player_tag_threshold_value
+        )
+
+        namespace["custom_cardtext"] = custom_cardtext
+        namespace["cardtext_entity_0"] = cardtext_entity_0
+        namespace["tags"] = tags
+        namespace["powered_up"] = powered_up
+        if "play" in namespace:
+            namespace["play"] = powered_up & namespace["play"]
+        return super().__new__(cls, name, bases, namespace)
+
+
+def CustomThresholdUtils(tag, value):
+    class CustomThresholdUtils(type):
+        def __new__(cls, name, bases, namespace):
+            def custom_cardtext(self):
+                splited = self.data.description.split("@")
+                if self.powered_up:
+                    return splited[0] + splited[2]
+                return splited[0] + splited[1]
+
+            def cardtext_entity_0(self):
+                return value - getattr(self.controller, tag, 0)
+
+            tags = {
+                enums.CUSTOM_CARDTEXT: custom_cardtext,
+                GameTag.CARDTEXT_ENTITY_0: cardtext_entity_0,
+            }
+
+            powered_up = Attr(CONTROLLER, tag) >= value
+
+            namespace["custom_cardtext"] = custom_cardtext
+            namespace["cardtext_entity_0"] = cardtext_entity_0
+            namespace["tags"] = tags
+            namespace["powered_up"] = powered_up
+            if "play" in namespace:
+                namespace["play"] = powered_up & namespace["play"]
+            return super().__new__(cls, name, bases, namespace)
+
+    return CustomThresholdUtils
+
+
+class HoldingSpellThresholdUtils(type):
+    def __new__(cls, name, bases, namespace):
+        def custom_cardtext(self):
+            splited = self.data.description.split("@")
+            if self.powered_up:
+                return splited[0] + splited[2]
+            return splited[0] + splited[1]
+
+        def cardtext_entity_0(self):
+            return self.entity_tag_threshold_value - len(
+                self.cards_played_when_holding.filter(type=CardType.SPELL)
+            )
+
+        tags = {
+            enums.CUSTOM_CARDTEXT: custom_cardtext,
+            GameTag.CARDTEXT_ENTITY_0: cardtext_entity_0,
+        }
+
+        cardscript = db[name]
+        entity_tag_threshold_value = cardscript.tags[GameTag.ENTITY_TAG_THRESHOLD_VALUE]
+        powered_up = (
+            Count(CARDS_PLAYED_WHEN_HOLDING + SPELL) >= entity_tag_threshold_value
         )
 
         namespace["custom_cardtext"] = custom_cardtext

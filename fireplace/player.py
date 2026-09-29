@@ -103,8 +103,10 @@ class Player(Entity, TargetableByAuras):
         self.last_turn = None
         self.turns = []
         self.jade_golem = 1
+        self.times_abyssal_curse = 0
         self.times_totem_summoned_this_game = 0
         self.times_beast_summoned_this_game = 0
+        self.times_pirate_summoned_this_game = 0
         self.elemental_played_this_turn = 0
         self.elemental_played_last_turn = 0
         self.cards_drawn_this_turn = 0
@@ -120,6 +122,7 @@ class Player(Entity, TargetableByAuras):
         self.cthun = None
         self.invoke_counter = 0
         self.spells_played_this_game = 0
+        self.holy_spells_spent_this_game = 0
         self.other_choice_from_the_last_choose_one_spell = None
 
     def dump(self):
@@ -470,6 +473,8 @@ class Player(Entity, TargetableByAuras):
             return amount
         if source.type == CardType.SPELL:
             self.spent_mana_on_spells_this_game += amount
+            if source.spell_school == SpellSchool.HOLY:
+                self.holy_spells_spent_this_game += amount
         self.game.queue_actions(source, [SpendMana(self, amount)])
         return amount
 

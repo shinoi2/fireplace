@@ -8,7 +8,9 @@ class AV_251:
     """Cheaty Snobold"""
 
     # After an enemy is <b>Frozen</b>, deal 3 damage to it.
-    events = SetTags(ENEMY_MINIONS, (GameTag.FROZEN,)).after(Hit(SetTags.TARGET, 3))
+    events = SetTags(ENEMY_MINIONS, lambda tag: tag.get(GameTag.FROZEN, False)).after(
+        Hit(SetTags.TARGET, 3)
+    )
 
 
 class AV_255:

@@ -13,7 +13,7 @@ class CS3_016:
     )
 
 
-class CS3_029:
+class CORE_CS3_029:
     """Pursuit of Justice"""
 
     # Give +1 Attack to Silver Hand Recruits you summon this game.

@@ -88,6 +88,24 @@ class HERO_03dbp(HERO_03bp):
     pass
 
 
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Mariner Maiev)"""
+
+    pass
+
+
+class HERO_03sbp(HERO_03bp):
+    """Dagger Mastery (Garona Halforcen)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Vendor Maiev)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -172,5 +190,23 @@ class HERO_03dbp2(HERO_03bp2):
 
 class HERO_03dbp2(HERO_03bp2):
     """Poisoned Daggers (Garden Party Valeera)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Mariner Maiev)"""
+
+    pass
+
+
+class HERO_03sbp2(HERO_03bp2):
+    """Poisoned Daggers (Garona Halforcen)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Vendor Maiev)"""
 
     pass

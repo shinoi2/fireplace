@@ -219,7 +219,7 @@ class DED_002:
 
 
 class DED_002e:
-    event = Play(OWNER).on(
+    events = Play(OWNER).on(
         Find(FRIENDLY_DECK + STORE_CARD) & ForceDraw(STORE_CARD),
         Destroy(SELF),
     )

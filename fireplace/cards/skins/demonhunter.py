@@ -88,6 +88,30 @@ class HERO_10cbp(HERO_10bp):
     pass
 
 
+class HERO_10cbp(HERO_10bp):
+    """Demon Claws (Nightborne Aranna)"""
+
+    pass
+
+
+class HERO_10cbp(HERO_10bp):
+    """Demon Claws (Mrrgillidan)"""
+
+    pass
+
+
+class HERO_10cbp(HERO_10bp):
+    """Demon Claws (Illhoof Illidan)"""
+
+    pass
+
+
+class HERO_10cbp(HERO_10bp):
+    """Demon Claws (Felfirework Aranna)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -172,5 +196,29 @@ class HERO_10lbp2(HERO_10bp2):
 
 class HERO_10cbp2(HERO_10bp2):
     """Demon's Bite (Sabertender Illidan)"""
+
+    pass
+
+
+class HERO_10cbp2(HERO_10bp2):
+    """Demon's Bite (Nightborne Aranna)"""
+
+    pass
+
+
+class HERO_10cbp2(HERO_10bp2):
+    """Demon's Bite (Mrrgillidan)"""
+
+    pass
+
+
+class HERO_10cbp2(HERO_10bp2):
+    """Demon's Bite (Illhoof Illidan)"""
+
+    pass
+
+
+class HERO_10cbp2(HERO_10bp2):
+    """Demon's Bite (Felfirework Aranna)"""
 
     pass

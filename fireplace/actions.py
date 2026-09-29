@@ -290,6 +290,8 @@ class Attack(GameAction):
         defender.defending = False
         if source == attacker:
             attacker.num_attacks += 1
+            if attacker.additional_attacks_only_minion > 0:
+                attacker.num_attacks_only_minion += 1
         if attacker.type == CardType.HERO:
             attacker.controller.hero_attacks_this_game += 1
 
@@ -572,6 +574,8 @@ class Play(GameAction):
             player.minions_played_this_turn += 1
             if Race.TOTEM in card.races:
                 player.times_totem_summoned_this_game += 1
+            if Race.PIRATE in card.races:
+                player.times_pirate_summoned_this_game += 1
             if Race.BEAST in card.races:
                 player.times_beast_summoned_this_game += 1
             if Race.ELEMENTAL in card.races:
@@ -583,6 +587,8 @@ class Play(GameAction):
                     source.game.queue_actions(card, [Spellburst(entity, card)])
         player.cards_played_this_turn += 1
         player.cards_played_this_game.append(card)
+        for hand in player.hand:
+            hand.cards_played_when_holding.append(card)
         card.turn_played = source.game.turn
         card.choose = None
 
@@ -635,7 +641,6 @@ class TargetedAction(Action):
     def __init__(self, *args, **kwargs):
         self.source = kwargs.pop("source", None)
         super().__init__(*args, **kwargs)
-        self.trigger_index = 0
 
     def __repr__(self):
         args = ["%s=%r" % (k, v) for k, v in zip(self.ARGS[1:], self._args[1:])]
@@ -690,18 +695,17 @@ class TargetedAction(Action):
             times = times.eval(source.game, source)
 
         for i in range(times):
-            ret += self._trigger(i, source)
+            ret += self._trigger(source)
 
         self.resolve_broadcasts()
 
         return ret
 
-    def _trigger(self, i, source):
+    def _trigger(self, source):
         if source.controller.choice:
-            self.choice_callback.append(lambda: self._trigger(i, source))
+            self.choice_callback.append(lambda: self._trigger(source))
             return []
         ret = []
-        self.trigger_index = i
         targets = self.get_targets(source)
         log.info("%r triggering %r targeting %r", source, self, targets)
         for target in targets:
@@ -1211,6 +1215,8 @@ class Destroy(TargetedAction):
     """
     Destroy character targets.
     """
+
+    TARGET = ActionArg()
 
     def do(self, source, target):
         if getattr(target, "dormant", False) and target.zone == Zone.PLAY:
@@ -1733,11 +1739,13 @@ class SetTags(TargetedAction):
         for tags in tags_list:
             if isinstance(tags, dict):
                 for tag, value in tags.items():
-                    target.tags[tag] = _eval_card(source, value)[0]
+                    value = _eval_card(source, value)[0]
+                    target.tags[tag] = value
+                    self.broadcast(source, EventListener.AFTER, target, {tag: value})
             else:
                 for tag in tags:
                     target.tags[tag] = True
-        self.broadcast(source, EventListener.AFTER, target)
+                    self.broadcast(source, EventListener.AFTER, target, {tag: True})
 
 
 class UnsetTags(TargetedAction):
@@ -1760,6 +1768,15 @@ class GetTag(TargetedAction):
 
     def do(self, source, target, tag):
         return target.tags[tag]
+
+
+class AddTag(TargetedAction):
+    TARGET = ActionArg()
+    TAG = CardArg()
+    AMOUNT = IntArg()
+
+    def do(self, source, target, tag, amount):
+        target.tags[tag] += amount
 
 
 class Silence(TargetedAction):
@@ -1801,12 +1818,13 @@ class Summon(TargetedAction):
         return super()._broadcast(entity, source, at, *args)
 
     def get_summon_index(self, source_index):
-        return source_index + 1
+        return source_index + self._minion_count
 
     def do(self, source, target, cards):
         log.info("%s summons %r", target, cards)
         if not isinstance(cards, list):
             cards = [cards]
+        self._minion_count = getattr(self, "_minion_count", 0)
 
         for card in cards:
             if not card.is_summonable():
@@ -1825,14 +1843,20 @@ class Summon(TargetedAction):
                 if source.type == CardType.MINION:
                     if source.zone == Zone.PLAY:
                         source_index = source.controller.field.index(source)
+                        self._minion_count += 1
                         card._summon_index = self.get_summon_index(source_index)
                     elif source.zone == Zone.GRAVEYARD:
                         card._summon_index = getattr(source, "_dead_position", None)
                         if card._summon_index is not None:
                             card._summon_index += cards.index(card)
                 card.zone = Zone.PLAY
-            if card.type == CardType.MINION and Race.TOTEM in card.races:
-                card.controller.times_totem_summoned_this_game += 1
+            if card.type == CardType.MINION:
+                if Race.TOTEM in card.races:
+                    card.controller.times_totem_summoned_this_game += 1
+                if Race.PIRATE in card.races:
+                    card.controller.times_pirate_summoned_this_game += 1
+                if Race.BEAST in card.races:
+                    card.controller.times_beast_summoned_this_game += 1
             source.game.manager.targeted_action(self, source, target, card)
             self.queue_broadcast(self, (source, EventListener.ON, target, card))
             self.broadcast(source, EventListener.AFTER, target, card)
@@ -1845,7 +1869,15 @@ class SummonBothSides(Summon):
     CARD = ActionArg()
 
     def get_summon_index(self, source_index):
-        return source_index + ((self.trigger_index + 1) % 2)
+        return source_index + (self._minion_count % 2)
+
+
+class SummonLeft(Summon):
+    TARGET = ActionArg()
+    CARD = ActionArg()
+
+    def get_summon_index(self, source_index):
+        return source_index
 
 
 class SummonCustomMinion(TargetedAction):
@@ -2100,7 +2132,20 @@ class ExtraAttack(TargetedAction):
 
     def do(self, source, target):
         log.info("%s gets an extra attack change.", target)
-        target.num_attacks -= 1
+        target.additional_attacks += 1
+        source.game.manager.targeted_action(self, source, target)
+
+
+class ExtraAttackOnlyMinion(TargetedAction):
+    """
+    Get target an extra attack change only for minions
+    """
+
+    TARGET = ActionArg()
+
+    def do(self, source, target):
+        log.info("%s gets an extra attack change only for minions.", target)
+        target.additional_attacks_only_minion += 1
         source.game.manager.targeted_action(self, source, target)
 
 
@@ -2532,3 +2577,60 @@ class Trade(GameAction):
         actions = target.get_actions("trade")
         if actions:
             source.game.trigger(target, actions, event_args=None)
+
+
+class Dredge(Choice):
+    """
+    Dredge
+    """
+
+    TARGET = CardArg()
+    CARDS = ActionArg()
+    CARD = ActionArg()
+
+    def get_target_args(self, source, player):
+        cards = player.deck[:3]
+        return [cards]
+
+    def choose(self, card):
+        if card not in self.cards:
+            raise InvalidAction(
+                "%r is not a valid choice (one of %r)" % (card, self.cards)
+            )
+        self.player.choice = None
+        card.put_on_top()
+        for action in self._callback:
+            self.source.game.trigger(
+                self.source, [action], [self.player, self.cards, card]
+            )
+        self.callback = self._callback
+        self.trigger_choice_callback()
+
+
+class DredgeOpponent(Dredge):
+    """
+    Dredge opponent
+    """
+
+    TARGET = CardArg()
+    CARDS = ActionArg()
+    CARD = ActionArg()
+
+    def get_target_args(self, source, player):
+        cards = player.opponent.deck[:3]
+        return [cards]
+
+
+class GiveAbyssalCurse(Give):
+    """
+    Give Abyssal Curse
+    """
+
+    TARGET = CardArg()
+    CARD = ActionArg()
+
+    def get_target_args(self, source, player):
+        player.times_abyssal_curse += 1
+        abyssal_curse = player.card("TSC_955t", source=source)
+        abyssal_curse.data_num_1 = player.times_abyssal_curse
+        return [abyssal_curse]

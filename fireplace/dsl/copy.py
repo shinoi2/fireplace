@@ -79,6 +79,24 @@ class KeepMagneticCopy(Copy):
         return ret
 
 
+class Teach(Copy):
+    """
+    School Teacher
+    """
+
+    def __init__(self, selector, id):
+        self.id = id
+        self.selector = selector
+
+    def copy(self, source, entity):
+        student = source.controller.card(self.id, source)
+        student.play = entity.play
+        student.requirements = entity.requirements
+        student.tags[GameTag.CARDTEXT_ENTITY_0] = student.data.name
+        student.tags[GameTag.OVERLOAD] = student.tags[GameTag.OVERLOAD]
+        return student
+
+
 class RebornCopy(Copy):
     def copy(self, source, entity):
         ret = super().copy(source, entity)

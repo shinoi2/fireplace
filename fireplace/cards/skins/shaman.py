@@ -124,6 +124,30 @@ class HERO_02fbp(HERO_02bp):
     pass
 
 
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Deepsea Morgl)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Kaldorei Vashj)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Murragnaros)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Juggler Morgl)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -244,5 +268,29 @@ class HERO_02bp2(HERO_02bp2):
 
 class HERO_02bp2(HERO_02bp2):
     """Totemic Slam (Jade Serpent Thrall)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Deepsea Morgl)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Kaldorei Vashj)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Murragnaros)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Juggler Morgl)"""
 
     pass

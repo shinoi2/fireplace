@@ -13,7 +13,7 @@ class CS3_003:
     deathrattle = HAS_TARGET & Give(OPPONENT, TARGET)
 
 
-class CS3_021:
+class CORE_CS3_021:
     """Enslaved Fel Lord"""
 
     # <b>Taunt</b>. Also damages the minions next to whomever this attacks.
@@ -24,7 +24,7 @@ class CS3_021:
 # Spells
 
 
-class CS3_002:
+class CORE_CS3_002:
     """Ritual of Doom"""
 
     # Destroy a friendly minion. If you had 5 or more, summon a 5/5 Demon.

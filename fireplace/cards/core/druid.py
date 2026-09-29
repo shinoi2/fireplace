@@ -4,7 +4,7 @@ from ..utils import *
 # Minions
 
 
-class CS3_012:
+class CORE_CS3_012:
     """Nordrassil Druid"""
 
     # <b>Battlecry:</b> The next spell you cast this turn costs_(3)_less.

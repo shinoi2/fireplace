@@ -94,6 +94,24 @@ class HERO_09dbp(HERO_09bp):
     pass
 
 
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Handmaiden Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Butler Anduin)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Torchbearer Tyrande)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -184,5 +202,23 @@ class HERO_09dbp2(HERO_09bp2):
 
 class HERO_09dbp2(HERO_09bp2):
     """Heal (Little Lion Anduin)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Handmaiden Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Butler Anduin)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Torchbearer Tyrande)"""
 
     pass

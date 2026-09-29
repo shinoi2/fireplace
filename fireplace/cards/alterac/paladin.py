@@ -59,12 +59,12 @@ class AV_345:
     # <b>Rush.</b> Whenever this minion gains Attack or Health, double that
     # amount <i>(wherever this is)</i>.
     def atk(self, value):
-        origin_atk = self.data.tags[GameTag.ATK]
+        origin_atk = self._atk
         buff_atk = max(0, value - origin_atk)
         return value + buff_atk
 
     def max_health(self, value):
-        origin_max_health = self.data.tags[GameTag.HEALTH]
+        origin_max_health = self._max_health
         buff_max_health = max(0, value - origin_max_health)
         return value + buff_max_health
 

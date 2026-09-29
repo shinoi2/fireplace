@@ -333,6 +333,8 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         self.play_right_most = False
         self.custom_card = False
         self.temporary = False
+        self.cards_played_when_holding = CardList()
+        self.immolatestage = 0
         super().__init__(data)
 
     def dump(self):
@@ -438,6 +440,8 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
             for id in self.data.choose_cards:
                 card = self.controller.card(id, source=self, parent=self)
                 self.choose_cards.append(card)
+            # Clean up cards_played_when_holding
+            self.cards_played_when_holding = CardList()
 
     def destroy(self):
         return self.game.cheat_action(self, [actions.Destroy(self), actions.Deaths()])
@@ -452,6 +456,9 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         return self.game.cheat_action(self, [actions.Heal(target, amount)])
 
     def is_playable(self):
+        if self.cant_play:
+            return False
+
         if self.controller.choice:
             return False
 
@@ -802,6 +809,12 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         if req is not None:
             if self.controller.hero.damaged_this_turn:
                 return bool(self.play_targets)
+        req = self.requirements.get(
+            PlayReq.REQ_TARGET_IF_AVAILABLE_AND_CAST_SPELL_WHILE_HOLDING
+        )
+        if req is not None:
+            if self.cards_played_when_holding.filter(type=CardType.SPELL):
+                return bool(self.play_targets)
         return PlayReq.REQ_TARGET_TO_PLAY in self.requirements
 
     @property
@@ -935,6 +948,9 @@ class Character(LiveEntity):
         self._frozen = False
         self.attack_target = None
         self.num_attacks = 0
+        self.additional_attacks = 0
+        self.num_attacks_only_minion = 0
+        self.additional_attacks_only_minion = 0
         self.race = Race.INVALID
         super().__init__(data)
 
@@ -963,6 +979,12 @@ class Character(LiveEntity):
         if self.cannot_attack_heroes:
             targets = self.controller.opponent.field
         if self.rush and not self.turns_in_play:
+            targets = self.controller.opponent.field
+        if (
+            self.additional_attacks_only_minion > 0
+            and self.max_attacks - self.additional_attacks_only_minion
+            <= self.num_attacks - self.num_attacks_only_minion
+        ):
             targets = self.controller.opponent.field
         targets = targets.filter(dormant=False)
 
@@ -1008,11 +1030,12 @@ class Character(LiveEntity):
 
     @property
     def max_attacks(self):
+        additional = self.additional_attacks_only_minion + self.additional_attacks
         if self.mega_windfury:
-            return 4
+            return additional + 4
         if self.windfury:
-            return 2
-        return 1
+            return additional + 2
+        return additional + 1
 
     @property
     def exhausted(self):
@@ -1228,6 +1251,7 @@ class Minion(Character):
         self.reborn = False
         self.has_spellburst = False
         self.has_frenzy = False
+        self.has_colossal = False
         super().__init__(data)
 
     def dump(self):
@@ -1336,6 +1360,8 @@ class Minion(Character):
             if getattr(self.data.scripts, "dormant_turns"):
                 self.dormant_turns = getattr(self.data.scripts, "dormant_turns")
         super()._set_zone(value)
+        if self.zone == Zone.PLAY and self.has_colossal:
+            self.game.cheat_action(self, self.get_actions("colossal"))
 
     def _hit(self, amount):
         if self.divine_shield:

@@ -136,6 +136,30 @@ class HERO_08xbp(HERO_08bp):
     pass
 
 
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Navigator Khadgar)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Jaina Proudmurgle)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Eternal Medivh)"""
+
+    pass
+
+
+class HERO_08aabp(HERO_08bp):
+    """Fireblast (Kael'thas Sunstrider)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -268,5 +292,29 @@ class HERO_08fbp2(HERO_08bp2):
 
 class HERO_08xbp2(HERO_08bp2):
     """Fireblast Rank 2 (Queen Azshara)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Navigator Khadgar)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Jaina Proudmurgle)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Eternal Medivh)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Kael'thas Sunstrider)"""
 
     pass
