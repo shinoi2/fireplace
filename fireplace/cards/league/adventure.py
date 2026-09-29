@@ -454,10 +454,21 @@ class LOEA13_2:
     activate = Give(ALL_PLAYERS, RandomCollectible()).then(Buff(Give.CARD, "LOEA13_2e"))
 
 
+@custom_card
+class LOEA13_2e:
+    # Not in CardDefs.xml: "It costs (0)." (Ancient Power, Skelesaurus Hex)
+    tags = {
+        GameTag.CARDNAME: "Ancient Power",
+        GameTag.CARDTYPE: CardType.ENCHANTMENT,
+    }
+    cost = SET(0)
+    events = REMOVED_IN_PLAY
+
+
 class LOEA13_2H:
     """Ancient Power (Heroic)"""
 
-    activate = Give(CONTROLLER, RandomCollectible()).then(Buff(Give.CARD, "GBL_008e"))
+    activate = Give(CONTROLLER, RandomCollectible()).then(Buff(Give.CARD, "LOEA13_2e"))
 
 
 ##

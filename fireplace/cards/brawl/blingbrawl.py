@@ -14,12 +14,17 @@ class TP_Bling_HP2:
 class TB_BlingBrawl_Blade1e:
     """Blingtron's Blade"""
 
-    events = Death(OWNER).on(Summon(CONTROLLER, RandomWeapon()))
+    # A Death event does not reach the enchantments of the weapon that dies:
+    # the new weapon comes from a deathrattle of the enchantment.
+    deathrattle = Summon(CONTROLLER, RandomWeapon())
+    tags = {GameTag.DEATHRATTLE: True}
 
 
-class TB_BlingBrawl_Blade2:
+class TB_BlingBrawl_Blade2e:
     """Blingtron's Blade HERO"""
 
+    # The rule of the brawl, on each player (CardDefs.xml names it with an
+    # "e", like every enchantment).
     events = Summon(CONTROLLER, WEAPON).on(Buff(Summon.CARD, "TB_BlingBrawl_Blade1e"))
 
 

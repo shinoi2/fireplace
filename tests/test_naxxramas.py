@@ -390,6 +390,21 @@ def test_reincarnate_explosive_sheep():
     assert game.player1.field[0].id == "GVG_076"
 
 
+def test_reincarnate_enemy_minion():
+    # "Destroy a minion, then return it to life with full Health."
+    # An enemy minion comes back on its own side, not on the caster's.
+    game = prepare_empty_game()
+    yeti = game.player2.summon("CS2_182")
+    game.player1.give(MOONFIRE).play(target=yeti)
+    game.player1.give("FP1_025").play(target=yeti)
+    assert yeti.dead
+    assert len(game.player1.field) == 0
+    assert len(game.player2.field) == 1
+    new_yeti = game.player2.field[0]
+    assert new_yeti.id == "CS2_182"
+    assert new_yeti.health == 5
+
+
 def test_reincarnate_kel_thuzad():
     game = prepare_game()
     kelthuzad = game.player1.give("FP1_013")

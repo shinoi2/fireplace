@@ -1329,6 +1329,12 @@ class Minion(Character):
 
     @property
     def update_scripts(self):
+        if self.dormant and not self.silenced:
+            # A permanent (a minion that is dormant for good, such as
+            # Dorothee of Yellow-Brick Brawl) keeps its aura, as its
+            # dormant_events keep its triggers.
+            yield from getattr(self.data.scripts, "dormant_update", ())
+            return
         yield from super().update_scripts
         if self.enraged:
             yield from self.data.scripts.enrage
@@ -1354,9 +1360,21 @@ class Minion(Character):
         if self.zone == Zone.PLAY:
             self.log("%r is removed from the field", self)
             self.controller.field.remove(self)
-            for attr in self.silenceable_attributes:
-                if attr in self.data.tags:
-                    setattr(self, attr, self.data.tags[attr])
+            if value not in (Zone.GRAVEYARD, Zone.SETASIDE):
+                # Back in the hand or the deck, the minion is its card again:
+                # its keywords come back and the silence is gone.
+                for attr in self.silenceable_attributes:
+                    setattr(self, attr, False)
+                self.tags.update(
+                    {
+                        tag: tag_value
+                        for tag, tag_value in self.data.tags.items()
+                        if self.tags.map.get(tag) in self.silenceable_attributes
+                    }
+                )
+                if self.silenced:
+                    self.silenced = False
+                    self._events = self.data.scripts.events[:]
             if self.data.tags.get(GameTag.DORMANT, False):
                 self.dormant = True
             if getattr(self.data.scripts, "dormant_turns"):
@@ -1745,10 +1763,23 @@ class HeroPower(PlayableCard):
         return data
 
     @property
+    def unlimited_activations(self):
+        # An aura that sets HEROPOWER_ADDITIONAL_ACTIVATIONS to -1 (Coldarra
+        # Drake) allows any number of uses, whatever else adds uses (Garrison
+        # Commander). int_property clamps the sum to 0: each aura is read.
+        for slot in self.slots:
+            value = getattr(slot, "additional_activations", 0)
+            if callable(value):
+                value = value(self, 0)
+            if value == -1:
+                return True
+        return self._getattr("additional_activations", 0) == -1
+
+    @property
     def exhausted(self):
         if self.heropower_disabled:
             return True
-        if self.additional_activations == -1:
+        if self.unlimited_activations:
             return False
         return self.activations_this_turn >= (
             1 + self.additional_activations + self.additional_activations_this_turn

@@ -112,11 +112,11 @@ class BananaBrawl(Game):
     celebrate!
     """
 
-    def _schedule_death(self, card):
-        ret = super()._schedule_death(card)
-        if card.type == CardType.MINION:
-            ret.append(Give(card.controller, RandomBanana))
-        return ret
+    # The Game no longer calls _schedule_death: a rule of the game, acting
+    # for the player whose minion died (BaseGame.trigger_event).
+    base_events = [
+        Death(MINION).on(Give(ALL_PLAYERS + CONTROLLED_BY(Death.ENTITY), RandomBanana))
+    ]
 
 
 class SpidersEverywhereBrawl(Game):
@@ -128,18 +128,19 @@ class SpidersEverywhereBrawl(Game):
     Webspinners.
     """
 
-    def __init__(self, players):
+    def setup(self):
+        # The decks are drawn at setup, from the game's random and once the
+        # players know their game (find_cards reads game.is_standard).
         from .. import cards
 
-        super().__init__(players)
-        for player in players:
-            hero = player.starting_hero
-            player_class = getattr(cards, hero).card_class
+        for player in self.players:
+            player_class = cards.db[player.starting_hero].card_class
             spells = RandomSpell(card_class=player_class).find_cards(player)
             deck = ["FP1_011"] * 23
             for i in range(7):
                 deck.append(self.random.choice(spells))
-            player.starting_deck, player.starting_hero = deck, hero
+            player.starting_deck = deck
+        super().setup()
 
 
 class GreatSummonerBrawl(Game):
@@ -164,18 +165,17 @@ class CrossroadsEncounterBrawl(Game):
     Let's see what's in your deck this time!
     """
 
-    def __init__(self, players):
+    def setup(self):
         from .. import cards
 
-        super().__init__(players)
-        for player in players:
-            hero = player.starting_hero
-            player_class = getattr(cards, hero).card_class
+        for player in self.players:
+            player_class = cards.db[player.starting_hero].card_class
             pool = RandomCollectible(card_class=player_class).find_cards(player)
             deck = [self.random.choice(pool) for i in range(15)]
             pool = RandomCollectible(card_class=CardClass.NEUTRAL).find_cards(player)
             deck += [self.random.choice(pool) for i in range(15)]
-            player.starting_deck, player.starting_hero = deck, hero
+            player.starting_deck = deck
+        super().setup()
 
 
 class HeartOfTheSunwellBrawl(Game):
@@ -204,18 +204,17 @@ class TooManyPortalsBrawl(Game):
 
     UNSTABLE_PORTAL = "GVG_003"
 
-    def __init__(self, players):
+    def setup(self):
         from .. import cards
 
-        super().__init__(players)
-        for player in players:
-            hero = player.starting_hero
-            player_class = getattr(cards, hero).card_class
+        for player in self.players:
+            player_class = cards.db[player.starting_hero].card_class
             spells = RandomSpell(card_class=player_class).find_cards(player)
             deck = [self.UNSTABLE_PORTAL] * 23
             for i in range(7):
                 deck.append(self.random.choice(spells))
-            player.starting_deck, player.starting_hero = deck, hero
+            player.starting_deck = deck
+        super().setup()
 
 
 class MaskedBallBrawl(Game):
@@ -251,7 +250,8 @@ class GrandTournamentBrawl(Game):
             "AT_063",
             "AT_102",
             "AT_102",
-            "AT_103" "AT_108",
+            "AT_103",
+            "AT_108",
             "AT_108",
             "AT_111",
             "AT_112",
@@ -346,7 +346,7 @@ class DoubleDeathrattlerBattler(Game):
 
     class Data:
         class scripts:
-            update = Refresh(ALL_PLAYERS, {GameTag.EXTRA_DEATHRATTLES: True})
+            update = (Refresh(ALL_PLAYERS, {GameTag.EXTRA_DEATHRATTLES: True}),)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

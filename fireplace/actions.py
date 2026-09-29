@@ -1,3 +1,5 @@
+import copy
+import functools
 from collections import OrderedDict
 
 from hearthstone.enums import (
@@ -308,12 +310,17 @@ class BeginTurn(GameAction):
         source.turn += 1
         source.log("%s begins turn %i", player, source.turn)
         source.current_player = player
+        source._ready_turn(player)
         source.manager.step(source.next_step, Step.MAIN_START_TRIGGERS)
         source.manager.step(source.next_step, source.next_step)
         source.game.manager.game_action(self, source, player)
         self.broadcast(source, EventListener.ON, player)
         if player.choice:
-            player.choice.choice_callback.append(lambda: source._begin_turn(player))
+            # A partial on a bound method, not a lambda: a deep copy of the
+            # game copies it with the game, and the copy draws in the copy.
+            player.choice.choice_callback.append(
+                functools.partial(source._begin_turn, player)
+            )
         else:
             source._begin_turn(player)
 
@@ -650,6 +657,15 @@ class TargetedAction(Action):
         self.times = value
         return self
 
+    _execution = False
+
+    def _copy_for_execution(self):
+        ret = copy.copy(self)
+        ret._execution = True
+        ret.event_queue = []
+        ret.choice_callback = []
+        return ret
+
     def eval(self, selector, source):
         if isinstance(selector, Entity):
             return [selector]
@@ -679,6 +695,14 @@ class TargetedAction(Action):
         return ret
 
     def trigger(self, source):
+        if not self._execution:
+            # The action of a card script is shared by every game of the
+            # process, and an execution keeps its state on the action: a
+            # choice until it is made (player, cards, the callback held back),
+            # the broadcasts it queues, its trigger index. Each execution gets
+            # its own copy of the action.
+            return self._copy_for_execution().trigger(source)
+
         ret = []
 
         if self.source is not None and isinstance(self.source, Selector):
@@ -703,7 +727,15 @@ class TargetedAction(Action):
 
     def _trigger(self, source):
         if source.controller.choice:
-            self.choice_callback.append(lambda: self._trigger(source))
+            choice_callback = self.choice_callback
+            if hasattr(self, "choose"):
+                # Another play of the same choice (Brann Bronzebeard, "* 2")
+                # waits for the choice that is open, not for itself.
+                choice_callback = source.controller.choice.choice_callback
+            # A partial on a bound method, not a lambda: a deep copy of the
+            # game made while the choice is open copies the action and its
+            # source with it, and the copy resumes in the copy.
+            choice_callback.append(functools.partial(self._trigger, source))
             return []
         ret = []
         targets = self.get_targets(source)
@@ -918,6 +950,7 @@ class Counter(TargetedAction):
     def do(self, source, target):
         target.cant_play = True
         source.game.manager.targeted_action(self, source, target)
+        self.broadcast(source, EventListener.AFTER, target)
 
 
 class Predamage(TargetedAction):

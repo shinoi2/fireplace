@@ -8,13 +8,18 @@ class CS2_042:
     """Fire Elemental"""
 
     requirements = {PlayReq.REQ_TARGET_IF_AVAILABLE: 0}
-    play = Hit(TARGET, 3)
+    play = Hit(TARGET, 4)
 
 
 class EX1_258:
     """Unbound Elemental"""
 
-    events = Play(CONTROLLER, OVERLOAD).on(Buff(SELF, "EX1_258e"))
+    # After you play a card with <b>Overload</b>, gain +1/+1.
+    # A countered card has no Play.after: the Counter itself triggers it.
+    events = (
+        Play(CONTROLLER, OVERLOAD).after(Buff(SELF, "EX1_258e")),
+        Counter(FRIENDLY + OVERLOAD).after(Buff(SELF, "EX1_258e")),
+    )
 
 
 EX1_258e = buff(+1, +1)
@@ -170,4 +175,4 @@ class EX1_245:
 class EX1_259:
     """Lightning Storm"""
 
-    play = Hit(ENEMY_MINIONS, RandomNumber(2, 3))
+    play = Hit(ENEMY_MINIONS, 3)

@@ -1,3 +1,5 @@
+import copy
+
 from ...cards import get_script_definition
 from ..utils import *
 
@@ -128,6 +130,8 @@ class ICC_828p:
             def create_custom_card(zombeast):
                 zombeast.tags[GameTag.CARDTEXT_ENTITY_0] = card2.description
                 zombeast.tags[GameTag.CARDTEXT_ENTITY_1] = card1.description
+                # Its own data: the CardXML of ICC_828t is shared by every game.
+                zombeast.data = copy.copy(zombeast.data)
                 zombeast.data.scripts = card1.data.scripts
 
                 for k in zombeast.silenceable_attributes:
