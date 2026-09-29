@@ -83,4 +83,12 @@ class GVG_052:
 class GVG_054:
     """Ogre Warmaul"""
 
-    events = FORGETFUL
+    # FORGETFUL listens to Attack(SELF), and a weapon never attacks: the hero
+    # wielding it does.
+    events = Attack(FRIENDLY_HERO).on(
+        COINFLIP
+        & Retarget(
+            FRIENDLY_HERO,
+            RANDOM(ALL_CHARACTERS - Attack.DEFENDER - CONTROLLED_BY(SELF)),
+        )
+    )

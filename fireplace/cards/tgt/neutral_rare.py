@@ -47,10 +47,15 @@ class AT_108:
 class AT_109:
     """Argent Watchman"""
 
-    inspire = Buff(SELF, "AT_109e")
+    # A buff with cant_attack=False cannot lift the card's own "Can't attack"
+    # (boolean_property is true as soon as one source says so): the tag is
+    # unset for the turn, and set again when the turn ends.
+    inspire = UnsetTag(SELF, GameTag.CANT_ATTACK), Buff(SELF, "AT_109e")
 
 
-AT_109e = buff(cant_attack=False)
+class AT_109e:
+    tags = {GameTag.TAG_ONE_TURN_EFFECT: True}
+    events = TURN_END.on(SetTag(OWNER, GameTag.CANT_ATTACK))
 
 
 class AT_110:

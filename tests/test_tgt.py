@@ -28,6 +28,37 @@ def test_anubarak():
     assert len(game.player1.hand) == 0
 
 
+def test_argent_watchman():
+    # "Can't attack. Inspire: Can attack as normal this turn."
+    game = prepare_empty_game(CardClass.WARRIOR, CardClass.WARRIOR)
+    watchman = game.player1.summon("AT_109")
+    game.player1.hero.power.use()
+    # Not the turn it is summoned
+    assert not watchman.can_attack()
+    game.end_turn()
+    game.end_turn()
+    assert watchman.cant_attack
+    assert not watchman.can_attack()
+    game.player1.hero.power.use()
+    assert not watchman.cant_attack
+    assert watchman.can_attack()
+    watchman.attack(game.player2.hero)
+    assert game.player2.hero.health == 30 - 2
+    assert not watchman.can_attack()
+    game.end_turn()
+    assert watchman.cant_attack
+    game.end_turn()
+    assert watchman.cant_attack
+    assert not watchman.can_attack()
+    # Silenced after the inspiration: it can attack for good
+    game.player1.hero.power.use()
+    game.player1.give(SILENCE).play(target=watchman)
+    game.end_turn()
+    game.end_turn()
+    assert not watchman.cant_attack
+    assert watchman.can_attack()
+
+
 def test_astral_communion():
     game = prepare_game(game_class=Game)
     game.player1.discard_hand()
@@ -54,6 +85,36 @@ def test_astral_communion_full_mana():
     assert game.player1.hand[0].id == "CS2_013t"
     assert game.player1.max_mana == 10
     assert game.player1.mana == 6
+
+
+def test_astral_communion_filled_crystals():
+    # "Gain 10 Mana Crystals. Discard your hand." The wiki: 10 filled Mana
+    # Crystals, the counter at 10/10, replacing temporary, empty or
+    # Overloaded crystals; an Excess Mana instead if, once the card is paid,
+    # the available mana or the crystals are already at the maximum.
+    game = prepare_empty_game(CardClass.DRUID, CardClass.DRUID)
+    player = game.player1
+    player.max_mana = 5
+    player.overload_locked = 2
+    astral = player.give("AT_043")
+    player.give(WISP)
+    assert player.mana == 3
+    astral.cost = 0
+    astral.play()
+    assert not player.hand
+    assert player.max_mana == 10
+    assert player.overload_locked == 0
+    assert player.mana == 10
+
+    game = prepare_empty_game(CardClass.DRUID, CardClass.DRUID)
+    player = game.player1
+    player.max_mana = 8
+    player.temp_mana = 6
+    astral = player.give("AT_043")
+    astral.play()
+    assert player.mana == 10
+    assert player.max_mana == 8
+    assert [card.id for card in player.hand] == ["CS2_013t"]
 
 
 def test_aviana():
@@ -119,6 +180,33 @@ def test_burgle():
     assert len(game.player1.hand) == 2
     assert game.player2.hero.card_class in game.player1.hand[0].classes
     assert game.player2.hero.card_class in game.player1.hand[1].classes
+
+
+def test_coldarra_drake():
+    # "You can use your Hero Power any number of times."
+    game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE)
+    drake = game.player1.summon("AT_008")
+    power = game.player1.hero.power
+    for i in range(5):
+        assert power.is_usable()
+        power.use(target=game.player2.hero)
+    assert game.player2.hero.health == 30 - 5
+    assert game.player1.mana == 0
+    assert not power.is_usable()
+    # With Garrison Commander too, still any number of times
+    game.end_turn()
+    game.end_turn()
+    game.player1.summon("AT_080")
+    for i in range(5):
+        assert power.is_usable()
+        power.use(target=game.player2.hero)
+    # Without the drake, once a turn again
+    game.end_turn()
+    game.end_turn()
+    drake.destroy()
+    game.player1.field[0].destroy()
+    power.use(target=game.player2.hero)
+    assert not power.is_usable()
 
 
 def test_dalaran_aspirant():
@@ -235,6 +323,23 @@ def test_dreadsteed():
     new_dreadsteed = game.player1.field[0]
     assert new_dreadsteed.id == "AT_019"
     assert new_dreadsteed is not dreadsteed
+
+
+def test_dreadsteed_dies_during_opponent_turn():
+    # "Deathrattle: At the end of the turn, summon a Dreadsteed." Killed
+    # during the opponent's turn, it comes back at the end of that same turn.
+    game = prepare_empty_game()
+    dreadsteed = game.player1.summon("AT_019")
+    game.end_turn()
+    game.player2.give(MOONFIRE).play(target=dreadsteed)
+    assert dreadsteed.dead
+    assert len(game.player1.field) == 0
+    game.end_turn()
+    assert len(game.player1.field) == 1
+    assert game.player1.field[0].id == "AT_019"
+    assert not game.player2.field
+    game.end_turn()
+    assert len(game.player1.field) == 1
 
 
 def test_effigy():
@@ -523,6 +628,24 @@ def test_lowly_squire():
     assert squire.atk == 3
 
 
+def test_magnataur_alpha():
+    # "Also damages the minions next to whomever he attacks." His attack to
+    # each neighbour, after the combat, without any damage back (wiki).
+    game = prepare_empty_game()
+    left = game.player2.summon("CS2_186")  # War Golem 7/7
+    wisp = game.player2.summon(WISP)
+    right = game.player2.summon("CS2_186")
+    edge = game.player2.summon("CS2_186")
+    alpha = game.player1.summon("AT_067")
+    game.end_turn()
+    game.end_turn()
+    alpha.attack(wisp)
+    assert wisp.dead
+    assert left.health == right.health == 7 - 5
+    assert edge.health == 7
+    assert alpha.health == 3 - 1
+
+
 def test_master_of_ceremonies():
     game = prepare_game()
     master = game.player1.give("AT_117")
@@ -563,6 +686,19 @@ def test_master_of_ceremonies_enemy_jungle_moonkin():
     master.play()
     assert master.atk == 4
     assert master.health == 2
+
+
+def test_muklas_champion():
+    # "Inspire: Give your other minions +1/+1."
+    game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE)
+    champion = game.player1.summon("AT_090")
+    wisp = game.player1.summon(WISP)
+    enemy_wisp = game.player2.summon(WISP)
+    game.player1.hero.power.use(target=game.player2.hero)
+    assert champion.atk == 4
+    assert champion.health == 3
+    assert wisp.atk == wisp.health == 1 + 1
+    assert enemy_wisp.atk == enemy_wisp.health == 1
 
 
 def test_the_mistcaller():
@@ -741,6 +877,25 @@ def test_the_skeleton_knight_full_hand():
     sk.destroy()
     assert len(game.player1.field) == 0
     assert not game.player1.hand.contains("AT_128")
+
+
+def test_thunder_bluff_valiant():
+    # "Inspire: Give your Totems +2 Attack." (patch 21.8), the totem that
+    # the Hero Power summons included (wiki)
+    game = prepare_empty_game(CardClass.SHAMAN, CardClass.SHAMAN)
+    searing = game.player1.summon("CS2_050")
+    wisp = game.player1.summon(WISP)
+    enemy_totem = game.player2.summon("CS2_050")
+    game.player1.summon("AT_049")
+    game.player1.hero.power.use()
+    assert searing.atk == 1 + 2
+    assert searing.health == 1
+    assert wisp.atk == 1
+    assert enemy_totem.atk == 1
+    new_totem = game.player1.field[-1]
+    assert Race.TOTEM in new_totem.races
+    assert new_totem.atk == new_totem.data.atk + 2
+    assert new_totem.health == new_totem.data.health
 
 
 def test_tiny_knight_of_evil():

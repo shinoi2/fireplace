@@ -8,7 +8,7 @@ class BT_142:
     """Shadowhoof Slayer"""
 
     # <b>Battlecry:</b> Give your hero +1_Attack this turn.
-    play = Buff(CONTROLLER, "BT_142e")
+    play = Buff(FRIENDLY_HERO, "BT_142e")
 
 
 BT_142e = buff(atk=1)
@@ -18,9 +18,10 @@ class BT_323:
     """Sightless Watcher"""
 
     # <b>Battlecry:</b> Look at 3 cards in your deck. Choose one to put on top.
-    play = Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK)) * 3).then(
-        PutOnTop(CONTROLLER, Choice.CARD)
-    )
+    def play(self):
+        yield Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK)) * 3).then(
+            PutOnTop(CONTROLLER, Choice.CARD)
+        )
 
 
 class BT_352:

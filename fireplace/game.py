@@ -77,7 +77,9 @@ class BaseGame(Entity):
 
     @property
     def is_standard(self):
-        return self.player1.is_standard and self.player2.is_standard
+        # self.players, not player1 and player2: those are only known once
+        # setup picks the first player.
+        return all(player.is_standard for player in self.players)
 
     @property
     def board(self):
@@ -222,6 +224,46 @@ class BaseGame(Entity):
             self.action_start(type, self, 0, None)
             self.trigger(self, [Reward(finished_card)], event_args=None)
             self.action_end(type, self)
+
+    def trigger_event(self, source, event, args):
+        """
+        An event of the game itself: the base_events of a Game subclass, the
+        rule of a Tavern Brawl ("When you cast a spell, ..."). The game has no
+        controller, and every action reads one from its source (a choice to
+        wait for, the owner of a card it creates); the rule acts for the
+        player its event names (Play.PLAYER, Death's controller...), as the
+        official brawls do with an enchantment on each player.
+        """
+        actor = next(
+            (a for a in args if getattr(a, "type", None) == CardType.PLAYER), None
+        )
+        if actor is None:
+            actor = next(
+                (
+                    a.controller
+                    for a in args
+                    if getattr(a, "type", CardType.INVALID) > CardType.PLAYER
+                ),
+                None,
+            )
+        if actor is None:
+            return super().trigger_event(source, event, args)
+        actions = []
+        for action in event.actions:
+            if callable(action):
+                ac = action(self, *args)
+                if not ac:
+                    continue
+                if not hasattr(ac, "__iter__"):
+                    actions.append(ac)
+                else:
+                    actions += ac
+            else:
+                actions.append(action)
+        ret = self.trigger(actor, actions, args)
+        if event.once:
+            self._events.remove(event)
+        return ret
 
     def trigger(self, source, actions, event_args):
         """
@@ -409,10 +451,11 @@ class BaseGame(Entity):
         self.manager.turn(player)
         return ret
 
-    def _begin_turn(self, player: "Player"):
-        self.manager.step(self.next_step, Step.MAIN_START)
-        self.manager.step(self.next_step, Step.MAIN_ACTION)
-
+    def _ready_turn(self, player: "Player"):
+        """
+        Ready \a player's turn before "At the start of your turn" effects:
+        mana crystal and mana, overload, hero power, attacks.
+        """
         for p in self.players:
             p.cards_drawn_this_turn = 0
 
@@ -437,12 +480,6 @@ class BaseGame(Entity):
             if entity.type != CardType.PLAYER:
                 entity.turns_in_play += 1
 
-        for entity in player.live_entities:
-            if getattr(entity, "dormant_turns", 0):
-                entity.dormant_turns -= 1
-                if entity.dormant_turns == 0:
-                    self.queue_actions(player, [Awaken(entity)])
-
         if player.hero.power:
             player.hero.power.activations_this_turn = 0
             player.hero.power.additional_activations_this_turn = 0
@@ -456,6 +493,16 @@ class BaseGame(Entity):
             character.healed_this_turn = 0
             if character.controller != player:
                 character.damaged_on_opponent_turn = 0
+
+    def _begin_turn(self, player: "Player"):
+        self.manager.step(self.next_step, Step.MAIN_START)
+        self.manager.step(self.next_step, Step.MAIN_ACTION)
+
+        for entity in player.live_entities:
+            if getattr(entity, "dormant_turns", 0):
+                entity.dormant_turns -= 1
+                if entity.dormant_turns == 0:
+                    self.queue_actions(player, [Awaken(entity)])
 
         player.draw()
         self.manager.step(self.next_step, Step.MAIN_END)

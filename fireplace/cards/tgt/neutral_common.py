@@ -58,7 +58,7 @@ AT_089e = buff(health=1)
 class AT_090:
     """Mukla's Champion"""
 
-    inspire = Buff(FRIENDLY_MINIONS, "AT_090e")
+    inspire = Buff(FRIENDLY_MINIONS - SELF, "AT_090e")
 
 
 AT_090e = buff(+1, +1)

@@ -221,6 +221,23 @@ def test_fireguard_destroyer():
     assert fireguard.atk in (4, 5, 6, 7)
 
 
+def test_flamewaker():
+    # "After you cast a spell, deal 2 damage randomly split among all enemies."
+    # Two missiles of 1; the second never picks a character the first killed.
+    for i in range(10):
+        random.seed(i)
+        game = prepare_empty_game()
+        game.player1.summon("BRM_002")
+        wisp = game.player2.summon(WISP)
+        yeti = game.player2.summon("CS2_182")
+        game.player1.give(THE_COIN).play()
+        damage = (30 - game.player2.hero.health) + (5 - yeti.health)
+        if wisp.dead:
+            damage += 1
+        assert damage == 2
+        assert game.player1.hero.health == 30
+
+
 def test_gang_up():
     game = prepare_empty_game()
     wisp = game.player1.summon(WISP)

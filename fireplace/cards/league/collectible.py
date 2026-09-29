@@ -77,8 +77,8 @@ class LOE_020:
     """Desert Camel"""
 
     play = (
-        Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + (COST == 1))),
-        Summon(OPPONENT, RANDOM(ENEMY_DECK + (COST == 1))),
+        Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION + (COST == 1))),
+        Summon(OPPONENT, RANDOM(ENEMY_DECK + MINION + (COST == 1))),
     )
 
 
@@ -369,7 +369,9 @@ class LOE_115b:
 class LOE_021:
     """Dart Trap"""
 
-    secret = Activate(ENEMY_HERO_POWER).on(Reveal(SELF), Hit(RANDOM_ENEMY_CHARACTER, 5))
+    secret = Activate(ENEMY_HERO_POWER).after(
+        Reveal(SELF), Hit(RANDOM_ENEMY_CHARACTER, 5)
+    )
 
 
 class LOE_027:

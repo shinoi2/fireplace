@@ -95,9 +95,26 @@ class AT_037b:
 class AT_043:
     """Astral Communion"""
 
+    # 10 filled crystals: the counter at 10/10, temporary, empty and
+    # Overloaded crystals replaced. An Excess Mana instead if the available
+    # mana or the crystals are already at the maximum.
     play = Discard(FRIENDLY_HAND), (
-        AT_MAX_MANA(CONTROLLER) & Give(CONTROLLER, "CS2_013t")
-        | GainMana(CONTROLLER, 10)
+        (CURRENT_MANA(CONTROLLER) >= MAX_MANA(CONTROLLER))
+        & Give(CONTROLLER, "CS2_013t")
+        | (
+            AT_MAX_MANA(CONTROLLER) & Give(CONTROLLER, "CS2_013t")
+            | (
+                GainMana(CONTROLLER, 10),
+                SetTags(
+                    CONTROLLER,
+                    {
+                        GameTag.RESOURCES_USED: 0,
+                        GameTag.TEMP_RESOURCES: 0,
+                        GameTag.OVERLOAD_LOCKED: 0,
+                    },
+                ),
+            )
+        )
     )
 
 
