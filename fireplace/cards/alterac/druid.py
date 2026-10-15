@@ -11,7 +11,7 @@ class AV_210:
     # One</b> spell you've cast. @<b>Battlecry:</b> {0}
     def play(self):
         if spell := self.controller.other_choice_from_the_last_choose_one_spell:
-            yield CastSpell(CONTROLLER, spell)
+            yield CastSpell(spell)
 
 
 class AV_211:

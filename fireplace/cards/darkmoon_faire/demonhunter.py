@@ -83,7 +83,7 @@ class DMF_248:
     """Felsteel Executioner"""
 
     # <b>Corrupt:</b> Become a weapon.
-    corrupted_card = "DMF_248t"
+    corrupt_card = "DMF_248t"
 
 
 class YOP_002:

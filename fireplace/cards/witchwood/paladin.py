@@ -84,7 +84,7 @@ class GIL_903:
 
     # [x]<b>Secret:</b> After your opponent plays three cards in a turn, draw 2 cards.
     secret = Play(OPPONENT).after(
-        (Attr(CONTROLLER, GameTag.NUM_CARDS_PLAYED_THIS_TURN) >= 3)
+        (Attr(OPPONENT, GameTag.NUM_CARDS_PLAYED_THIS_TURN) >= 3)
         & (Reveal(SELF), Draw(CONTROLLER) * 2)
     )
 

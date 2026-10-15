@@ -172,6 +172,11 @@ class CardDB(dict[str, cardxml.CardXML]):
         else:
             card.corrupt_card = None
 
+        if hasattr(cardscript, "infuse_card"):
+            card.infuse_card = cardscript.infuse_card
+        else:
+            card.infuse_card = None
+
         if hasattr(cardscript, "tags"):
             for tag, value in cardscript.tags.items():
                 card.tags[tag] = value

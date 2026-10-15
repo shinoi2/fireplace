@@ -849,8 +849,8 @@ def test_conceal_alarmobot():
 
 def test_cruel_taskmaster():
     game = prepare_game()
-    taskmaster1 = game.current_player.give("EX1_603")
-    taskmaster2 = game.current_player.give("EX1_603")
+    taskmaster1 = game.current_player.give("VAN_EX1_603")
+    taskmaster2 = game.current_player.give("VAN_EX1_603")
     game.end_turn()
     game.end_turn()
 

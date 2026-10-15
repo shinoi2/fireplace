@@ -159,7 +159,7 @@ class ICC_828p:
                 elif len(self.choosed_cards) == 2:
                     self.player.choice = None
                     self.done()
-                    self.trigger_choice_callback()
+                    self.trigger_choice_callback(self.choosed_cards)
 
     requirements = {
         PlayReq.REQ_HAND_NOT_FULL: 0,

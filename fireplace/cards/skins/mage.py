@@ -160,6 +160,36 @@ class HERO_08aabp(HERO_08bp):
     pass
 
 
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Reveler Kael'thas)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Kel'Thuzad, the Inevitable)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Witch Jaina)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Wicked Prince Kael'thas)"""
+
+    pass
+
+
+class HERO_08aebp(HERO_08bp):
+    """Fireblast (Cookin' Reno)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -316,5 +346,35 @@ class HERO_08fbp2(HERO_08bp2):
 
 class HERO_08fbp2(HERO_08bp2):
     """Fireblast Rank 2 (Kael'thas Sunstrider)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Reveler Kael'thas)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Kel'Thuzad, the Inevitable)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Witch Jaina)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Wicked Prince Kael'thas)"""
+
+    pass
+
+
+class HERO_08aebp2(HERO_08bp2):
+    """Fireblast Rank 2 (Cookin' Reno)"""
 
     pass

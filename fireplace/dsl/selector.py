@@ -390,8 +390,6 @@ class BoardPositionSelector(Selector):
 LEFT_OF = lambda s: BoardPositionSelector(BoardPositionSelector.Direction.LEFT, s)
 RIGHT_OF = lambda s: BoardPositionSelector(BoardPositionSelector.Direction.RIGHT, s)
 ADJACENT = lambda s: LEFT_OF(s) | RIGHT_OF(s)
-SELF_ADJACENT = ADJACENT(SELF)
-TARGET_ADJACENT = ADJACENT(TARGET)
 
 
 class RandomSelector(Selector):
@@ -628,6 +626,7 @@ GAME = EnumSelector(CardType.GAME)
 PLAYER = EnumSelector(CardType.PLAYER)
 HERO = EnumSelector(CardType.HERO)
 MINION = EnumSelector(CardType.MINION)
+LOCATION = EnumSelector(CardType.LOCATION)
 CHARACTER = MINION | HERO
 WEAPON = EnumSelector(CardType.WEAPON)
 SPELL = EnumSelector(CardType.SPELL)
@@ -666,11 +665,16 @@ RARE = EnumSelector(Rarity.RARE)
 EPIC = EnumSelector(Rarity.EPIC)
 LEGENDARY = EnumSelector(Rarity.LEGENDARY)
 
+SELF_ADJACENT = ADJACENT(SELF) + MINION
+TARGET_ADJACENT = ADJACENT(TARGET) + MINION
+
 ALL_PLAYERS = IN_PLAY + PLAYER
 ALL_HEROES = IN_PLAY + HERO
 ALL_MINIONS = IN_PLAY + MINION - DORMANT
 ALL_CHARACTERS = IN_PLAY + CHARACTER - DORMANT
 ALL_WEAPONS = IN_PLAY + WEAPON
+ALL_LOCATIONS = IN_PLAY + LOCATION
+ALL_FIELDS = IN_PLAY + (MINION | LOCATION)
 ALL_SECRETS = IN_SECRET + SECRET
 ALL_QUESTS = IN_SECRET + QUEST
 ALL_HERO_POWERS = IN_PLAY + HERO_POWER

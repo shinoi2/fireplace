@@ -37,11 +37,9 @@ class AttackRandomEnemyMinions(TargetedAction):
         for minion in list(source.game.board):
             if minion.zone != Zone.PLAY or minion.dead or minion.dormant:
                 continue
-            enemies = [
-                m
-                for m in minion.controller.opponent.field
-                if not m.dead and not m.dormant
-            ]
+            enemies = minion.controller.opponent.field.filter(
+                dormant=False, card_type=CardType.MINION, dead=False
+            )
             if not enemies:
                 continue
             defender = source.game.random.choice(enemies)

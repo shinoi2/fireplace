@@ -51,6 +51,8 @@ class DRG_306:
             self.source = source
             self.min_count = 1
             self.max_count = 1
+            self._callback = self.callback
+            self.callback = []
             # Envoy of Lazul attempts to show three cards:
             # one card in the opponent's hand, and two cards in the opponent's current deck
             # but not in the opponent's hand.
@@ -97,7 +99,7 @@ class DRG_306:
                     )
                     self.source.game.queue_actions(card, [Reveal(self.correct_card)])
             self.player.choice = None
-            self.trigger_choice_callback()
+            self.trigger_choice_callback(card)
 
     play = EnvoyOfLazuljAction(CONTROLLER)
 

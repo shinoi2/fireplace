@@ -38,7 +38,7 @@ class DRG_026:
 
     # <b>Battlecry:</b> Attack ALL other minions.
     def play(self):
-        entities = (ALL_MINIONS - SELF - DEAD).eval(self.game.live_entities, self)
+        entities = (ALL_MINIONS - SELF - DEAD).eval(self.game, self)
         self.game.random.shuffle(entities)
         for entity in entities:
             if not self.dead and not entity.dead:

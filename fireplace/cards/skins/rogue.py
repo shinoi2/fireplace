@@ -106,6 +106,24 @@ class HERO_03dbp(HERO_03bp):
     pass
 
 
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Suspect Maiev)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Poisonheart Maiev)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Marshmallow Maiev)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -208,5 +226,23 @@ class HERO_03sbp2(HERO_03bp2):
 
 class HERO_03dbp2(HERO_03bp2):
     """Poisoned Daggers (Vendor Maiev)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Suspect Maiev)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Poisonheart Maiev)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Marshmallow Maiev)"""
 
     pass

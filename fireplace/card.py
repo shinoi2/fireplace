@@ -42,6 +42,7 @@ def Card(id):
         CardType.ENCHANTMENT: Enchantment,
         CardType.WEAPON: Weapon,
         CardType.HERO_POWER: HeroPower,
+        CardType.LOCATION: Location,
     }[data.type]
     if subclass is Spell:
         if data.secret:
@@ -327,6 +328,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         self.choose_cards = CardList()
         self.morphed = None
         self.corrupt_card = data.corrupt_card
+        self.infuse_card = data.infuse_card
         self.turn_drawn = -1
         self.turn_played = -1
         self.cast_on_friendly_characters = False
@@ -337,6 +339,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         self.temporary = False
         self.cards_played_when_holding = CardList()
         self.immolatestage = 0
+        self.infuse = 0
         super().__init__(data)
 
     def dump(self):
@@ -506,11 +509,25 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
                 return False
 
         min_enemy_minions = self.requirements.get(PlayReq.REQ_MINIMUM_ENEMY_MINIONS, 0)
-        if len(self.controller.opponent.field) < min_enemy_minions:
+        if (
+            len(
+                self.controller.opponent.field.filter(
+                    dormant=False, card_type=CardType.MINION
+                )
+            )
+            < min_enemy_minions
+        ):
             return False
 
         min_total_minions = self.requirements.get(PlayReq.REQ_MINIMUM_TOTAL_MINIONS, 0)
-        if len(self.controller.game.board) < min_total_minions:
+        if (
+            len(
+                self.controller.game.board.filter(
+                    dormant=False, card_type=CardType.MINION
+                )
+            )
+            < min_total_minions
+        ):
             return False
 
         if PlayReq.REQ_ENTIRE_ENTOURAGE_NOT_IN_PLAY in self.requirements:
@@ -694,7 +711,14 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_MINIMUM_FRIENDLY_MINIONS
         )
         if req is not None:
-            if len(self.controller.field) >= req:
+            if (
+                len(
+                    self.controller.field.filter(
+                        dormant=False, card_type=CardType.MINION
+                    )
+                )
+                >= req
+            ):
                 return bool(self.play_targets)
         req = self.requirements.get(
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_MINIMUM_FRIENDLY_SECRETS
@@ -979,15 +1003,21 @@ class Character(LiveEntity):
     def attack_targets(self):
         targets = self.controller.opponent.characters
         if self.cannot_attack_heroes:
-            targets = self.controller.opponent.field
+            targets = self.controller.opponent.field.filter(
+                dormant=False, card_type=CardType.MINION
+            )
         if self.rush and not self.turns_in_play:
-            targets = self.controller.opponent.field
+            targets = self.controller.opponent.field.filter(
+                dormant=False, card_type=CardType.MINION
+            )
         if (
             self.additional_attacks_only_minion > 0
             and self.max_attacks - self.additional_attacks_only_minion
             <= self.num_attacks - self.num_attacks_only_minion
         ):
-            targets = self.controller.opponent.field
+            targets = self.controller.opponent.field.filter(
+                dormant=False, card_type=CardType.MINION
+            )
         targets = targets.filter(dormant=False)
 
         taunts = []
@@ -1276,7 +1306,9 @@ class Minion(Character):
         assert self.zone is Zone.PLAY, self.zone
         ret = CardList()
         index = self.zone_position - 1
-        left = self.controller.field[:index].filter(dormant=False)
+        left = self.controller.field[:index].filter(
+            dormant=False, card_type=CardType.MINION
+        )
         if left:
             ret.append(left[-1])
         return ret
@@ -1286,7 +1318,9 @@ class Minion(Character):
         assert self.zone is Zone.PLAY, self.zone
         ret = CardList()
         index = self.zone_position - 1
-        right = self.controller.field[index + 1 :].filter(dormant=False)
+        right = self.controller.field[index + 1 :].filter(
+            dormant=False, card_type=CardType.MINION
+        )
         if right:
             ret.append(right[0])
         return ret
@@ -1889,3 +1923,60 @@ class HeroPower(PlayableCard):
         if self.passive_hero_power:
             return False
         return super().is_playable()
+
+
+class Location(PlayableCard):
+    health_attribute = "durability"
+
+    def __init__(self, data):
+        self.durability = 0
+        self.cooldown = 0
+        super().__init__(data)
+
+    @property
+    def exhausted(self):
+        return self.cooldown > 0
+
+    @property
+    def requirements(self):
+        if self.zone == Zone.PLAY:
+            return self._requirements
+        return {}
+
+    @requirements.setter
+    def requirements(self, value):
+        self._requirements = value
+
+    def is_summonable(self):
+        summonable = super().is_summonable()
+        if len(self.controller.field) >= self.game.MAX_MINIONS_ON_FIELD:
+            return False
+        return summonable
+
+    def is_usable(self):
+        if self.exhausted:
+            return False
+        return super().is_playable()
+
+    def _set_zone(self, value):
+        if self.zone == value:
+            return
+        if value == Zone.PLAY:
+            if self._summon_index is not None:
+                self.controller.field.insert(self._summon_index, self)
+            else:
+                self.controller.field.append(self)
+        if self.zone == Zone.PLAY:
+            self.log("%r is removed from the field", self)
+            self.controller.field.remove(self)
+        super()._set_zone(value)
+
+    def activate(self, target=None):
+        return self.game.queue_actions(
+            self.controller, [actions.ActivateLocation(self, target)]
+        )
+
+    def use(self, target=None):
+        if not self.is_usable():
+            raise InvalidAction("%r can't be used." % (self))
+        return self.activate(target)

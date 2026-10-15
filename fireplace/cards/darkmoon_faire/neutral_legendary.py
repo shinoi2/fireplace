@@ -133,7 +133,7 @@ class DMF_188:
     # [x]<b>Battlecry:</b> Add a copy of each <b>Corrupted</b> card you've
     # played this game to your hand. They cost (0) this turn.
     play = Give(
-        CONTROLLER, SHUFFLE(FRIENDLY + CARDS_PLAYED_THIS_GAME + CORRUPTED_CARD)
+        CONTROLLER, SHUFFLE(FRIENDLY + CARDS_PLAYED_THIS_GAME + CORRUPTED)
     ).then(Buff(Give.CARD, "DMF_188e"))
 
 

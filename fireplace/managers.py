@@ -171,6 +171,7 @@ class PlayerManager(Manager):
         enums.CANT_OVERLOAD: "cant_overload",
         enums.ELEMENTAL_PLAYED_LAST_TURN: "elemental_played_last_turn",
         enums.HERO_HEALTH_CHANGED_THIS_TURN: "hero_health_changed_this_turn",
+        enums.RELIC_LEVEL: "relic_level",
     }
 
 
@@ -281,7 +282,6 @@ CARD_ATTRIBUTE_MAP = {
     GameTag.SHOULDEXITCOMBAT: "should_exit_combat",
     GameTag.STEADY_SHOT_CAN_TARGET: "steady_shot_can_target",
     GameTag.SILENCED: "silenced",
-    GameTag.SPELLS_CAST_TWICE: "spells_cast_twice",
     GameTag.SPELLPOWER: "spellpower",
     GameTag.SPELLPOWER_DOUBLE: "spellpower_double",
     GameTag.SPELLPOWER_ARCANE: "spellpower_arcane",

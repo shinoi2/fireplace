@@ -150,23 +150,26 @@ class AV_258:
     """Bru'kan of the Elements"""
 
     # [x]<b>Battlecry:</b> Call upon the power of two Elements!
-    class ElementalMasteryAction(MultipleChoice):
-        PLAYER = ActionArg()
-        choose_times = 2
-        elemental_ids = ["AV_258t", "AV_258t2", "AV_258t3", "AV_258t4"]
-
-        def do_step1(self):
-            self.cards = [self.player.card(id) for id in self.elemental_ids]
-
-        def do_step2(self):
-            self.cards.remove(self.choosed_cards[0])
-
-        def done(self):
-            for card in self.choosed_cards:
-                self.source.game.queue_actions(card, [Battlecry(card, self.source)])
-
     entourage = ["AV_258pt", "AV_258p2", "AV_258pt3", "AV_258pt4"]
-    play = ElementalMasteryAction(CONTROLLER), Summon(CONTROLLER, RandomEntourage())
+    play = (
+        Summon(CONTROLLER, RandomEntourage()),
+        Choice(CONTROLLER, ["AV_258t", "AV_258t2", "AV_258t3", "AV_258t4"]).then(
+            Battlecry(Choice.CARD),
+            lambda _, *args: (
+                yield Choice(
+                    CONTROLLER,
+                    list(
+                        filter(
+                            lambda x: x != args[Discover.CARD.index],
+                            args[Discover.CARDS.index],
+                        )
+                    ),
+                ).then(
+                    Battlecry(Choice.CARD),
+                )
+            ),
+        ),
+    )
 
 
 class AV_258t:

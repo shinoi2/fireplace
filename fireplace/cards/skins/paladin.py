@@ -136,6 +136,30 @@ class HERO_04fbp(HERO_04bp):
     pass
 
 
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Venthyr Liadrin)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Bold Guardian Liadrin)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Burger Uther)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Fishy Finley)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -268,5 +292,29 @@ class HERO_04wbp2(HERO_04bp2):
 
 class HERO_04fbp2(HERO_04bp2):
     """The Silver Hand (Fire Glaive Liadrin)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Venthyr Liadrin)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Bold Guardian Liadrin)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Burger Uther)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Fishy Finley)"""
 
     pass

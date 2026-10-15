@@ -171,7 +171,8 @@ class SW_091t4:
 
 class SW_091t5:
     events = Predamage(FRIENDLY_HERO).on(
-        CurrentPlayer(OWNER) & (Predamage(FRIENDLY_HERO, 0), Hit(ENEMY_HERO, 1))
+        CurrentPlayer(OWNER)
+        & (Predamage(FRIENDLY_HERO, 0), Hit(ENEMY_HERO, Predamage.AMOUNT))
     )
 
 

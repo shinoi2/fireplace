@@ -88,7 +88,7 @@ class UNG_035:
                     )
                     self.source.game.queue_actions(card, [Reveal(self.starting_card)])
             self.player.choice = None
-            self.trigger_choice_callback()
+            self.trigger_choice_callback(card)
 
     requirements = {PlayReq.REQ_MINION_TARGET: 0}
     play = GlimmerrootAction(CONTROLLER)

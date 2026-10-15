@@ -32,6 +32,14 @@ def single_card(card):
     return str
 
 
+def card_id_prefix(card_id_prefix):
+    for card_id in cards.db:
+        if card_id.startswith(card_id_prefix):
+            card = cards.db[card_id]
+            print(single_card(card), end="")
+    return
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument(
@@ -52,10 +60,7 @@ def main():
     cards.db.initialize()
 
     if args.card_id:
-        for card_id in cards.db:
-            if card_id.startswith(args.card_id):
-                card = cards.db[card_id]
-                print(single_card(card))
+        card_id_prefix(args.card_id)
         return
 
     os.makedirs(args.output_dir, exist_ok=True)
@@ -115,6 +120,7 @@ def main():
             CardType.SPELL,
             CardType.WEAPON,
             CardType.HERO,
+            CardType.LOCATION,
         ]:
             tmp_cards = []
             for id in cards.filter(

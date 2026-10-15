@@ -91,8 +91,10 @@ class DMF_058:
 
 
 class DMF_058e:
-    update = Refresh(CONTROLLER, {GameTag.SPELLS_CAST_TWICE: True})
-    events = Play(CONTROLLER, SPELL).after(Destroy(SELF))
+    events = Play(CONTROLLER, SPELL).after(
+        CastSpell(Copy(Play.CARD)),
+        Destroy(SELF),
+    )
 
 
 class DMF_075:
