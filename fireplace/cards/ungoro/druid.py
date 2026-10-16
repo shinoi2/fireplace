@@ -13,7 +13,7 @@ class UNG_078:
 class UNG_086:
     """Giant Anaconda"""
 
-    deathrattle = Summon(CONTROLLER, RANDOM(FRIENDLY_HAND + (ATK >= 5)))
+    deathrattle = Summon(CONTROLLER, RANDOM(FRIENDLY_HAND + MINION + (ATK >= 5)))
 
 
 class UNG_100:
@@ -40,7 +40,8 @@ class UNG_101b:
 class UNG_109:
     """Elder Longneck"""
 
-    play = Find(FRIENDLY_MINIONS + (ATK >= 5)) & Adapt(SELF)
+    powered_up = Find(FRIENDLY_HAND + MINION + (ATK >= 5) - SELF)
+    play = powered_up & Adapt(SELF)
 
 
 ##

@@ -85,9 +85,9 @@ class SW_433:
             self.entourage.append(card.cost)
 
     quest = Play(CONTROLLER, (COST >= 2) + (COST <= 4)).on(AddProgress(SELF, Play.CARD))
-    reward = GenericChoice(CONTROLLER, RANDOM(FRIENDLY_DECK, 3)), Summon(
-        CONTROLLER, "SW_433t"
-    )
+    reward = Summon(CONTROLLER, "SW_433t"), Choice(
+        CONTROLLER, RANDOM(FRIENDLY_DECK, 3)
+    ).then(ForceDraw(Choice.CARD))
 
 
 class SW_433t:
@@ -106,9 +106,9 @@ class SW_433t:
             self.entourage.append(card.cost)
 
     quest = Play(CONTROLLER, (COST >= 5) + (COST <= 6)).on(AddProgress(SELF, Play.CARD))
-    reward = GenericChoice(CONTROLLER, RANDOM(FRIENDLY_DECK, 3)), Summon(
-        CONTROLLER, "SW_433t2"
-    )
+    reward = Summon(CONTROLLER, "SW_433t2"), Choice(
+        CONTROLLER, RANDOM(FRIENDLY_DECK, 3)
+    ).then(ForceDraw(Choice.CARD))
 
 
 class SW_433t2(QuestRewardProtect):
@@ -161,7 +161,7 @@ class SW_441:
     """Shard of the Naaru"""
 
     # <b>Tradeable</b> <b>Silence</b> all enemy minions.
-    play = Silence(ALL_MINIONS)
+    play = Silence(ENEMY_MINIONS)
 
 
 class SW_442:

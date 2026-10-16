@@ -135,8 +135,8 @@ class AV_295:
     # card.
     choose = ("AV_295a", "AV_295b")
     play = ChooseBoth(CONTROLLER) & (
-        ForceDraw(CONTROLLER, RANDOM(LOWEST_COST(FRIENDLY_DECK))),
-        ForceDraw(CONTROLLER, RANDOM(HIGHEST_COST(FRIENDLY_DECK))),
+        ForceDraw(RANDOM(LOWEST_COST(FRIENDLY_DECK))),
+        ForceDraw(RANDOM(HIGHEST_COST(FRIENDLY_DECK))),
     )
 
 
@@ -144,14 +144,14 @@ class AV_295a:
     """More Resources"""
 
     # Draw your lowest Cost card.
-    play = ForceDraw(CONTROLLER, RANDOM(LOWEST_COST(FRIENDLY_DECK)))
+    play = ForceDraw(RANDOM(LOWEST_COST(FRIENDLY_DECK)))
 
 
 class AV_295b:
     """More Supplies"""
 
     # Draw your highest Cost card.
-    play = ForceDraw(CONTROLLER, RANDOM(HIGHEST_COST(FRIENDLY_DECK)))
+    play = ForceDraw(RANDOM(HIGHEST_COST(FRIENDLY_DECK)))
 
 
 class ONY_021:

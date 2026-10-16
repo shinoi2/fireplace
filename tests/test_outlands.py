@@ -8,13 +8,13 @@ def test_kaelthas_sunstrider():
     game.player1.give(THE_COIN).play()
     assert fireball.cost == 4
     game.player1.give("BT_255").play()
-    assert fireball.cost == 0
+    assert fireball.cost == 1
     game.player1.give(THE_COIN).play()
     assert fireball.cost == 4
     game.player1.give(THE_COIN).play()
     assert fireball.cost == 4
     game.player1.give(THE_COIN).play()
-    assert fireball.cost == 0
+    assert fireball.cost == 1
 
 
 def test_metamorphosis():
@@ -65,7 +65,7 @@ def test_darkglare():
     game.player1.give("BT_307").play()
     assert game.player1.mana == 7
     game.player1.give(FIREBALL).play(target=game.player1.hero)
-    assert game.player1.mana == 7 - 4 + 2
+    assert game.player1.mana == 7 - 4 + 1
 
 
 def test_maiev_shadowsong():

@@ -82,7 +82,7 @@ class BT_006:
 
 class BT_006e:
     class Hand:
-        events = OWN_TURN_END.on(Destroy(OWNER))
+        events = OWN_TURN_END.on(Discard(OWNER))
 
     events = REMOVED_IN_PLAY
 

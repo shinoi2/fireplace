@@ -31,7 +31,9 @@ class ULD_212:
     """Wild Bloodstinger"""
 
     # <b>Battlecry:</b> Summon a minion from your opponent's hand. Attack it.
-    play = Summon(OPPONENT, RANDOM(ENEMY_HAND + MINION)).then(Attack(SELF, Summon.CARD))
+    play = FULL_BOARD | Summon(OPPONENT, RANDOM(ENEMY_HAND + MINION)).then(
+        Attack(SELF, Summon.CARD)
+    )
 
 
 class ULD_410:

@@ -48,6 +48,13 @@ def is_valid_target(self, target, requirements=None):
         # Battlecries can never target themselves
         return False
 
+    if (
+        target.type == CardType.HERO
+        and target.stealthed
+        and self.controller != target.controller
+    ):
+        return False
+
     if target.type == CardType.MINION:
         if target.dormant:
             return False
@@ -143,7 +150,7 @@ def is_valid_target(self, target, requirements=None):
             ):
                 return False
         elif req == PlayReq.REQ_TARGET_IF_AVAILABLE_AND_PLAYER_HEALTH_CHANGED_THIS_TURN:
-            if not target.hero_health_changed_this_turn:
+            if not self.controller.hero_health_changed_this_turn:
                 return False
         elif req == PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SOUL_FRAGMENT_IN_DECK:
             if SOUL_FRAGMENT not in target.controller.deck:

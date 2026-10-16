@@ -65,7 +65,7 @@ class Selector:
 
     def __getitem__(self, val: Union[int, slice]) -> "Selector":
         if isinstance(val, int):
-            val = slice(val)
+            val = slice(val, val + 1) if val != -1 else slice(-1, None)
         return SliceSelector(self, val)
 
 
@@ -326,6 +326,10 @@ class UniqueRace(Selector):
         races = set()
         for entity in entities:
             # 双种族暂不考虑
+            if entity.race == Race.INVALID:
+                # A minion without a type is of no "minion type" (N'Zoth, God
+                # of the Deep; Tent Trasher; WP-195).
+                continue
             if entity.race not in races:
                 races.add(entity.race)
                 ret.append(entity)
@@ -358,7 +362,6 @@ TARGET = FuncSelector(lambda entities, source: [source.target])
 ATTACK_TARGET = FuncSelector(lambda entities, source: [source.attack_target])
 CREATOR = FuncSelector(lambda entities, source: [source.creator])
 CREATOR_TARGET = FuncSelector(lambda entities, source: [source.creator.target])
-APPLIED_BUFFS = FuncSelector(lambda entities, source: [source.buffs])
 
 
 class BoardPositionSelector(Selector):
@@ -799,11 +802,31 @@ PLAY_OUTCAST = FuncSelector(
 
 ENTOURAGE = FuncSelector(lambda entities, source: source.entourage)
 
-ANOTHER_CLASS = FuncSelector(
-    lambda entities, source: [
-        card_class for card_class in CardClass if source.card_class != card_class
+
+def _another_class(entities, source):
+    current_class = source.controller.hero.card_class
+    if current_class is CardClass.NEUTRAL:
+        current_class = source.controller.starting_hero.card_class
+    classes = []
+    for card_class in CardClass:
+        if card_class != current_class and card_class is not CardClass.NEUTRAL:
+            classes.append(card_class)
+    return classes
+
+
+ANOTHER_CLASS = FuncSelector(_another_class)
+
+
+def _another_class_card(entities, source):
+    classes = _another_class(entities, source)
+    return [
+        e
+        for e in entities
+        if all(c in classes for c in getattr(e, "classes", [CardClass.NEUTRAL]))
     ]
-)
+
+
+ANOTHER_CLASS_CARD = FuncSelector(_another_class_card)
 
 CHOOSE_CARDS = lambda sel: (
     FuncSelector(lambda entities, source: sel.evaluate(source).choose_cards)
@@ -866,7 +889,7 @@ def SAME_RACE(entity1, entity2):
     races1 = getattr(entity1, "races", [])
     races2 = getattr(entity2, "races", [])
     for race in races1:
-        if race in races2:
+        if race != Race.INVALID and race in races2:
             return True
     return False
 
@@ -876,3 +899,9 @@ SAME_RACE_TARGET = FuncSelector(
 )
 
 RACE = FuncSelector(lambda entites, source: source.races)
+
+IS_SUMMONABLE = FuncSelector(
+    lambda entities, source: [
+        e for e in entities if getattr(e, "is_summonable", lambda: False)()
+    ]
+)

@@ -67,7 +67,7 @@ class ULD_181:
     """Earthquake"""
 
     # Deal $5 damage to all minions, then deal $2 damage to all minions.
-    play = Hit(ALL_MINIONS, 5), Hit(ALL_MINIONS, 2)
+    play = Hit(ALL_MINIONS, 5), Deaths(), Hit(ALL_MINIONS, 2)
 
 
 class ULD_291:
@@ -87,7 +87,7 @@ class ULD_291p:
 
 
 class ULD_291pe:
-    tags = {enums.EXTRA_BATTLECRIES: True}
+    update = Refresh(CONTROLLER, {enums.EXTRA_BATTLECRIES: True})
 
 
 ##

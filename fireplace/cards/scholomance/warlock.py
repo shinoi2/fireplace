@@ -18,7 +18,7 @@ class SCH_181:
     # <b>Battlecry:</b> Summon a random Demon from your hand and deck.
     play = (
         Summon(CONTROLLER, RANDOM(FRIENDLY_HAND + DEMON)),
-        Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + DEMON)),
+        SummonLeft(CONTROLLER, RANDOM(FRIENDLY_DECK + DEMON)),
     )
 
 
@@ -28,10 +28,9 @@ class SCH_343:
     # [x]<b>Taunt</b>. <b>Battlecry:</b> Destroy a Soul Fragment in your deck
     # to gain +3/+3.
     powered_up = Find(FRIENDLY_DECK + ID(SOUL_FRAGMENT))
-    play = (
-        powered_up
-        & Destroy(RANDOM(FRIENDLY_DECK + ID(SOUL_FRAGMENT)))
-        & Buff(SELF, "SCH_343e")
+    play = powered_up & (
+        Destroy(RANDOM(FRIENDLY_DECK + ID(SOUL_FRAGMENT))),
+        Buff(SELF, "SCH_343e"),
     )
 
 
@@ -79,7 +78,7 @@ class SCH_158:
 
 class SCH_158e:
     update = Refresh(FRIENDLY_HAND + DEMON, buff="SCH_158e2")
-    events = Play(CONTROLLER, DEMON).after(Destroy(SELF))
+    events = Play(CONTROLLER, DEMON - CREATOR).after(Destroy(SELF))
 
 
 class SCH_158e2:

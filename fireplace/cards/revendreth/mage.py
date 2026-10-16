@@ -12,10 +12,10 @@ class REV_000:
     play = Discover(CONTROLLER, RandomSpell()).then(
         Give(CONTROLLER, Discover.CARD),
         lambda source, *args: (
-            yield Choice(OPPONENT, args[Discover.CARDS.index]).then(
+            yield Choice(OPPONENT, args[Discover.CARDS]).then(
                 lambda source2, *args2: (
                     (yield Give(OPPONENT, Copy(Choice.CARD)))
-                    if args[Discover.CARD.index] == args2[Choice.CARD.index]
+                    if args[Discover.CARD] == args2[Choice.CARD]
                     else None
                 )
             )
@@ -52,7 +52,7 @@ class REV_515:
 
     # After a friendly <b>Secret</b> is revealed, cast a different Mage
     # <b>Secret</b> and gain +2/+2.
-    events = Reveal(FRIENDLY_SECRETS).after(
+    events = Reveal(FRIENDLY_SECRETS).on(
         CastSpell(
             RandomSpell(
                 secret=True, card_class=CardClass.MAGE, exclude=FRIENDLY_SECRETS

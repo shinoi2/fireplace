@@ -48,14 +48,12 @@ class BAR_720:
     """Guff Runetotem"""
 
     # After you cast a Nature spell, give another friendly minion +2/+2.
-    events = CastSpell(CONTROLLER, SPELL + NATURE).after(
+    events = Play(CONTROLLER, SPELL + NATURE).after(
         Buff(RANDOM(FRIENDLY_MINIONS - SELF), "BAR_720e")
     )
 
 
-class BAR_720e:
-    tags = {GameTag.COST: -2}
-    events = REMOVED_IN_PLAY
+BAR_720e = buff(+2, +2)
 
 
 class WC_004:

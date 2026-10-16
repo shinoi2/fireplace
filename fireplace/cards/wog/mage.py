@@ -37,7 +37,7 @@ class OG_207:
 class OG_087:
     """Servant of Yogg-Saron"""
 
-    play = CastSpell(RandomSpell(id="DS1_184"))
+    play = CastSpell(RandomSpell(cost=range(0, 6)))
 
 
 ##

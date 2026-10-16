@@ -52,7 +52,7 @@ class SW_054:
     """Stormwind Guard"""
 
     # <b>Taunt</b> <b>Battlecry:</b> Give adjacent minions +1/+1.
-    play = Buff(TARGET_ADJACENT, "SW_054e")
+    play = Buff(SELF_ADJACENT, "SW_054e")
 
 
 SW_054e = buff(+1, +1)
@@ -103,7 +103,7 @@ class SW_063:
     """Battleground Battlemaster"""
 
     # Adjacent minions have <b>Windfury</b>.
-    update = Refresh(SELF, buff="SW_063e")
+    update = Refresh(SELF_ADJACENT, buff="SW_063e")
 
 
 SW_063e = buff(windfury=True)

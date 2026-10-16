@@ -8,7 +8,7 @@ class ULD_133:
     """Crystal Merchant"""
 
     # If you have any unspent Mana at the end of your turn, draw a card.
-    events = OWN_TURN_END.on((MANA(CONTROLLER) > 0) & Draw(CONTROLLER))
+    events = OWN_TURN_END.on((CURRENT_MANA(CONTROLLER) > 0) & Draw(CONTROLLER))
 
 
 class ULD_137:
@@ -17,7 +17,7 @@ class ULD_137:
     # [x]<b>Battlecry:</b> If you're holding a spell that costs (5) or more, summon two 2/2
     # Treants.
     powered_up = Find(FRIENDLY_HAND + SPELL + (COST >= 5))
-    play = powered_up & Summon(CONTROLLER, "ULD_137t") * 2
+    play = powered_up & SummonBothSides(CONTROLLER, "ULD_137t") * 2
 
 
 class ULD_138:
@@ -25,7 +25,9 @@ class ULD_138:
 
     # <b>Taunt</b>. Costs (0) if you've cast a spell that costs (5) or more this turn.
     class Hand:
-        events = Play(CONTROLLER, SPELL + (COST >= 5)).after(Buff(SELF, "GBL_009e"))
+        update = Find(CARDS_PLAYED_THIS_TURN + SPELL + (COST >= 5)) & Refresh(
+            SELF, {GameTag.COST: SET(0)}
+        )
 
 
 class ULD_139:
@@ -51,6 +53,9 @@ class ULD_292a:
     play = Buff(SELF, "ULD_292ae")
 
 
+ULD_292ae = buff(+2, +2)
+
+
 class ULD_292b:
     requirements = {
         PlayReq.REQ_NUM_MINION_SLOTS: 2,
@@ -67,7 +72,7 @@ class ULD_131:
 
     # [x]<b>Quest:</b> End 4 turns with any unspent Mana. <b>Reward:</b> Ossirian Tear.
     progress_total = 4
-    quest = OWN_TURN_END.on((MANA(CONTROLLER) > 0) & AddProgress(SELF, SELF))
+    quest = OWN_TURN_END.on((CURRENT_MANA(CONTROLLER) > 0) & AddProgress(SELF, SELF))
     reward = Summon(CONTROLLER, "ULD_131p")
 
 

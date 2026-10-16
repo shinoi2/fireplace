@@ -101,7 +101,7 @@ class BAR_064:
 
 
 class BAR_064e:
-    tags = {GameTag.SPELLPOWER: 2}
+    update = Refresh(CONTROLLER, {GameTag.SPELLPOWER: +2})
     events = Play(CONTROLLER, SPELL).after(Destroy(SELF))
 
 
@@ -131,7 +131,7 @@ class BAR_074:
 
     # [x]Can't attack. After your opponent draws a card, it ___costs (1) more
     # <i>(up to 10)</i>.__
-    events = Draw(OPPONENT).after(Buff(Draw.CARD, "BAR_074e"))
+    events = Draw(OPPONENT).on(Buff(Draw.CARD, "BAR_074e"))
 
 
 class BAR_074e:
@@ -167,14 +167,14 @@ class BAR_854:
 
 class BAR_854e:
     update = Refresh(FRIENDLY_HAND + ELEMENTAL, {GameTag.COST: -1})
-    events = Play(CONTROLLER, ELEMENTAL).after(Destroy(SELF))
+    events = Play(CONTROLLER, ELEMENTAL - CREATOR).after(Destroy(SELF))
 
 
 class BAR_890:
     """Crossroads Gossiper"""
 
     # After a friendly <b>Secret</b> is revealed, gain +2/+2.
-    events = Reveal(FRIENDLY_SECRETS).after(Buff(SELF, "BAR_890e"))
+    events = Reveal(FRIENDLY_SECRETS).on(Buff(SELF, "BAR_890e"))
 
 
 BAR_890e = buff(+2, +2)

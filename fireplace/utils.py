@@ -170,7 +170,9 @@ def game_state_to_xml(game):
     return ElementTree.tostring(tree)
 
 
-def weighted_card_choice(source, weights: List[int], card_sets: List[str], count: int):
+def weighted_card_choice(
+    source, weights: List[int], card_sets: List[List[str]], count: int
+):
     """
     Take a list of weights and a list of card pools and produce
     a random weighted sample without replacement.
@@ -178,6 +180,14 @@ def weighted_card_choice(source, weights: List[int], card_sets: List[str], count
     """
 
     chosen_cards = []
+
+    seen = set()
+    deduplicated = []
+    for card_set in card_sets:
+        kept = [card for card in card_set if card not in seen]
+        seen.update(kept)
+        deduplicated.append(kept)
+    card_sets = deduplicated
 
     # sum all the weights
     cum_weights = []

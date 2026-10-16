@@ -53,7 +53,7 @@ class BT_138:
     """Bloodboil Brute"""
 
     # <b>Rush</b> Costs (1) less for each damaged minion.
-    cost_mod = -Count(DAMAGED_CHARACTERS)
+    cost_mod = -Count(ALL_MINIONS + DAMAGED)
 
 
 class BT_140:
@@ -97,9 +97,7 @@ class BT_124:
     """Corsair Cache"""
 
     # Draw a weapon. Give it +1 Durability.
-    play = ForceDraw(RANDOM(FRIENDLY_HAND + WEAPON)).then(
-        Buff(ForceDraw.TARGET, "BT_124e")
-    )
+    play = FORCE_DRAW(WEAPON).then(Buff(ForceDraw.TARGET, "BT_124e"))
 
 
 BT_124e = buff(health=1)

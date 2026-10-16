@@ -62,7 +62,7 @@ class OG_188:
     play = CHECK_CTHUN & Buff(SELF, "OG_188e")
 
 
-OG_188e = buff(health=4)
+OG_188e = buff(health=5)
 
 
 class OG_293:

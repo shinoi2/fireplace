@@ -75,9 +75,7 @@ class GIL_837:
 
 class GIL_837e:
     def apply(self, target):
-        self._xhealth = target.health * 2
-
-    max_health = lambda self, _: self._xhealth
+        self._max_health = target.health
 
 
 class GIL_840:

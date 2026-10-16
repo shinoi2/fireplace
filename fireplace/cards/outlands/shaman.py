@@ -25,7 +25,7 @@ class BT_109t:
 
     # [x]<b>Spell Damage +1</b> <b>Battlecry:</b> Draw 3 spells. ___Reduce
     # their Cost by (3).___
-    play = Draw(CONTROLLER).then(Buff(Draw.CARD, "BT_109te"))
+    play = FORCE_DRAW(SPELL).then(Buff(ForceDraw.TARGET, "BT_109te")) * 3
 
 
 class BT_109te:

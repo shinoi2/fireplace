@@ -21,4 +21,4 @@ class CS3_001e:
 
 
 class CS3_001e2:
-    events = Draw(CONTROLLER, MINION).on(Buff(Draw.TARGET, "CS3_001e"), Destroy(SELF))
+    events = Draw(CONTROLLER, MINION).on(Buff(Draw.CARD, "CS3_001e"), Destroy(SELF))

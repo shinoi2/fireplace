@@ -45,7 +45,7 @@ class ULD_269:
         PlayReq.REQ_FRIENDLY_TARGET: 0,
         PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
     }
-    play = Destroy(TARGET), Summon(CONTROLLER, Copy(TARGET))
+    play = Destroy(TARGET), Deaths(), Summon(CONTROLLER, Copy(TARGET))
 
 
 class ULD_270:
@@ -100,7 +100,7 @@ class ULD_724:
 
     # <b>Quest:</b> Restore 15_Health. <b>Reward:</b> Obelisk's Eye.
     progress_total = 15
-    quest = Heal(source=FRIENDLY).after(AddProgress(SELF, Heal.TARGET, Heal.AMOUNT))
+    quest = Heal(source=FRIENDLY).on(AddProgress(SELF, Heal.TARGET, Heal.AMOUNT))
     reward = Summon(CONTROLLER, "ULD_724p")
 
 

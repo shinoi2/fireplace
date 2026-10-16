@@ -140,7 +140,7 @@ class TSC_608:
     """Abyssal Depths"""
 
     # Draw your two lowest Cost minions.
-    play = ForceDraw(CONTROLLER, RANDOM(LOWEST_COST(FRIENDLY_DECK))) * 2
+    play = ForceDraw(RANDOM(LOWEST_COST(FRIENDLY_DECK))) * 2
 
 
 class TSC_058:

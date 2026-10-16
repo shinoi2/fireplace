@@ -38,7 +38,13 @@ class BAR_748:
 
     # [x]<b>Battlecry:</b> <b>Freeze</b> all enemy minions. If any are already
     # <b>Frozen</b>, deal 4 damage to them instead.
-    play = Hit(ENEMY_MINIONS + FROZEN, 4), Freeze(ENEMY_MINIONS + FROZEN)
+    def play(self):
+        frozen = (ENEMY_MINIONS + FROZEN).eval(self.game, self)
+        others = (ENEMY_MINIONS - FROZEN).eval(self.game, self)
+        if frozen:
+            yield Hit(frozen, 4)
+        if others:
+            yield Freeze(others)
 
 
 class BAR_888:
@@ -63,7 +69,7 @@ class WC_806:
     """Floecaster"""
 
     # Costs (2) less for each <b>Frozen</b> enemy.
-    cost_mod = -Count(ENEMY_MINIONS + FROZEN) * 2
+    cost_mod = -Count(ENEMY_CHARACTERS + FROZEN) * 2
 
 
 ##
@@ -125,7 +131,10 @@ class BAR_546:
     play = Buff(CONTROLLER, "BAR_546e")
 
 
-BAR_546e = buff(heropower_damage=1)
+class BAR_546e:
+    # A player's hero power damage is read from auras, as Spell Damage on the
+    # player (Rune Dagger); `buff(heropower_damage=1)` was never read (WP-196)
+    update = Refresh(CONTROLLER, {GameTag.HEROPOWER_DAMAGE: +1})
 
 
 class BAR_812:

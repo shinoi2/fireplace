@@ -155,12 +155,7 @@ class WC_016:
     """Shroud of Concealment"""
 
     # Draw 2 minions. Any played this turn gain <b>Stealth</b> for 1 turn.
-    play = (
-        ForceDraw(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION)).then(
-            Buff(ForceDraw.TARGET, "WC_016e")
-        )
-        * 2
-    )
+    play = FORCE_DRAW(MINION).then(Buff(ForceDraw.TARGET, "WC_016e")) * 2
 
 
 class WC_016e:

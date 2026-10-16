@@ -24,7 +24,7 @@ class GIL_640:
     """Curio Collector"""
 
     # Whenever you draw a card, gain +1/+1.
-    events = Draw(CONTROLLER).on(Buff(Draw.CARD, "GIL_640e"))
+    events = Draw(CONTROLLER).on(Buff(SELF, "GIL_640e"))
 
 
 GIL_640e = buff(+1, +1)
@@ -49,7 +49,7 @@ class GIL_691:
     """Archmage Arugal"""
 
     # Whenever you draw a minion, add a copy of it to_your hand.
-    events = Draw(CONTROLLER, MINION).after(Give(CONTROLLER, ExactCopy(Draw.CARD)))
+    events = Draw(CONTROLLER, MINION).on(Give(CONTROLLER, ExactCopy(Draw.CARD)))
 
 
 class GIL_838:

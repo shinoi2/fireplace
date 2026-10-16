@@ -76,7 +76,7 @@ class BAR_550:
     # [x]<b>Secret:</b> After your opponent plays three cards in a turn, summon
     # a 3/4 Steed with <b>Taunt</b>.
     secrets = Play(OPPONENT).after(
-        (Attr(OPPONENT, GameTag.NUM_CARDS_PLAYED_THIS_TURN) >= 3)
+        (Attr(OPPONENT, GameTag.NUM_CARDS_PLAYED_THIS_TURN) >= 2)
         & (Reveal(SELF), Summon(CONTROLLER, "BAR_550t"))
     )
 
@@ -156,7 +156,7 @@ class BAR_875:
 
     # [x]After your hero attacks, cast a <b>Secret</b> from your deck.
     events = Attack(FRIENDLY_HERO).after(
-        Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + SECRET))
+        Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + SECRET + IS_SUMMONABLE))
     )
 
 

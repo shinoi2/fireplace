@@ -119,11 +119,14 @@ class ONY_027:
     play = Buff(TARGET, "ONY_027e") * (Count(ENEMY_MINIONS) + 1)
 
 
+ONY_027e = buff(+1, +1)
+
+
 class AV_344:
     """Dun Baldar Bridge"""
 
     # [x]After you summon a minion, give it +2/+2. Lasts 3 turns.
-    events = Summon(CONTROLLER, MINION).after(Buff(Summon.TARGET, "AV_344e"))
+    events = Summon(CONTROLLER, MINION).after(Buff(Summon.CARD, "AV_344e"))
 
 
 AV_344e = buff(+2, +2)
@@ -149,7 +152,7 @@ class AV_206:
 
     # [x]<b>Battlecry:</b> Deal 2 damage to all enemies. Equip a 2/5 Immovable
     # Object.
-    play = Hit(ENEMY_MINIONS, 2), Summon(CONTROLLER, "AV_146")
+    play = Hit(ENEMY_CHARACTERS, 2), Summon(CONTROLLER, "AV_146")
 
 
 class AV_206p:
@@ -162,8 +165,11 @@ class AV_206p:
 AV_206pe = buff(+4, +4)
 
 
+def _immovable_object_predamage(source, *args):
+    target = args[Predamage.TARGET]
+    target.predamage = (target.predamage + 1) // 2
+
+
 class AV_146:
     update = Refresh(SELF, {GameTag.IMMUNE: True})
-    events = Predamage(FRIENDLY_HERO).on(
-        Predamage(FRIENDLY_HERO, (Predamage.AMOUNT + 1) // 2)
-    )
+    events = Predamage(FRIENDLY_HERO).on(_immovable_object_predamage)

@@ -27,7 +27,7 @@ class BT_702:
     play = Buff(TARGET, "BT_702e")
 
 
-BT_702e = buff(atk=3, immune=True)
+BT_702e = buff(atk=3, immune=True, tag_one_turn_effect=True)
 
 
 class BT_703:

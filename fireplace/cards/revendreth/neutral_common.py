@@ -162,11 +162,11 @@ class REV_015:
     # [x]<b>Rush</b> <b>Deathrattle:</b> Summon a 2/2 copy of another minion in
     # your deck.
     deathrattle = Summon(
-        CONTROLLER, Buff(Copy(RANDOM(FRIENDLY_DECK + MINION)), "REV_015e")
+        CONTROLLER, Buff(Copy(RANDOM(FRIENDLY_DECK + MINION)), "REV_015t")
     )
 
 
-class REV_015e:
+class REV_015t:
     atk = SET(2)
     max_health = SET(2)
 

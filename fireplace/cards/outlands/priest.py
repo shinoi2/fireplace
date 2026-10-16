@@ -103,6 +103,9 @@ class BT_253:
     play = Buff(TARGET, "BT_253e"), Summon(CONTROLLER, ExactCopy(TARGET))
 
 
+BT_253e = buff(+1, +2)
+
+
 class BT_257:
     """Apotheosis"""
 

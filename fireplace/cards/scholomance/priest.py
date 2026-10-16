@@ -26,19 +26,30 @@ class SCH_140:
 
     # Costs (1) less for each time your hero's Health changed during your
     # turns.
-    cost_mod = -Attr(CONTROLLER, enums.HERO_HEALTH_CHANGED_THIS_TURN)
+    cost_mod = -Attr(CONTROLLER, enums.HERO_HEALTH_CHANGED_ON_OWN_TURN)
 
 
 class SCH_159:
     """Mindrender Illucia"""
 
-    # <b>Battlecry:</b> Swap hands and decks with your opponent until your next
-    # turn.
-    play = SwapDecks(), SwapHands(), Buff(CONTROLLER, "SCH_159e")
+    # [x]<b>Battlecry:</b> Replace your hand with a copy of your opponent's
+    # until end of turn.
+    # (Patch 21.3: the decks are no longer swapped, the opponent keeps their
+    # hand.) At the end of the turn, the hand held then is removed and the
+    # original hand comes back.
+    play = (
+        StoringBuff(CONTROLLER, "SCH_159e", FRIENDLY_HAND),
+        Remove(FRIENDLY_HAND),
+        Give(CONTROLLER, Copy(ENEMY_HAND)),
+    )
 
 
 class SCH_159e:
-    events = OWN_TURN_BEGIN.on(SwapDecks(), SwapHands(), Destroy(SELF))
+    events = OWN_TURN_END.on(
+        Remove(FRIENDLY_HAND),
+        Give(CONTROLLER, STORE_CARD),
+        Destroy(SELF),
+    )
 
 
 class SCH_513:
@@ -61,6 +72,10 @@ class SCH_136:
     """Power Word: Feast"""
 
     # Give a minion +2/+2. Restore it to full Health at the end of this turn.
+    requirements = {
+        PlayReq.REQ_MINION_TARGET: 0,
+        PlayReq.REQ_TARGET_TO_PLAY: 0,
+    }
     play = MultiBuff(TARGET, ["SCH_136e", "SCH_136e2"])
 
 
@@ -80,7 +95,7 @@ class SCH_233:
 
 class SCH_233e:
     update = Refresh(FRIENDLY_HAND + DRAGON, buff="SCH_233e2")
-    events = Play(CONTROLLER, DRAGON).on(Destroy(SELF))
+    events = Play(CONTROLLER, DRAGON - CREATOR).on(Destroy(SELF))
 
 
 class SCH_233e2:

@@ -129,6 +129,7 @@ class Player(Entity, TargetableByAuras):
         self.armor_gained_this_game = 0
         self.healed_this_turn = 0
         self.hero_health_changed_this_turn = 0
+        self.hero_health_changed_on_own_turn = 0
         self.cthun = None
         self.invoke_counter = 0
         self.spells_played_this_game = 0
@@ -565,7 +566,7 @@ class Player(Entity, TargetableByAuras):
         """
 
         def key_func(card):
-            if card.tags.get(GameTag.QUEST):
+            if card.tags.get(GameTag.QUEST) or card.tags.get(GameTag.QUESTLINE):
                 return 1, self.game.random.random()
             if card.tags.get(GameTag.CANT_DRAW_DURING_MULLIGAN):
                 return -1, self.game.random.random()

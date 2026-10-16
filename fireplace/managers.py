@@ -171,6 +171,7 @@ class PlayerManager(Manager):
         enums.CANT_OVERLOAD: "cant_overload",
         enums.ELEMENTAL_PLAYED_LAST_TURN: "elemental_played_last_turn",
         enums.HERO_HEALTH_CHANGED_THIS_TURN: "hero_health_changed_this_turn",
+        enums.HERO_HEALTH_CHANGED_ON_OWN_TURN: "hero_health_changed_on_own_turn",
         enums.RELIC_LEVEL: "relic_level",
     }
 
@@ -248,6 +249,7 @@ CARD_ATTRIBUTE_MAP = {
     GameTag.IMMUNE_WHILE_ATTACKING: "immune_while_attacking",
     GameTag.IMMOLATESTAGE: "immolatestage",
     GameTag.INSPIRE: "has_inspire",
+    GameTag.INFUSE: "has_infuse",
     GameTag.MAGNETIC: "has_magnetic",
     GameTag.MARK_OF_EVIL: "mark_of_evil",
     GameTag.MEGA_WINDFURY: "mega_windfury",

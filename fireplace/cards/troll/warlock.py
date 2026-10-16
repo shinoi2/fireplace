@@ -18,7 +18,7 @@ class TRL_251:
     # +1/+1.
     events = (
         OWN_TURN_BEGIN.on(Unstealth(SELF)),
-        Death(FRIENDLY_MINIONS).on(Buff(RANDOM(FRIENDLY_HAND + MINION), "TRL_251e")),
+        Death(FRIENDLY + MINION).on(Buff(RANDOM(FRIENDLY_HAND + MINION), "TRL_251e")),
     )
 
 
@@ -44,7 +44,7 @@ class TRL_257:
     """Blood Troll Sapper"""
 
     # After a friendly minion dies, deal 2 damage to the enemy hero.
-    events = Death(FRIENDLY_MINIONS).on(Hit(FRIENDLY_HERO, 2))
+    events = Death(FRIENDLY + MINION).on(Hit(FRIENDLY_HERO, 2))
 
 
 class TRL_551:
@@ -70,8 +70,8 @@ class TRL_246:
 
     # Destroy half of each player's deck.
     play = (
-        Destroy(RANDOM(FRIENDLY_DECK)) * (Count(FRIENDLY_DECK) // 2),
-        Destroy(RANDOM(ENEMY_DECK)) * (Count(ENEMY_DECK) // 2),
+        Destroy(RANDOM(FRIENDLY_DECK)) * ((Count(FRIENDLY_DECK) + 1) // 2),
+        Destroy(RANDOM(ENEMY_DECK)) * ((Count(ENEMY_DECK) + 1) // 2),
     )
 
 

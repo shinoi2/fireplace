@@ -41,8 +41,8 @@ class BAR_081:
     # <b>Battlecry:</b> <b>Discover</b> a card in your opponent's deck. They
     # draw theirs as well.
     play = Choice(CONTROLLER, RANDOM(DeDuplicate(ENEMY_DECK)) * 3).then(
-        ForceDraw(OPPONENT, Choice.CARD),
         Give(CONTROLLER, Copy(Choice.CARD)),
+        ForceDraw(Choice.CARD),
     )
 
 

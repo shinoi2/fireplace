@@ -33,7 +33,7 @@ class BT_159:
     """Terrorguard Escapee"""
 
     # <b>Battlecry:</b> Summon three 1/1 Huntresses for your_opponent.
-    play = Summon(OPPONENT, "BT_159t")
+    play = Summon(OPPONENT, "BT_159t") * 3
 
 
 class BT_160:
@@ -77,7 +77,7 @@ class BT_716:
     events = SELF_DAMAGE.on(Buff(SELF, "BT_716e"))
 
 
-BT_715e = buff(atk=2)
+BT_716e = buff(atk=2)
 
 
 class BT_717:

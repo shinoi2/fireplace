@@ -27,14 +27,14 @@ class AV_313:
     play = Hit(ENEMY_MINIONS, 1)
 
     def honorable_kill(self, target):
-        yield Buff(SELF, "AV_313e", atk=ATK(target))
+        yield Buff(SELF, "AV_313e", atk=target.atk)
 
 
 class AV_308:
     """Grave Defiler"""
 
     # <b>Battlecry:</b> Copy a Fel spell in your hand.
-    play = Give(CONTROLLER, RANDOM(FRIENDLY_HAND + FEL))
+    play = Give(CONTROLLER, Copy(RANDOM(FRIENDLY_HAND + FEL)))
 
 
 class AV_286:

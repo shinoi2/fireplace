@@ -41,7 +41,7 @@ GiveReborn = lambda target: SetTag(target, GameTag.REBORN)
 GiveTemporary = lambda target: SetTag(target, enums.TEMPORARY)
 
 
-CLEAVE = Hit(TARGET_ADJACENT, ATK(SELF))
+CLEAVE = Hit(ADJACENT(Attack.DEFENDER), ATK(SELF))
 COINFLIP = RandomNumber(0, 1) == 1
 EMPTY_BOARD = Count(FRIENDLY + ALL_FIELDS) == 0
 EMPTY_HAND = Count(FRIENDLY_HAND) == 0
@@ -55,7 +55,7 @@ TIMES_SECRETS_PLAYED_THIS_GAME = Count(CARDS_PLAYED_THIS_GAME + SECRET)
 DISCOVER = lambda *args: Discover(CONTROLLER, *args).then(
     Give(CONTROLLER, Discover.CARD)
 )
-FORCE_DRAW = lambda args: ForceDraw(CONTROLLER, RANDOM(FRIENDLY_DECK + args))
+FORCE_DRAW = lambda args: ForceDraw(RANDOM(FRIENDLY_DECK + args))
 
 BASIC_HERO_POWERS = [
     "HERO_01bp",
@@ -71,15 +71,15 @@ BASIC_HERO_POWERS = [
 ]
 
 UPGRADED_HERO_POWERS = [
-    "HERO_01bp",
-    "HERO_02bp",
-    "HERO_03bp",
-    "HERO_04bp",
-    "HERO_05bp",
-    "HERO_06bp",
-    "HERO_07bp",
-    "HERO_08bp",
-    "HERO_09bp",
+    "HERO_01bp2",
+    "HERO_02bp2",
+    "HERO_03bp2",
+    "HERO_04bp2",
+    "HERO_05bp2",
+    "HERO_06bp2",
+    "HERO_07bp2",
+    "HERO_08bp2",
+    "HERO_09bp2",
     "HERO_10bp2",
 ]
 
@@ -569,9 +569,10 @@ class ThresholdUtils(type):
             return splited[0] + splited[1]
 
         def cardtext_entity_0(self):
-            return self.player_tag_threshold_value - getattr(
-                self.controller, self.map[self.player_tag_threshold_tag_id], 0
+            left = player_tag_threshold_value - (
+                Attr(CONTROLLER, player_tag_threshold_tag_id).evaluate(self)
             )
+            return max(left, 0)
 
         tags = {
             enums.CUSTOM_CARDTEXT: custom_cardtext,

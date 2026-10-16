@@ -8,7 +8,7 @@ class SCH_157:
     """Enchanted Cauldron"""
 
     # <b><b>Spellburst</b>:</b> Cast a random spell of the same Cost.
-
+    tags = {GameTag.SPELLBURST: True}
     spellburst = CastSpell(RandomSpell(cost=COST(Spellburst.SPELL)))
 
 

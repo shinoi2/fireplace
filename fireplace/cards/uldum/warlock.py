@@ -21,7 +21,7 @@ class ULD_162:
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_FRIENDLY_LACKEY: 0,
     }
-    play = Destroy(TARGET), Summon(CONTROLLER, "ULD_162t")
+    play = Destroy(TARGET), Deaths(), Summon(CONTROLLER, "ULD_162t")
 
 
 class ULD_163:

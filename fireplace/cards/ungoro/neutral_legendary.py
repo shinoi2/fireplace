@@ -39,6 +39,7 @@ class UNG_900:
 class UNG_907:
     """Ozruk"""
 
+    powered_up = ELEMENTAL_PLAYED_LAST_TURN
     play = Buff(SELF, "UNG_907e") * Attr(CONTROLLER, enums.ELEMENTAL_PLAYED_LAST_TURN)
 
 

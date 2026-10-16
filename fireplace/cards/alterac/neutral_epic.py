@@ -30,7 +30,13 @@ class AV_128:
     """Frozen Mammoth"""
 
     # This is <b>Frozen</b> until you cast a Fire spell.
-    update = Find(APPLIED_BUFFS + ID("AV_128e")) | Refresh(SELF, {GameTag.FROZEN: True})
+    update = (
+        -Find(
+            FuncSelector(
+                lambda entities, source: [b for b in source.buffs if b.id == "AV_128e"]
+            )
+        )
+    ) & Refresh(SELF, {GameTag.FROZEN: True})
     events = Play(CONTROLLER, FIRE).after(Buff(SELF, "AV_128e"))
 
 
@@ -40,6 +46,8 @@ class AV_138:
     # <b>Battlecry:</b> Destroy an enemy <b>Legendary</b> minion.
     requirements = {
         PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
+        PlayReq.REQ_ENEMY_TARGET: 0,
+        PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_LEGENDARY_TARGET: 0,
     }
     play = Destroy(TARGET)
@@ -49,7 +57,7 @@ class AV_139:
     """Abominable Lieutenant"""
 
     # At the end of your turn, eat a random enemy minion and gain its stats.
-    events = OWN_TURN_END.after(
+    events = OWN_TURN_END.on(
         Destroy(RANDOM_ENEMY_MINION).then(
             Buff(
                 SELF,

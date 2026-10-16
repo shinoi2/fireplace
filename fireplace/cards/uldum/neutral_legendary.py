@@ -23,8 +23,8 @@ class ULD_178:
                 CONTROLLER,
                 list(
                     filter(
-                        lambda x: x != args[Discover.CARD.index],
-                        args[Discover.CARDS.index],
+                        lambda x: x != args[Discover.CARD],
+                        args[Discover.CARDS],
                     )
                 ),
             ).then(

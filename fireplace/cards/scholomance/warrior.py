@@ -20,7 +20,7 @@ class SCH_337:
     # At the end of your turn, summon two 3/3 Ruffians that attack random
     # enemies.
     events = OWN_TURN_END.on(
-        Summon(CONTROLLER, "SCH_337t").then(
+        SummonBothSides(CONTROLLER, "SCH_337t").then(
             Attack(Summon.CARD, RANDOM(ENEMY_CHARACTERS))
         )
         * 2
@@ -31,10 +31,8 @@ class SCH_621:
     """Rattlegore"""
 
     # <b>Deathrattle:</b> Resummon this with -1/-1.
-    deathrattle = Summon(CONTROLLER, ExactCopy(SELF)).then(
-        SummonCustomMinion(
-            CONTROLLER, "SCH_621", 9, ATK(SELF) - 1, MAX_HEALTH(SELF) - 1
-        )
+    deathrattle = SummonCustomMinion(
+        CONTROLLER, "SCH_621", 9, ATK(SELF) - 1, MAX_HEALTH(SELF) - 1
     )
 
 
@@ -51,7 +49,7 @@ class SCH_237:
 
 class SCH_237e:
     update = Refresh(FRIENDLY_HAND + RUSH + MINION, buff="SCH_237e2")
-    events = Play(CONTROLLER, RUSH + MINION).after(Destroy(SELF))
+    events = Play(CONTROLLER, RUSH + MINION - CREATOR).after(Destroy(SELF))
 
 
 class SCH_237e2:

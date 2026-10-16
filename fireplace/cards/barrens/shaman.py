@@ -18,7 +18,7 @@ class BAR_043:
     """Tinyfin's Caravan"""
 
     # At the start of your turn, draw a Murloc.
-    events = OWN_TURN_BEGIN.on(ForceDraw(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION)))
+    events = OWN_TURN_BEGIN.on(FORCE_DRAW(MINION))
 
 
 class BAR_045:
@@ -68,9 +68,8 @@ class WC_005:
 
     # [x]<b>Battlecry:</b> Draw a spell. If it's a Nature spell, also draw an
     # Elemental.
-    play = ForceDraw(CONTROLLER, RANDOM(FRIENDLY_DECK + SPELL)).then(
-        Find(ForceDraw.TARGET + NATURE)
-        & (ForceDraw(CONTROLLER, RANDOM(FRIENDLY_DECK + ELEMENTAL)))
+    play = FORCE_DRAW(SPELL).then(
+        Find(ForceDraw.TARGET + NATURE) & (FORCE_DRAW(ELEMENTAL))
     )
 
 

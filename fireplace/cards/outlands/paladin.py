@@ -10,7 +10,7 @@ class BT_009:
     # <b>Dormant</b> for 2 turns. When this awakens, summon two 1/1 Murlocs.
     tags = {GameTag.DORMANT: True}
     dormant_turns = 2
-    awaken = Summon(CONTROLLER, "BT_009t") * 2
+    awaken = SummonBothSides(CONTROLLER, "BT_009t") * 2
 
 
 class BT_019:
@@ -106,12 +106,12 @@ class BT_025e:
 class BT_292:
     """Hand of A'dal"""
 
-    # Give a minion +2/+2. Draw a card.
+    # Give a minion +2/+1. Draw a card.
     requirements = {PlayReq.REQ_MINION_TARGET: 0, PlayReq.REQ_TARGET_TO_PLAY: 0}
     play = Buff(TARGET, "BT_292e"), Draw(CONTROLLER)
 
 
-BT_292e = buff(+2, +2)
+BT_292e = buff(+2, 12)
 
 
 ##

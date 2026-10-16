@@ -18,7 +18,10 @@ class AV_255:
 
     # <b>Battlecry:</b> <b>Freeze</b> all other minions. Gain +1/+1 for each
     # <b>Frozen</b> minion.
-    play = Freeze(ALL_MINIONS - SELF).then(Buff(ALL_MINIONS + FROZEN, "AV_255e"))
+    play = (
+        Freeze(ALL_MINIONS - SELF),
+        Buff(SELF, "AV_255e") * Count(ALL_MINIONS - SELF + FROZEN),
+    )
 
 
 AV_255e = buff(+1, +1)
@@ -59,16 +62,18 @@ class AV_250:
 
     # Deal $1 damage to a minion and <b>Freeze</b> it. If it survives, repeat
     # this on another minion!
-    requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0}
+    requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0, PlayReq.REQ_MINION_TARGET: 0}
 
     def play(self):
-        play_targets = self.play_targets
-        yield Hit(TARGET, 1), Freeze(TARGET)
-        play_targets.remove(self.target)
-        while not self.target.dead and play_targets:
-            self.target = self.game.random.choice(play_targets)
-            yield Hit(TARGET, 1), Freeze(TARGET)
-            play_targets.remove(self.target)
+        target = self.target
+        others = [m for m in ALL_MINIONS.eval(self.game, self) if m is not target]
+        while target is not None:
+            yield Hit(target, 1)
+            yield Freeze(target)
+            if target.dead or not others:
+                break
+            target = self.game.random.choice(others)
+            others.remove(target)
 
 
 class AV_259:
@@ -90,7 +95,7 @@ class AV_266:
     """Windchill"""
 
     # <b>Freeze</b> a minion. Draw a card.
-    requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0}
+    requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0, PlayReq.REQ_MINION_TARGET: 0}
     play = Freeze(TARGET), Draw(CONTROLLER)
 
 
@@ -160,8 +165,8 @@ class AV_258:
                     CONTROLLER,
                     list(
                         filter(
-                            lambda x: x != args[Discover.CARD.index],
-                            args[Discover.CARDS.index],
+                            lambda x: x != args[Discover.CARD],
+                            args[Discover.CARDS],
                         )
                     ),
                 ).then(

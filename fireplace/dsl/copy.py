@@ -1,6 +1,7 @@
 from hearthstone.enums import CardType, GameTag
 
 from ..logging import log
+from ..dsl.selector import Selector
 from .lazynum import LazyValue
 
 
@@ -31,8 +32,10 @@ class Copy(LazyValue):
         if isinstance(self.selector, LazyValue):
             entity = self.selector.evaluate(source)
             entities = [entity] if entity else []
-        else:
+        elif isinstance(self.selector, Selector):
             entities = self.selector.eval(source.game, source)
+        else:
+            entities = [self.selector]
 
         return [self.copy(source, e) for e in entities]
 

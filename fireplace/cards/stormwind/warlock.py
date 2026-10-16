@@ -33,7 +33,8 @@ class SW_092:
     """Anetheron"""
 
     # [x]Costs (1) if your hand is full.
-    update = FULL_HAND & Refresh(SELF, {GameTag.COST: SET(1)})
+    class Hand:
+        update = FULL_HAND & Refresh(SELF, {GameTag.COST: SET(1)})
 
 
 class DED_503:
@@ -120,12 +121,12 @@ class SW_088:
 class SW_090:
     """Touch of the Nathrezim"""
 
-    # [x]Deal $2 damage to a minion. If it dies, restore 4 Health to your hero.
+    # [x]Deal $2 damage to a minion. If it dies, restore 3 Health to your hero.
     requirements = {
         PlayReq.REQ_TARGET_TO_PLAY: 0,
         PlayReq.REQ_MINION_TARGET: 0,
     }
-    play = Hit(TARGET, 2), Dead(TARGET) & Heal(FRIENDLY_HERO, 4)
+    play = Hit(TARGET, 2), Dead(TARGET) & Heal(FRIENDLY_HERO, 3)
 
 
 class SW_091:
@@ -147,7 +148,7 @@ class SW_091t:
     quest = Damage(FRIENDLY_HERO).after(
         CurrentPlayer(OWNER) & AddProgress(SELF, SELF, Damage.AMOUNT)
     )
-    reward = Hit(ENEMY_HERO, 3), Summon(CONTROLLER, "SW_091t")
+    reward = Hit(ENEMY_HERO, 3), Summon(CONTROLLER, "SW_091t3")
 
 
 class SW_091t3(QuestRewardProtect):
@@ -172,7 +173,7 @@ class SW_091t4:
 class SW_091t5:
     events = Predamage(FRIENDLY_HERO).on(
         CurrentPlayer(OWNER)
-        & (Predamage(FRIENDLY_HERO, 0), Hit(ENEMY_HERO, Predamage.AMOUNT))
+        & (Hit(ENEMY_HERO, Predamage.AMOUNT), Predamage(FRIENDLY_HERO, 0))
     )
 
 
@@ -182,7 +183,7 @@ class DED_504:
     # [x]<b>Tradeable</b> Summon @ 1/1 |4(Imp, Imps). <i>(Upgrades by 2 when
     # <b>Traded</b>!)</i>
     trade = AddProgress(SELF, SELF, 2)
-    play = Summon(CONTROLLER, "GIL_191t") * (CURRENT_PROGRESS(SELF) + 2)
+    play = Summon(CONTROLLER, "GIL_191t") * (CURRENT_PROGRESS(SELF) + 1)
 
 
 ##
@@ -195,7 +196,7 @@ class SW_003:
     # [x]After you draw 4 cards, reduce the Cost of cards in your hand by (1).
     # Lose 1 Durability.
     progress_total = 4
-    events = Draw(CONTROLLER).after(AddProgress(SELF))
+    events = Draw(CONTROLLER).on(AddProgress(SELF))
     reward = Buff(FRIENDLY_HAND, "SW_003e"), Hit(SELF, 1)
 
 

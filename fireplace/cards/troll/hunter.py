@@ -69,9 +69,9 @@ class TRL_339:
             self.game, self
         )
         if all(Race.BEAST in entity.races for entity in entities):
-            yield Give(CONTROLLER, entities)
+            yield ForceDraw(entities)
         else:
-            yield GenericChoice(CONTROLLER, entities)
+            yield Choice(CONTROLLER, entities).then(ForceDraw(Choice.CARD))
 
 
 class TRL_347:
@@ -119,7 +119,7 @@ class TRL_065:
 
     # [x]<b>Battlecry:</b> Cast all spells you've played this game <i>(targets chosen
     # randomly)</i>.
-    play = CastSpell(Copy(CARDS_PLAYED_THIS_GAME + SPELL))
+    play = CastSpell(Copy(CARDS_PLAYED_THIS_GAME + SPELL + IS_SUMMONABLE))
 
 
 class TRL_065h:

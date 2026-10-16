@@ -8,7 +8,7 @@ class SW_419:
     """Oracle of Elune"""
 
     # [x]After you play a minion that costs (2) or less, summon a copy of it.
-    events = Play(FRIENDLY_MINIONS + (COST <= 2)).after(
+    events = Play(CONTROLLER, MINION + (COST <= 2)).after(
         Summon(CONTROLLER, ExactCopy(Play.CARD))
     )
 
@@ -58,11 +58,11 @@ class SW_447:
 
 class SW_447e:
     progress_total = 3
-    events = Draw(CONTROLLER).on(
-        (CURRENT_PROGRESS(SELF) < 3) & Buff(Draw.CARD, "SW_447e2"),
+    events = Draw(CONTROLLER, SPELL).on(
+        Buff(Draw.CARD, "SW_447e2"),
         AddProgress(SELF, Draw.CARD),
+        (CURRENT_PROGRESS(SELF) >= 3) & Destroy(SELF),
     )
-    reward = Destroy(SELF)
 
 
 SW_447e2 = buff(casts_when_drawn=True)
@@ -142,7 +142,7 @@ class SW_428t:
     reward = (
         GainArmor(FRIENDLY_HERO, 5),
         Draw(CONTROLLER),
-        Summon(CONTROLLER, "SW_428t"),
+        Summon(CONTROLLER, "SW_428t2"),
     )
 
 
@@ -181,7 +181,8 @@ class SW_432:
 
     # Give a minion +4/+2 and <b>Rush</b>. When it dies, summon a Kodo.
     requirements = {
-        PlayReq.REQ_MINION_TARGET: 1,
+        PlayReq.REQ_TARGET_TO_PLAY: 0,
+        PlayReq.REQ_MINION_TARGET: 0,
     }
     play = Buff(TARGET, "SW_432e")
 
@@ -213,13 +214,13 @@ class DED_002:
 
     # [x]<b>Discover</b> a copy of a card in your deck. If you play it this
     # turn, draw the original.
-    play = Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK))).then(
+    play = Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK), 3)).then(
         Give(CONTROLLER, StoringBuff(Copy(Choice.CARD), "DED_002e", Choice.CARD))
     )
 
 
 class DED_002e:
-    events = Play(OWNER).on(
+    events = Play(CONTROLLER, OWNER).on(
         Find(FRIENDLY_DECK + STORE_CARD) & ForceDraw(STORE_CARD),
         Destroy(SELF),
     )

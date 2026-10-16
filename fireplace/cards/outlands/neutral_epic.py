@@ -17,7 +17,7 @@ class BT_729:
     # [x]<b>Battlecry:</b> Deal 3 damage to a minion and all others of the same
     # minion type.
     requirements = {
-        PlayReq.REQ_TARGET_TO_PLAY: 0,
+        PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
         PlayReq.REQ_MINION_TARGET: 0,
     }
     play = Hit(TARGET, 3), Hit(ALL_MINIONS + SAME_RACE_TARGET - TARGET, 3)

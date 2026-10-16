@@ -27,7 +27,7 @@ class GIL_620:
     """Dollmaster Dorian"""
 
     # Whenever you draw a minion, summon a 1/1 copy of it.
-    events = Draw(CONTROLLER, MINION).after(
+    events = Draw(CONTROLLER, MINION).on(
         Summon(CONTROLLER, Buff(Copy(Draw.CARD), "GIL_620e"))
     )
 

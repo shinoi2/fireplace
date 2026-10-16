@@ -19,6 +19,7 @@ UNG_999t14e = buff(+1, +1)
 class UNG_999t2e:
     """Living Spores"""
 
+    tags = {GameTag.DEATHRATTLE: True}
     deathrattle = Summon(CONTROLLER, "UNG_999t2t1") * 2
 
 

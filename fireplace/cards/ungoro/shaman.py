@@ -23,13 +23,15 @@ class UNG_208:
         PlayReq.REQ_FRIENDLY_TARGET: 0,
         PlayReq.REQ_TARGET_WITH_DEATHRATTLE: 0,
     }
-    play = ELEMENTAL_PLAYED_LAST_TURN & (SummonBothSides(CONTROLLER, "UNG_208t") * 2)
+    powered_up = ELEMENTAL_PLAYED_LAST_TURN
+    play = powered_up & (SummonBothSides(CONTROLLER, "UNG_208t") * 2)
 
 
 class UNG_211:
     """Kalimos, Primal Lord"""
 
-    play = ELEMENTAL_PLAYED_LAST_TURN & Choice(
+    powered_up = ELEMENTAL_PLAYED_LAST_TURN
+    play = powered_up & Choice(
         CONTROLLER, ["UNG_211a", "UNG_211b", "UNG_211c", "UNG_211d"]
     ).then(Battlecry(Choice.CARD, None))
 
@@ -76,7 +78,7 @@ class UNG_817:
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_TARGET_TO_PLAY: 0,
     }
-    play = Hit(TARGET, 4), Heal(FRIENDLY_HERO, 4)
+    play = Hit(TARGET, 4)
 
 
 class UNG_942(QuestRewardProtect):

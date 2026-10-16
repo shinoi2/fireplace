@@ -52,15 +52,21 @@ class SCH_305:
     play = (
         StoringBuff(CONTROLLER, "SCH_305e", FRIENDLY_HAND),
         Remove(FRIENDLY_HAND),
-        Give(CONTROLLER, RANDOM(FRIENDLY_DECK, 4)),
+        Give(CONTROLLER, RANDOM(FRIENDLY_DECK, 4)).then(Buff(Give.CARD, "SCH_305e2")),
     )
 
 
 class SCH_305e:
-    events = OWN_TURN_BEGIN.on(
-        Shuffle(CONTROLLER, FRIENDLY_HAND),
+    events = OWN_TURN_END.on(
         Give(CONTROLLER, STORE_CARD),
         Destroy(SELF),
+    )
+
+
+class SCH_305e2:
+    events = (
+        REMOVED_IN_PLAY,
+        OWN_TURN_END.on(Shuffle(OWNER), Destroy(SELF)),
     )
 
 
@@ -83,7 +89,7 @@ class SCH_522:
     # [x]<b>Battlecry:</b> Summon a random minion with Cost equal to your
     # weapon's Attack.
     play = Find(FRIENDLY_WEAPON + MINION) & Summon(
-        CONTROLLER, RandomMinion(cost=COST(FRIENDLY_WEAPON))
+        CONTROLLER, RandomMinion(cost=ATK(FRIENDLY_WEAPON))
     )
 
 

@@ -13,7 +13,8 @@ class UNG_001:
 class UNG_009:
     """Ravasaur Runt"""
 
-    play = (Count(FRIENDLY_MINIONS - SELF) >= 2) & Adapt(SELF)
+    powered_up = Count(FRIENDLY_MINIONS - SELF) >= 2
+    play = powered_up & Adapt(SELF)
 
 
 class UNG_010:
@@ -46,7 +47,8 @@ class UNG_076:
 class UNG_082:
     """Thunder Lizard"""
 
-    play = ELEMENTAL_PLAYED_LAST_TURN & Adapt(SELF)
+    powered_up = ELEMENTAL_PLAYED_LAST_TURN
+    play = powered_up & Adapt(SELF)
 
 
 class UNG_084:
@@ -66,7 +68,8 @@ class UNG_205:
 class UNG_801:
     """Nesting Roc"""
 
-    play = (Count(FRIENDLY_MINIONS - SELF) >= 2) & Taunt(SELF)
+    powered_up = Count(FRIENDLY_MINIONS - SELF) >= 2
+    play = powered_up & Taunt(SELF)
 
 
 class UNG_803:
@@ -102,4 +105,5 @@ class UNG_928:
 class UNG_937:
     """Primalfin Lookout"""
 
-    play = Find(FRIENDLY_MINIONS + MURLOC - SELF) & DISCOVER(RandomMurloc())
+    powered_up = Find(FRIENDLY_MINIONS + MURLOC - SELF)
+    play = powered_up & DISCOVER(RandomMurloc())

@@ -15,7 +15,7 @@ class SCH_230:
     """Onyx Magescribe"""
 
     # <b>Spellburst:</b> Add 2 random spells from your class to_your hand.
-    play = Give(CONTROLLER, RandomSpell(card_class=FRIENDLY_CLASS)) * 2
+    spellburst = Give(CONTROLLER, RandomSpell(card_class=FRIENDLY_CLASS)) * 2
 
 
 class SCH_231:
@@ -51,6 +51,10 @@ class SCH_248:
 
     # <b>Battlecry:</b> Deal 1 damage. <b>Spellburst:</b> Return this to_your
     # hand.
+    requirements = {
+        PlayReq.REQ_MINION_TARGET: 0,
+        PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
+    }
     play = Hit(SELF, 1)
     spellburst = Bounce(SELF)
 

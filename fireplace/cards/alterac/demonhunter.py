@@ -8,7 +8,7 @@ class AV_261:
     """Flag Runner"""
 
     # Whenever a friendly minion dies, gain +1 Attack.
-    events = Death(FRIENDLY_MINIONS).on(Buff(SELF, "AV_261e"))
+    events = Death(FRIENDLY + MINION).on(Buff(SELF, "AV_261e"))
 
 
 AV_261e = buff(atk=1)
@@ -170,7 +170,7 @@ class AV_204p:
     # <b>Hero Power</b> +2 Attack this turn. After a friendly minion attacks,
     # refresh this.
     activate = Buff(FRIENDLY_HERO, "AV_204e")
-    events = Death(FRIENDLY_MINIONS).on(RefreshHeroPower(SELF))
+    events = Death(FRIENDLY + MINION).on(RefreshHeroPower(SELF))
 
 
 AV_204e = buff(atk=2)

@@ -41,7 +41,8 @@ class AV_336:
 class AV_336e:
     tags = {GameTag.RUSH: True}
     events = Attack(OWNER, ALL_MINIONS).after(
-        Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + BEAST)).then(
+        Dead(Attack.DEFENDER)
+        & Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + BEAST)).then(
             Buff(Summon.CARD, "AV_336e")
         )
     )
@@ -71,6 +72,8 @@ class AV_224:
 
     # Deal $3 damage to a minion and cast a <b>Secret</b> from your deck.
     # <b>Honorable Kill:</b> Cast 2.
+    # The data lists HONORABLEKILL as a referenced tag only: the card has it.
+    tags = {GameTag.HONORABLE_KILL: True}
     requirements = {
         PlayReq.REQ_TARGET_TO_PLAY: 0,
         PlayReq.REQ_MINION_TARGET: 0,
@@ -102,7 +105,7 @@ class AV_333:
     # <b>Discover</b> a friendly Beast that died this game. Summon it.
     play = GenericChoice(
         CONTROLLER, Copy(RANDOM(DeDuplicate(FRIENDLY + KILLED + MINION + BEAST)) * 3)
-    ).then(Summon(GenericChoice.CARD))
+    ).then(Summon(CONTROLLER, GenericChoice.CARD))
 
 
 class ONY_008:
@@ -168,7 +171,7 @@ class AV_113:
     # [x]<b>Battlecry:</b> <b>Discover</b> and cast 2 Improved <b>Secrets</b>.
     entourage = ["AV_113t1", "AV_113t2", "AV_113t3", "AV_113t7", "AV_113t8", "AV_113t9"]
     play = GenericChoice(CONTROLLER, RandomEntourage() * 3).then(
-        Summon(GenericChoice.CARD)
+        Summon(CONTROLLER, GenericChoice.CARD)
     )
 
 

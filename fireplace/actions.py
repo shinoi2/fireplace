@@ -100,13 +100,16 @@ class ActionArg(LazyValue):
     def __repr__(self):
         return "<%s.%s>" % (self.owner.__name__, self.name)
 
+    def __index__(self):
+        return self.index
+
     def evaluate(self, source):
         # This is used when an event listener triggers and the callback
         # Action has arguments of the type Action.FOO
         # XXX we rely on source.event_args to be set, but it's very racey.
         # If multiple events happen on an entity at once, stuff will go wrong.
         assert source.event_args
-        return source.event_args[self.index]
+        return source.event_args[self]
 
 
 class CardArg(ActionArg):
@@ -267,6 +270,8 @@ class Attack(GameAction):
         log.info("%r attacks %r", attacker, defender)
         if not attacker or not defender:
             return
+        if defender.dead or defender.zone != Zone.PLAY:
+            return
         attacker.attack_target = defender
         defender.defending = True
         source.game.proposed_attacker = attacker
@@ -399,6 +404,8 @@ class Death(GameAction):
         for card in cards:
             if not card.dead:
                 continue
+            if card.destroyed_source is None:
+                card.destroyed_source = card.damaged_source
             if card.zone == Zone.PLAY:
                 card._dead_position = card.zone_position - 1
             card.zone = Zone.GRAVEYARD
@@ -1055,6 +1062,7 @@ class Damage(TargetedAction):
             amount = target.predamage
         amount = target._hit(amount)
         target.predamage = 0
+        target.damaged_source = source
         if (
             source.type == CardType.MINION or source.type == CardType.HERO
         ) and source.stealthed:
@@ -1116,6 +1124,8 @@ class Damage(TargetedAction):
                 target.damaged_on_opponent_turn += amount
             if target.type == CardType.HERO:
                 target.controller.hero_health_changed_this_turn += 1
+                if target.game.current_player == target.controller:
+                    target.controller.hero_health_changed_on_own_turn += 1
             if source.type == CardType.HERO_POWER:
                 source.controller.hero_power_damage_this_game += amount
             self.broadcast(source, EventListener.AFTER, target, amount, source)
@@ -1272,6 +1282,7 @@ class Destroy(TargetedAction):
             #  If the card is in PLAY, it is instead scheduled to be destroyed
             # It will be moved to the graveyard on the next Death event
             log.info("%r marks %r for imminent death", source, target)
+            target.destroyed_source = source
             target.to_be_destroyed = True
             source.game.manager.targeted_action(self, source, target)
         else:
@@ -1319,7 +1330,7 @@ class Discover(Choice):
             # use card class for neutral hero classes
             discover_class = source.data.card_class
         else:
-            # use random class for neutral hero classes with neutral cards
+            # use starting hero class for neutral hero classes
             discover_class = target.starting_hero.data.card_class
         if "card_class" in self._args[1].filters:
             picker = self._args[1] * 3
@@ -1453,6 +1464,17 @@ class GainArmor(TargetedAction):
         target.controller.armor_gained_this_game += amount
         source.game.manager.targeted_action(self, source, target, amount)
         self.broadcast(source, EventListener.ON, target, amount)
+
+
+class LoseArmor(TargetedAction):
+    """Lose up to \\a amount Armor (never below 0, and not an Armor gained)."""
+
+    TARGET = ActionArg()
+    AMOUNT = IntArg()
+
+    def do(self, source, target, amount):
+        target.armor = max(0, target.armor - amount)
+        source.game.manager.targeted_action(self, source, target, amount)
 
 
 class GainMana(TargetedAction):
@@ -1610,7 +1632,9 @@ class Heal(TargetedAction):
             target.healed_this_turn += amount
             source.controller.healed_this_game += amount
             if target.type == CardType.HERO:
-                source.controller.hero_health_changed_this_turn += 1
+                target.controller.hero_health_changed_this_turn += 1
+                if target.game.current_player == target.controller:
+                    target.controller.hero_health_changed_on_own_turn += 1
 
 
 class ManaThisTurn(TargetedAction):

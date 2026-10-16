@@ -18,7 +18,12 @@ class TRL_315:
 
     # Whenever your Hero Power_kills a minion, draw a card.
     events = Activate(FRIENDLY_HERO_POWER).after(
-        Dead(Activate.TARGET) & Draw(CONTROLLER)
+        lambda source, *args: (
+            Draw(CONTROLLER)
+            if args[Activate.TARGET].dead
+            and args[Activate.TARGET].destroy_source is source
+            else None
+        )
     )
 
 
@@ -95,7 +100,10 @@ class TRL_313:
         PlayReq.REQ_TARGET_TO_PLAY: 0,
         PlayReq.REQ_MINION_TARGET: 0,
     }
-    cost_mod = ELEMENTAL_PLAYED_LAST_TURN & -1
+
+    class Hand:
+        update = ELEMENTAL_PLAYED_LAST_TURN & Refresh(SELF, {GameTag.COST: SET(1)})
+
     play = Hit(TARGET, 4)
 
 

@@ -36,6 +36,7 @@ class TRL_312:
     """Spellzerker"""
 
     # Has <b>Spell Damage +2</b> while damaged.
+    tags = {GameTag.ENRAGED: True}
     enrage = Refresh(SELF, buff="TRL_312e")
 
 

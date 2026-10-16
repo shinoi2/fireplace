@@ -870,6 +870,8 @@ class LiveEntity(PlayableCard, Entity):
     def __init__(self, data):
         super().__init__(data)
         self._to_be_destroyed = False
+        self.destroyed_source = None
+        self.damaged_source = None
         self.damage = 0
         self.forgetful = False
         self.predamage = 0
@@ -1148,9 +1150,9 @@ class Hero(Character):
         yield self
         if self.zone == Zone.PLAY:
             if self.controller.hero_power:
-                yield self.controller.hero_power
+                yield from self.controller.hero_power.entities
             if self.controller.weapon:
-                yield self.controller.weapon
+                yield from self.controller.weapon.entities
         yield from self.buffs
 
     @property
@@ -1232,6 +1234,7 @@ class Hero(Character):
 class Minion(Character):
     charge = boolean_property("charge")
     has_inspire = boolean_property("has_inspire")
+    has_infuse = boolean_property("has_infuse")
     spellpower = int_property("spellpower")
     spellpower_arcane = int_property("spellpower_arcane")
     spellpower_fire = int_property("spellpower_fire")

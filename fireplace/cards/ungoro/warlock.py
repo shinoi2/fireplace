@@ -30,7 +30,7 @@ class UNG_830:
 class UNG_833:
     """Lakkari Felhound"""
 
-    play = Discard(RANDOM(FRIENDLY_HAND) * 2)
+    play = Discard(RANDOM(LOWEST_COST(FRIENDLY_HAND))) * 2
 
 
 class UNG_835:
@@ -58,7 +58,7 @@ class UNG_829(QuestRewardProtect):
     """Lakkari Sacrifice"""
 
     progress_total = 6
-    quest = Discard(FRIENDLY).after(AddProgress(SELF, Discard.TARGET))
+    quest = Discard(FRIENDLY).on(AddProgress(SELF, Discard.TARGET))
     reward = Give(CONTROLLER, "UNG_829t1")
 
 
@@ -91,6 +91,7 @@ class UNG_832:
 
 
 class UNG_832e:
+    tags = {GameTag.TAG_ONE_TURN_EFFECT: True}
     events = OWN_SPELL_PLAY.on(Destroy(SELF))
     update = Refresh(CONTROLLER, {GameTag.SPELLS_COST_HEALTH: True})
 

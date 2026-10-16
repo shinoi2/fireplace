@@ -110,8 +110,8 @@ class LOOT_364:
     """Reckless Flurry"""
 
     # Spend all your Armor. Deal that much damage to all minions.
-    play = GainArmor(FRIENDLY_HERO, -ARMOR(FRIENDLY_HERO)).then(
-        Hit(ALL_MINIONS, -GainArmor.AMOUNT)
+    play = LoseArmor(FRIENDLY_HERO, ARMOR(FRIENDLY_HERO)).then(
+        Hit(ALL_MINIONS, LoseArmor.AMOUNT)
     )
 
 

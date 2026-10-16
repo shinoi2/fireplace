@@ -15,12 +15,12 @@ class TRL_096:
                     yield (
                         COINFLIP
                         & (
-                            Give(CONTROLLER, args1[Discover.CARD.index]),
-                            Give(OPPONENT, args2[Discover.CARD.index]),
+                            Give(CONTROLLER, args1[Discover.CARD]),
+                            Give(OPPONENT, args2[Discover.CARD]),
                         )
                         | (
-                            Give(CONTROLLER, args2[Discover.CARD.index]),
-                            Give(OPPONENT, args1[Discover.CARD.index]),
+                            Give(CONTROLLER, args2[Discover.CARD]),
+                            Give(OPPONENT, args1[Discover.CARD]),
                         )
                     )
                 )
