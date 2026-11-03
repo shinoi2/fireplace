@@ -97,7 +97,6 @@ class Teach(Copy):
         def create_custom_card(student):
             student.entity_1 = entity
             student.tags[GameTag.CARDTEXT_ENTITY_0] = entity.data.name
-            student.tags[GameTag.OVERLOAD] = entity.tags[GameTag.OVERLOAD]
             student.requirements = entity.requirements
 
         student.create_custom_card = create_custom_card

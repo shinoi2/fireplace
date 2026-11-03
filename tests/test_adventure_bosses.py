@@ -19,6 +19,21 @@ def _boss_game(hero1, hero2="HERO_01", deck=None):
     return game, player1, player2
 
 
+# def test_faerlina_rain_of_fire_hits_enemy_characters():
+#     # Rain of Fire: "Fire a missile for each card in your opponent's hand." Like
+#     # Arcane Missiles, each missile picks a random enemy, the hero included: with
+#     # no enemy minion, every missile hits the enemy hero.
+#     for power in ("NAX2_03", "NAX2_03H"):
+#         game = prepare_empty_game()
+#         game.player1.summon(power)
+#         for _ in range(3):
+#             game.player2.give(WISP)
+#         missiles = len(game.player2.hand)
+#         assert missiles >= 3
+#         game.player1.hero.power.use()
+#         assert game.player2.hero.damage == missiles
+
+
 def test_magmatron():
     # Magmatron (Omnotron Defense System): "Whenever a player plays a card,
     # Magmatron deals 2 damage to them."
@@ -113,7 +128,9 @@ def test_passive_hero_powers_cannot_be_used():
         "KARA_07_02",
     ):
         assert fireplace.cards.db[power].tags.get(enums.PASSIVE_HERO_POWER), power
-    for power in ("HERO_08bp", "NAX10_03H", "NAX15_02", "BRMA13_2"):  # active ones
+    # True Form (BRMA13_2) acts by itself at the start of the first turn
+    # (WP-121): The Majordomo (BRMA06_2) is an active one.
+    for power in ("HERO_08bp", "NAX10_03H", "NAX15_02", "BRMA06_2"):  # active ones
         assert not fireplace.cards.db[power].tags.get(enums.PASSIVE_HERO_POWER), power
     game, noth, other = _boss_game("NAX4_01")
     squire = noth.summon("AT_082")  # Lowly Squire: Inspire: Gain +1 Attack

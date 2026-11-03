@@ -172,7 +172,7 @@ FORGETFUL = Attack(SELF).on(
 )
 
 AT_MAX_MANA = lambda s: MANA(s) == MAX_MANA(s)
-OVERLOADED = lambda s: (OVERLOAD_LOCKED(s) > 0) or (OVERLOAD_OWED(s) > 0)
+OVERLOADED = lambda s: OVERLOAD_LOCKED(s) + OVERLOAD_OWED(s) > 0
 CHECK_CTHUN = ATK(HIGHEST_ATK(CTHUN)) >= 10
 INVOKED_TWICE = Attr(CONTROLLER, GameTag.INVOKE_COUNTER) >= 2
 
@@ -519,7 +519,7 @@ class SchemeUtils:
     }
 
     class Hand:
-        events = OWN_TURN_BEGIN.on(AddProgress(SELF, SELF))
+        events = OWN_TURN_END.on(AddProgress(SELF, SELF))
 
 
 class GalakrondUtils:

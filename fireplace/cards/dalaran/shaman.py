@@ -83,9 +83,6 @@ class DAL_431:
                 horror.requirements = card1.requirements | card2.requirements
                 horror.tags[GameTag.CARDTEXT_ENTITY_0] = card1.data.name
                 horror.tags[GameTag.CARDTEXT_ENTITY_1] = card2.data.name
-                horror.tags[GameTag.OVERLOAD] = (
-                    card1.tags[GameTag.OVERLOAD] + card2.tags[GameTag.OVERLOAD]
-                )
 
             horror.create_custom_card = create_custom_card
             horror.create_custom_card(horror)

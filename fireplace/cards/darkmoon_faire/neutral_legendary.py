@@ -14,30 +14,44 @@ class DMF_074:
     )
 
 
-class DMF_074e:
+class DMF_074a:
     def play(self):
         # "This Way" rotates clockwise (your minions move left, your opponent's minions move right).
-        left_my_minion = LEFTMOST(FRIENDLY_MINIONS).eval(self.game, self)
-        right_op_minion = RIGHTMOST(ENEMY_MINIONS).eval(self.game, self)
-        for minion in left_my_minion:
-            minion._summon_index = 0
-        for minion in right_op_minion:
-            minion._summon_index = -1
-        yield Steal(left_my_minion, self.controller.opponent)
-        yield Steal(right_op_minion, self.controller)
+        left_my_minions = LEFTMOST(FRIENDLY_MINIONS).eval(self.game, self)
+        right_op_minions = RIGHTMOST(ENEMY_MINIONS).eval(self.game, self)
+        for left_my_minion in left_my_minions:
+            left_my_minion.zone = Zone.SETASIDE
+            left_my_minion.controller = self.controller.opponent
+        for right_op_minion in right_op_minions:
+            right_op_minion.zone = Zone.SETASIDE
+            right_op_minion.controller = self.controller
+        for left_my_minion in left_my_minions:
+            left_my_minion._summon_index = 0
+            left_my_minion.turns_in_play = 0
+            left_my_minion.zone = Zone.PLAY
+        for right_op_minion in right_op_minions:
+            right_op_minion.turns_in_play = 0
+            right_op_minion.zone = Zone.PLAY
 
 
 class DMF_074b:
     def play(self):
         # "That Way" rotates counter-clockwise (your minions move right, your opponent's minions move left).
-        right_my_minion = RIGHTMOST(FRIENDLY_MINIONS).eval(self.game, self)
-        left_op_minion = LEFTMOST(ENEMY_MINIONS).eval(self.game, self)
-        for minion in right_my_minion:
-            minion._summon_index = -1
-        for minion in left_op_minion:
-            minion._summon_index = 0
-        yield Steal(right_my_minion, self.controller.opponent)
-        yield Steal(left_op_minion, self.controller)
+        right_my_minions = RIGHTMOST(FRIENDLY_MINIONS).eval(self.game, self)
+        left_op_minions = LEFTMOST(ENEMY_MINIONS).eval(self.game, self)
+        for right_my_minion in right_my_minions:
+            right_my_minion.zone = Zone.SETASIDE
+            right_my_minion.controller = self.controller.opponent
+        for left_op_minion in left_op_minions:
+            left_op_minion.zone = Zone.SETASIDE
+            left_op_minion.controller = self.controller
+        for right_my_minion in right_my_minions:
+            right_my_minion.turns_in_play = 0
+            right_my_minion.zone = Zone.PLAY
+        for left_op_minion in left_op_minions:
+            left_op_minion._summon_index = 0
+            left_op_minion.turns_in_play = 0
+            left_op_minion.zone = Zone.PLAY
 
 
 class DMF_002:
@@ -133,11 +147,12 @@ class DMF_188:
     # [x]<b>Battlecry:</b> Add a copy of each <b>Corrupted</b> card you've
     # played this game to your hand. They cost (0) this turn.
     play = Give(
-        CONTROLLER, SHUFFLE(FRIENDLY + CARDS_PLAYED_THIS_GAME + CORRUPTED)
+        CONTROLLER, Copy(SHUFFLE(FRIENDLY + CARDS_PLAYED_THIS_GAME + CORRUPTED_CARD))
     ).then(Buff(Give.CARD, "DMF_188e"))
 
 
 class DMF_188e:
+    tags = {GameTag.TAG_ONE_TURN_EFFECT: True}
     cost = SET(0)
     events = REMOVED_IN_PLAY
 

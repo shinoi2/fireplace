@@ -929,11 +929,11 @@ class CopyDeathrattleBuff(TargetedAction):
     OTHER = ActionArg()
 
     def get_target_args(self, source, target):
-        buff = self._args[1]
-        buff = source.controller.card(buff, source=source)
+        ret = super().get_target_args(source, target)
+        buff = ret[0][0]
         buff.tags[GameTag.DEATHRATTLE] = True
-        buff.source = source
-        return [buff]
+        ret[0] = buff
+        return ret
 
     def create_buff(self, source):
         buff = self._args[1]
@@ -943,22 +943,25 @@ class CopyDeathrattleBuff(TargetedAction):
         return buff
 
     def do(self, source, target, buff, other=None):
-        minion = other if other else source
-        log.info("%r copy deathrattle from %r by %r", minion, target, buff)
-        if target.has_deathrattle:
-            for deathrattle in target.deathrattles:
-                minion.additional_deathrattles.append(deathrattle)
-            buff.apply(minion)
-            for entity in target.buffs:
-                if not entity.has_deathrattle:
-                    continue
-                new_buff = self.create_buff(source)
-                if hasattr(entity, "store_card"):
-                    new_buff.store_card = entity.store_card
-                for deathrattle in entity.deathrattles:
-                    new_buff.additional_deathrattles.append(deathrattle)
-                new_buff.apply(minion)
-        source.game.manager.targeted_action(self, source, target, buff, other)
+        minions = other if other else source
+        if not isinstance(minions, list):
+            minions = [minions]
+        for minion in minions:
+            log.info("%r copy deathrattle from %r by %r", minion, target, buff)
+            if target.has_deathrattle:
+                for deathrattle in target.deathrattles:
+                    minion.additional_deathrattles.append(deathrattle)
+                buff.apply(minion)
+                for entity in target.buffs:
+                    if not entity.has_deathrattle:
+                        continue
+                    new_buff = self.create_buff(source)
+                    if hasattr(entity, "store_card"):
+                        new_buff.store_card = entity.store_card
+                    for deathrattle in entity.deathrattles:
+                        new_buff.additional_deathrattles.append(deathrattle)
+                    new_buff.apply(minion)
+            source.game.manager.targeted_action(self, source, target, buff, other)
 
 
 class Counter(TargetedAction):
@@ -1061,6 +1064,8 @@ class Damage(TargetedAction):
         if not amount:
             amount = target.predamage
         amount = target._hit(amount)
+        if source.type == CardType.ENCHANTMENT:
+            source = source.owner
         target.predamage = 0
         target.damaged_source = source
         if (
@@ -1630,6 +1635,7 @@ class Heal(TargetedAction):
             source.game.manager.targeted_action(self, source, target, amount)
             self.queue_broadcast(self, (source, EventListener.ON, target, amount))
             target.healed_this_turn += amount
+            source.controller.healed_this_turn += amount
             source.controller.healed_this_game += amount
             if target.type == CardType.HERO:
                 target.controller.hero_health_changed_this_turn += 1
@@ -1874,10 +1880,10 @@ class Summon(TargetedAction):
         self._summon_count = getattr(self, "_summon_count", 0)
 
         for card in cards:
-            if not card.is_summonable():
-                continue
             if card.controller != target:
                 card.controller = target
+            if not card.is_summonable():
+                continue
             # Poisoned Blade
             if (
                 card.controller.weapon
@@ -1925,6 +1931,37 @@ class SummonLeft(Summon):
 
     def get_summon_index(self, source_index):
         return source_index
+
+
+class SummonRightOf(Summon):
+    """
+    Summon right of a given minion of the field, whatever the source is (a
+    spell, or a minion that is not that one): Power Word: Replicate, Oracle of
+    Elune (A120, A217, D-108). With no such minion on the field, at the far right.
+    """
+
+    TARGET = ActionArg()
+    CARD = ActionArg()
+    NEIGHBOR = CardArg()
+
+    def get_summon_index(self, source_index):
+        return self._index
+
+    def do(self, source, target, cards, neighbor):
+        if not isinstance(cards, list):
+            cards = [cards]
+        field = target.field
+        if not neighbor:
+            self._index = len(field)
+        elif neighbor.zone == Zone.PLAY:
+            self._index = field.index(neighbor) + 1
+        elif neighbor.zone == Zone.GRAVEYARD:
+            self._index = getattr(neighbor, "_dead_position", None)
+        else:
+            self._index = len(field)
+        for card in cards:
+            card._summon_index = self._index
+        return super().do(source, target, cards)
 
 
 class SummonCustomMinion(TargetedAction):
@@ -2001,6 +2038,9 @@ class Swap(TargetedAction):
 
     def do(self, source, target, other):
         if other is not None:
+            if target.zone == Zone.GRAVEYARD:
+                target._summon_index = target._dead_position
+                target.zone = Zone.PLAY
             other._summon_index = target.zone_position - 1
             target._summon_index = other.zone_position - 1
             target_old_zone = target.zone
@@ -2043,6 +2083,7 @@ class Steal(TargetedAction):
         target.turns_in_play = 0  # To ensure summoning sickness
         target.zone = zone
         source.game.manager.targeted_action(self, source, target, controller)
+        return target
 
 
 class UnlockOverload(TargetedAction):
@@ -2104,12 +2145,14 @@ class CastSpell(TargetedAction):
         ):
             return
 
-        player = source.controller
+        player = card.controller
         old_choice = player.choice
         player.choice = None
 
         if card.twinspell:
-            source.game.queue_actions(card, [Give(player, card.twinspell_copy)])
+            source.game.queue_actions(
+                card, [Give(card.controller, card.twinspell_copy)]
+            )
         if card.must_choose_one:
             card = source.game.random.choice(card.choose_cards)
         for target in targets:

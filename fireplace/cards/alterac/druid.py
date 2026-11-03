@@ -18,7 +18,7 @@ class AV_211:
     """Dire Frostwolf"""
 
     # <b>Stealth</b> <b>Deathrattle:</b> Summon a 2/2 Wolf with <b>Stealth</b>.
-    deathrattle = Summon(CONTROLLER, "AV_211t") * 2
+    deathrattle = Summon(CONTROLLER, "AV_211t")
 
 
 class AV_291:

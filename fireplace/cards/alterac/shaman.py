@@ -8,16 +8,15 @@ class AV_251:
     """Cheaty Snobold"""
 
     # After an enemy is <b>Frozen</b>, deal 3 damage to it.
-    events = SetTags(ENEMY_MINIONS, lambda tag: tag.get(GameTag.FROZEN, False)).after(
-        Hit(SetTags.TARGET, 3)
-    )
+    events = SetTags(
+        ENEMY_CHARACTERS, lambda tag: tag.get(GameTag.FROZEN, False)
+    ).after(Hit(SetTags.TARGET, 3))
 
 
 class AV_255:
     """Snowfall Guardian"""
 
-    # <b>Battlecry:</b> <b>Freeze</b> all other minions. Gain +1/+1 for each
-    # <b>Frozen</b> minion.
+    # <b>Battlecry:</b> <b>Freeze</b> all other minions
     play = (
         Freeze(ALL_MINIONS - SELF),
         Buff(SELF, "AV_255e") * Count(ALL_MINIONS - SELF + FROZEN),
@@ -159,7 +158,7 @@ class AV_258:
     play = (
         Summon(CONTROLLER, RandomEntourage()),
         Choice(CONTROLLER, ["AV_258t", "AV_258t2", "AV_258t3", "AV_258t4"]).then(
-            Battlecry(Choice.CARD),
+            Battlecry(Choice.CARD, None),
             lambda _, *args: (
                 yield Choice(
                     CONTROLLER,
@@ -170,7 +169,7 @@ class AV_258:
                         )
                     ),
                 ).then(
-                    Battlecry(Choice.CARD),
+                    Battlecry(Choice.CARD, None),
                 )
             ),
         ),

@@ -69,6 +69,15 @@ class CardDB(dict[str, cardxml.CardXML]):
         self.initialized = False
         self.dbf = {}
 
+    def get_dbf_id(self, origin_id):
+        if self[origin_id].tags.get(GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID):
+            dbf_id = self[origin_id].tags.get(
+                GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID
+            )
+            if dbf_id in self.dbf:
+                return self.dbf[dbf_id]
+        return origin_id
+
     @staticmethod
     def merge(id, card, cardscript=None):
         """
@@ -255,7 +264,12 @@ class CardDB(dict[str, cardxml.CardXML]):
             cards = [
                 card
                 for card in cards
-                if not bool(card.tags.get(GameTag.DONT_PICK_FROM_SUBSETS))
+                if (
+                    not bool(card.tags.get(GameTag.DONT_PICK_FROM_SUBSETS))
+                    and not bool(
+                        card.tags.get(GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID)
+                    )
+                )
             ]
         else:
             kwargs.pop("can_pick_from_subsets")
@@ -278,7 +292,7 @@ class CardDB(dict[str, cardxml.CardXML]):
             kwargs["races"] = kwargs.pop("race")
 
         if "exclude" in kwargs:
-            exclude = [card.id for card in kwargs.pop("exclude")]
+            exclude = kwargs.pop("exclude")
             cards = [card for card in cards if card.id not in exclude]
 
         for attr, value in kwargs.items():

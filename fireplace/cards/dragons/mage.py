@@ -147,7 +147,7 @@ class DRG_106:
     # Deal $2 damage to a minion. If you're holding a Dragon, <b>Discover</b> a spell.
     requirements = {PlayReq.REQ_MINION_TARGET: 0, PlayReq.REQ_TARGET_TO_PLAY: 0}
     powered_up = HOLDING_DRAGON
-    play = Hit(TARGET, 2), powered_up & DISCOVER(RandomDragon())
+    play = Hit(TARGET, 2), powered_up & DISCOVER(RandomSpell())
 
 
 class DRG_321:

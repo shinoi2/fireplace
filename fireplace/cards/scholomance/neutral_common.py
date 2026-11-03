@@ -97,7 +97,7 @@ class SCH_530:
     """Sorcerous Substitute"""
 
     # <b>Battlecry:</b> If you have <b>Spell Damage</b>, summon a copy of this.
-    powered_up = powered_up = Find(FRIENDLY + SPELLPOWER)
+    powered_up = AttrValue(GameTag.CURRENT_SPELLPOWER)(CONTROLLER) > 0
     play = powered_up & Summon(CONTROLLER, ExactCopy(SELF))
 
 

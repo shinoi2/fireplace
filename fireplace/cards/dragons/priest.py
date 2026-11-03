@@ -69,7 +69,8 @@ class DRG_306:
             if len(player.opponent.hand) <= 0:
                 return
             self.correct_card = player.card(
-                source.game.random.choice(player.opponent.hand).id
+                source.game.random.choice(player.opponent.hand).id,
+                self
             )
             op_deck = player.opponent.deck.exclude(id=self.correct_card)
             if len(op_deck) <= 1:
@@ -77,7 +78,7 @@ class DRG_306:
             if len(op_deck) <= 1:
                 return
             self.card_1, self.card_2 = [
-                player.card(card.id) for card in source.game.random.sample(op_deck, 2)
+                player.card(card.id, self) for card in source.game.random.sample(op_deck, 2)
             ]
             self.cards = [self.correct_card, self.card_1, self.card_2]
             source.game.random.shuffle(self.cards)

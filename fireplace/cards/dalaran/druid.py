@@ -32,7 +32,9 @@ class DAL_357:
 class DAL_357t:
     tags = {GameTag.DORMANT: True}
     progress_total = 5
-    dormant_events = Heal().on(AddProgress(SELF, Heal.TARGET, Heal.AMOUNT))
+    dormant_events = Heal(source=FRIENDLY).on(
+        AddProgress(SELF, Heal.TARGET, Heal.AMOUNT)
+    )
     reward = Morph(SELF, "DAL_357")
 
 

@@ -385,7 +385,10 @@ def test_primal_fusion():
 
     summon_totem.use()
     fusion2.play(target=wisp)
-    assert wisp.atk == wisp.health == 4
+    # Two totems: +2/+2 more. The first totem is random: a Strength Totem
+    # may have given the Wisp +1 Attack at the end of the turn.
+    assert wisp.health == 4
+    assert wisp.atk in (4, 5)
 
 
 def test_ragnaros_lightlord():
@@ -697,3 +700,192 @@ def test_faceless_shambler():
     faceless = game.player1.give("OG_174").play(target=wisp)
     assert faceless.atk == wisp.atk
     assert faceless.health == wisp.health
+
+
+def _cast_spells_recorder():
+    """Records the spells that CastSpell (Yogg-Saron's own included) casts, the
+    id of each, until restored."""
+    from fireplace.actions import CastSpell
+    from fireplace.cards.wog.neutral_legendary import (
+        CastSpellWhateverBecomesOfTheCaster,
+    )
+
+    cast = []
+    real = {}
+    for cls in (CastSpell, CastSpellWhateverBecomesOfTheCaster):
+        real[cls] = cls.__dict__["do"]
+
+        def do(self, source, card, targets, real_do=real[cls]):
+            cast.append(card.id)
+            return real_do(self, source, card, targets)
+
+        cls.do = do
+
+    def restore():
+        for cls, real_do in real.items():
+            cls.do = real_do
+
+    return cast, restore
+
+
+def test_klaxxi_amber_weaver_gains_five_health():
+    # "If your C'Thun has at least 10 Attack, gain +5 Health."
+    game = prepare_game()
+    game.player1.give("OG_339").play()
+    game.end_turn()
+    game.end_turn()
+    game.player1.give("OG_339").play()
+    assert game.player1.cthun.atk == 10
+    game.end_turn()
+    game.end_turn()
+    klaxxi = game.player1.give("OG_188").play()
+    assert klaxxi.atk == 4
+    assert klaxxi.health == 5 + 5
+
+
+def test_servant_of_yogg_saron_casts_a_random_spell_of_5_or_less():
+    cast, restore = _cast_spells_recorder()
+    try:
+        for _ in range(20):
+            game = prepare_game()
+            game.player1.give("OG_087").play()
+    finally:
+        restore()
+    assert len(cast) == 20
+    assert all(fireplace.cards.db[id].cost <= 5 for id in cast)
+    assert all(fireplace.cards.db[id].type == CardType.SPELL for id in cast)
+    assert len(set(cast)) > 1
+
+
+def test_spreading_madness_spell_damage_adds_hits():
+    # "Deal $9 damage randomly split": Spell Damage +1 makes it ten hits of 1.
+    game = prepare_game()
+    kobold = game.player1.give(KOBOLD_GEOMANCER).play()
+    for _ in range(2):
+        game.player1.give("CS2_092").play(target=kobold)
+    game.end_turn()
+    game.end_turn()
+    assert kobold.health == 10
+    game.player1.give("OG_116").play()
+    damage = (
+        (30 - game.player1.hero.health)
+        + (30 - game.player2.hero.health)
+        + kobold.damage
+    )
+    assert damage == 10
+
+
+def test_shadowcaster_copy_costs_one():
+    game = prepare_game()
+    game.player1.discard_hand()
+    yeti = game.player1.give("CS2_182").play()
+    game.player1.give("OG_291").play(target=yeti)
+    copy = game.player1.hand[0]
+    assert copy.id == "CS2_182"
+    assert copy.atk == copy.health == 1
+    assert copy.cost == 1
+
+
+def test_chogall_only_this_turn():
+    # "The next spell you cast this turn costs Health instead of Mana."
+    game = prepare_game()
+    fireball = game.player1.give("CS2_029")
+    game.player1.give("OG_121").play()
+    assert game.player1.spells_cost_health
+    game.end_turn()
+    assert not game.player1.spells_cost_health
+    game.end_turn()
+    assert not game.player1.spells_cost_health
+    fireball.play(target=game.player2.hero)
+    assert game.player1.hero.health == 30
+    assert game.player1.mana == 10 - 4
+
+
+def test_yogg_saron_keeps_casting_when_destroyed():
+    # Patch 16.6: "Yogg-Saron no longer stops casting if it is destroyed,
+    # Silenced, transformed or returned to the hand" (hearthstone.wiki.gg).
+    cast, restore = _cast_spells_recorder()
+    counts = []
+    try:
+        for _ in range(15):
+            game = prepare_empty_game()
+            for _ in range(8):
+                game.player1.give(THE_COIN).play()
+            game.player1.give("OG_134").play()
+            if game.ended:
+                continue
+            counts.append(len(cast))
+            cast.clear()
+    finally:
+        restore()
+    assert counts
+    assert all(n == 8 for n in counts), counts
+
+
+def test_yogg_saron_does_not_count_countered_spells():
+    game = prepare_game()
+    game.end_turn()
+    game.player2.give("EX1_287").play()
+    game.end_turn()
+    game.player1.give(THE_COIN).play()
+    assert not game.player2.secrets
+    game.player1.give(THE_COIN).play()
+    cast, restore = _cast_spells_recorder()
+    try:
+        game.player1.give("OG_134").play()
+    finally:
+        restore()
+    assert len(cast) == 1
+
+
+def test_nzoth_picks_at_random_when_there_is_no_room():
+    # "If there is not enough room on the board to summon a copy of each,
+    # N'Zoth will randomly choose which ones to summon" (hearthstone.wiki.gg).
+    summoned = set()
+    for _ in range(30):
+        game = prepare_game()
+        for id in ("EX1_096", "EX1_556", "EX1_029"):
+            game.player1.give(id).play().destroy()
+        for minion in game.player1.field[:]:
+            minion.destroy()
+        for _ in range(5):
+            game.player1.give(WISP).play()
+        game.end_turn()
+        game.end_turn()
+        nzoth = game.player1.give("OG_133").play()
+        assert len(game.player1.field) == 7
+        (copy,) = game.player1.field[6:]
+        assert copy.id in ("EX1_096", "EX1_556", "EX1_029")
+        summoned.add(copy.id)
+    assert len(summoned) > 1
+
+
+def test_nzoth_summons_all_when_there_is_room():
+    # In the order they died, each at N'Zoth's right: the first to die ends
+    # up the farthest.
+    game = prepare_game()
+    for id in ("EX1_096", "EX1_556", "EX1_029"):
+        game.player1.give(id).play().destroy()
+    for minion in game.player1.field[:]:
+        minion.destroy()
+    game.end_turn()
+    game.end_turn()
+    game.player1.give("OG_133").play()
+    assert [m.id for m in game.player1.field] == [
+        "OG_133",
+        "EX1_029",
+        "EX1_556",
+        "EX1_096",
+    ]
+
+
+def test_usher_of_souls():
+    game = prepare_game()
+    game.player1.give("OG_302").play()
+    wisp = game.player1.give(WISP).play()
+    assert game.player1.cthun.atk == 6
+    wisp.destroy()
+    assert game.player1.cthun.atk == game.player1.cthun.health == 7
+    game.end_turn()
+    game.player2.give(WISP).play().destroy()
+    assert game.player1.cthun.atk == 7

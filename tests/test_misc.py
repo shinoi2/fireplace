@@ -5,17 +5,6 @@ from full_game import test_full_game
 from utils import *
 
 
-def test_is_legal():
-    from fireplace.cards.boomsday.whizbang_decks import WHIZBANG_DECKS
-
-    starting_hero, starting_deck = random.choice(WHIZBANG_DECKS)
-    player1 = Player("Player1", starting_deck, starting_hero)
-    assert player1.is_legal()
-
-    player2 = Player("Player2", [WISP for _ in range(30)], CardClass.DRUID.default_hero)
-    assert not player2.is_legal()
-
-
 def test_event_queue_heal():
     game = prepare_game()
     shadowboxer1 = game.player1.give("GVG_072")

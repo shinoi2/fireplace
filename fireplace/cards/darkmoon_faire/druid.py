@@ -79,8 +79,9 @@ class DMF_057:
 
 
 class DMF_057e:
+    tags = {GameTag.TAG_ONE_TURN_EFFECT: True}
     update = Refresh(FRIENDLY_HAND + SPELL, {GameTag.COST: -2})
-    events = Play(CONTROLLER, SPELL).after(Destroy(SELF))
+    events = Play(CONTROLLER, SPELL - CREATOR).after(Destroy(SELF))
 
 
 class DMF_058:
@@ -91,8 +92,8 @@ class DMF_058:
 
 
 class DMF_058e:
-    events = Play(CONTROLLER, SPELL).after(
-        CastSpell(Copy(Play.CARD)),
+    events = Play(CONTROLLER, SPELL - CREATOR).after(
+        CastSpell(Copy(Play.CARD), Play.TARGET),
         Destroy(SELF),
     )
 
@@ -138,7 +139,15 @@ class DMF_732:
     """Cenarion Ward"""
 
     # Gain 8 Armor. Summon a random 8-Cost minion.
-    play = GainArmor(FRIENDLY_HERO, 8), Summon(CONTROLLER, RandomCollectible(cost=8))
+    play = GainArmor(FRIENDLY_HERO, 8), Summon(CONTROLLER, RandomMinion(cost=8))
+
+
+def guidance_choose(source, *args):
+    if args[Choice.CARD] == "YOP_024t":
+        yield Give(CONTROLLER, args[Choice.CARDS][:2])
+        yield Overload(CONTROLLER, 1)
+    else:
+        yield Give(CONTROLLER, Choice.CARD)
 
 
 class YOP_024:
@@ -146,11 +155,25 @@ class YOP_024:
 
     # Look at two spells. Add one to your hand or <b>Overload:</b> (1) to get
     # both.
-    play = Choice(CONTROLLER, [RandomSpell(), RandomSpell(), "YOP_024t"]).then(
-        Find(Choice.CARD + ID("YOP_024t"))
-        & (Give(CONTROLLER, Choice.CARDS - ID("YOP_024t")), Overload(CONTROLLER, 1))
-        | (Give(CONTROLLER, Choice.CARD))
-    )
+    tags = {GameTag.OVERLOAD: 0}
+
+    def play(self):
+        player = self.controller
+        # Weighted toward the hero's class like a discover (rule 171,
+        # `Discover.get_target_args`): neutral spells and the class's own
+        # (WP-212, A199).
+        if player.hero.data.card_class != CardClass.NEUTRAL:
+            spell_class = player.hero.data.card_class
+        elif self.data.card_class != CardClass.NEUTRAL:
+            spell_class = self.data.card_class
+        else:
+            spell_class = player.starting_hero.data.card_class
+        picker = RandomSpell() * 2
+        picker = picker.copy_with_weighting(1, card_class=CardClass.NEUTRAL)
+        picker = picker.copy_with_weighting(1, card_class=spell_class)
+        spells = picker.evaluate(self)
+        spells.append("YOP_024t")
+        yield Choice(CONTROLLER, spells).then(guidance_choose)
 
 
 class YOP_026:
@@ -168,4 +191,4 @@ class YOP_029:
 
     # [x]<b>Discover</b> a card with Cost equal to your remaining Mana
     # Crystals.
-    play = DISCOVER(RandomCollectible(cost=Count(CURRENT_MANA(CONTROLLER))))
+    play = DISCOVER(RandomCollectible(cost=CURRENT_MANA(CONTROLLER)))

@@ -523,22 +523,50 @@ class Opponent(Controller):
         return entity.controller.opponent
 
 
-class SameId(LazyValue):
+class SameId(Selector):
     def __init__(self, selector):
         self.selector = selector
+
+    def eval(self, entities, source):
+        if isinstance(self.selector, LazyValue):
+            entity = self.selector.evaluate(source)
+            selector_entities = [entity] if entity else []
+        else:
+            selector_entities = self.selector.eval(source.game, source)
+
+        assert len(selector_entities) == 1
+        entity = selector_entities[0]
+        ret = []
+        for e in entities:
+            if e == entity.id:
+                ret.append(e)
+        return ret
 
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, self.selector)
 
-    def evaluate(self, source):
+
+class DestroyedBy(Selector):
+    def __init__(self, selector):
+        self.selector = selector
+
+    def eval(self, entities, source):
         if isinstance(self.selector, LazyValue):
             entity = self.selector.evaluate(source)
-            entities = [entity] if entity else []
+            selector_entities = [entity] if entity else []
         else:
-            entities = self.selector.eval(source.game, source)
+            selector_entities = self.selector.eval(source.game, source)
 
-        assert len(entities) == 1
-        return [e for e in source.game if e == entities[0].id]
+        assert len(selector_entities) == 1
+        entity = selector_entities[0]
+        ret = []
+        for e in entities:
+            if getattr(e, "destroyed_source", None) is entity:
+                ret.append(e)
+        return ret
+
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__.__name__, self.selector)
 
 
 FRIENDLY = CONTROLLER == Controller()
@@ -595,6 +623,7 @@ HAS_DISCOVER = EnumSelector(GameTag.DISCOVER)
 LACKEY = EnumSelector(GameTag.MARK_OF_EVIL)
 LIBRAM = EnumSelector(GameTag.LIBRAM)
 OUTCAST = EnumSelector(GameTag.OUTCAST)
+CORRUPT = EnumSelector(GameTag.CORRUPT)
 CORRUPTED = EnumSelector(GameTag.CORRUPTED)
 CORRUPTED_CARD = EnumSelector(GameTag.CORRUPTED_CARD)
 FRENZY = EnumSelector(GameTag.FRENZY)
@@ -743,7 +772,13 @@ OTHER_CLASS_CHARACTER = FuncSelector(
     ]
 )
 
-NEUTRAL = AttrValue(GameTag.CLASS) == CardClass.NEUTRAL
+NEUTRAL = FuncSelector(
+    lambda entities, source: [
+        e
+        for e in entities
+        if getattr(e, "classes", [CardClass.INVALID]) == [CardClass.NEUTRAL]
+    ]
+)
 
 NUM_CARDS_PLAYED_THIS_TURN = Attr(CONTROLLER, GameTag.NUM_CARDS_PLAYED_THIS_TURN)
 CARDS_PLAYED_THIS_TURN = FuncSelector(
@@ -809,7 +844,11 @@ def _another_class(entities, source):
         current_class = source.controller.starting_hero.card_class
     classes = []
     for card_class in CardClass:
-        if card_class != current_class and card_class is not CardClass.NEUTRAL:
+        if (
+            card_class != current_class
+            and card_class is not CardClass.NEUTRAL
+            and card_class is not CardClass.INVALID
+        ):
             classes.append(card_class)
     return classes
 
@@ -822,7 +861,7 @@ def _another_class_card(entities, source):
     return [
         e
         for e in entities
-        if all(c in classes for c in getattr(e, "classes", [CardClass.NEUTRAL]))
+        if all(c in classes for c in getattr(e, "classes", [CardClass.INVALID]))
     ]
 
 

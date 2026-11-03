@@ -76,6 +76,7 @@ class BaseCard(BaseEntity):
         self.aura = False
         self.heropower_damage = 0
         self._zone = Zone.INVALID
+        self._summon_index = None
         self._progress: int = 0
         self.progress_total: int = data.scripts.progress_total
         self.card_class = CardClass.INVALID
@@ -116,7 +117,9 @@ class BaseCard(BaseEntity):
         if isinstance(other, BaseCard):
             return self.entity_id.__eq__(other.entity_id)
         elif isinstance(other, str):
-            return self.id.__eq__(other)
+            id = cards.db.get_dbf_id(self.id)
+            other = cards.db.get_dbf_id(other)
+            return id.__eq__(other)
         return super().__eq__(other)
 
     @property
@@ -238,6 +241,7 @@ class BaseCard(BaseEntity):
         if caches.get(value) is not None:
             if hasattr(self, "_summon_index") and self._summon_index is not None:
                 caches[value].insert(self._summon_index, self)
+                self._summon_index = None
             else:
                 caches[value].append(self)
         self._zone = value
@@ -340,6 +344,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         self.cards_played_when_holding = CardList()
         self.immolatestage = 0
         self.infuse = 0
+        self.tradeable = False
         super().__init__(data)
 
     def dump(self):
@@ -447,6 +452,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
                 self.choose_cards.append(card)
             # Clean up cards_played_when_holding
             self.cards_played_when_holding = CardList()
+            self.turn_drawn = self.game.turn
 
     def destroy(self):
         return self.game.cheat_action(self, [actions.Destroy(self), actions.Deaths()])
@@ -643,13 +649,13 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         if self.zone != Zone.HAND:
             return False
 
-        if not self.controller.mana < 1:
+        if self.controller.mana < 1:
             return False
 
         if len(self.controller.deck) == 0:
             return False
 
-        return True
+        return self.tradeable
 
     def trade(self):
         if not self.is_tradeable():
@@ -793,7 +799,10 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_COST_5_OR_MORE_SPELL_IN_HAND
         )
         if req is not None:
-            if self.controller.hand.filter(cost=range(5, 100)):
+            if any(
+                card.cost >= 5 and card.type == CardType.SPELL
+                for card in self.controller.hand
+            ):
                 return bool(self.play_targets)
         req = self.requirements.get(
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_MIN_MANA_CRYSTAL
@@ -1032,7 +1041,7 @@ class Character(LiveEntity):
     def frozen(self):
         if self.cant_be_frozen:
             self._frozen = False
-        return self._frozen
+        return self._getattr("frozen", False)
 
     @frozen.setter
     def frozen(self, value):
@@ -1107,7 +1116,7 @@ class Character(LiveEntity):
         self.game.attack(self, target)
 
     def _set_zone(self, zone):
-        if self.zone == Zone.PLAY and zone != Zone.PLAY:
+        if self.zone == Zone.PLAY and zone != Zone.PLAY and zone != Zone.GRAVEYARD:
             self.damage = 0
         return super()._set_zone(zone)
 
@@ -1280,13 +1289,13 @@ class Minion(Character):
         self.divine_shield = False
         self.enrage = False
         self.silenced = False
-        self._summon_index = None
         self.dormant = False
         self.dormant_turns = data.scripts.dormant_turns
         self.reborn = False
         self.has_spellburst = False
         self.has_frenzy = False
         self.has_colossal = False
+        self.si_7 = False
         super().__init__(data)
 
     def dump(self):

@@ -46,7 +46,9 @@ class DAL_141:
     requirements = {
         PlayReq.REQ_SECRET_ZONE_CAP_FOR_NON_SECRET: 0,
     }
-    play = CastSpell(RandomSpell(secret=True, card_class=CardClass.PALADIN))
+    play = CastSpell(
+        RandomSpell(secret=True, card_class=CardClass.PALADIN, exclude=FRIENDLY_SECRETS)
+    )
 
 
 class DAL_141ts(DAL_141):
@@ -83,7 +85,7 @@ class DAL_727:
     """Call to Adventure"""
 
     # Draw the lowest Cost minion from your deck. Give it +2/+2.
-    play = ForceDraw(LOWEST_ATK(FRIENDLY_DECK + MINION)).then(
+    play = ForceDraw(RANDOM(LOWEST_COST(FRIENDLY_DECK + MINION))).then(
         Buff(ForceDraw.TARGET, "DAL_727e")
     )
 

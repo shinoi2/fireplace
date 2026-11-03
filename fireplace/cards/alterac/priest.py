@@ -99,7 +99,7 @@ class AV_324:
         PlayReq.REQ_MINION_TARGET: 0,
     }
     play = (
-        Buff(TARGET, "AV_324e2") * Count(ALL_MINIONS - SELF),
+        Buff(TARGET, "AV_324e2") * Count(ALL_MINIONS - TARGET),
         Buff(ALL_MINIONS - TARGET, "AV_324eb"),
     )
 

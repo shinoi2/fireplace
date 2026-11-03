@@ -40,4 +40,6 @@ class CS3_028:
     """Thrive in the Shadows"""
 
     # <b>Discover</b> a spell from your deck.
-    play = GenericChoice(CONTROLLER, DeDuplicate(RANDOM(FRIENDLY_DECK + SPELL, 3)))
+    play = Choice(CONTROLLER, DeDuplicate(RANDOM(FRIENDLY_DECK + SPELL, 3))).then(
+        Give(CONTROLLER, Choice.CARD)
+    )

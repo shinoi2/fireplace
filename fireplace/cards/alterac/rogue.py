@@ -28,7 +28,7 @@ class AV_298:
 
     # [x]<b>Rush</b> Costs (1) less for each card you've added to your hand
     # _from another class.
-    cost_mod = -Count(CARDS_PLAYED_THIS_GAME + ANOTHER_CLASS_CARD)
+    cost_mod = -Count(FRIENDLY + ANOTHER_CLASS_CARD)
 
 
 class AV_403:
@@ -38,7 +38,10 @@ class AV_403:
     # other classes. They cost (2) less.
     play = Morph(
         (FRIENDLY_HAND | FRIENDLY_DECK) + MINION, RandomMinion(card_class=ANOTHER_CLASS)
-    )
+    ).then(Buff(Morph.CARD, "AV_403e2"))
+
+
+AV_403e2 = cost_buff(-2)
 
 
 class ONY_030:
@@ -77,9 +80,9 @@ class AV_710:
 
     # <b>Discover</b> a <b>Deathrattle</b> minion from another class. It costs
     # (2) less.
-    play = Discover(CONTROLLER, RandomMinion(card_class=ANOTHER_CLASS)).then(
-        Give(CONTROLLER, Discover.CARD), Buff(Discover.CARD, "AV_710e")
-    )
+    play = Discover(
+        CONTROLLER, RandomMinion(deathrattle=True, card_class=ANOTHER_CLASS)
+    ).then(Give(CONTROLLER, Discover.CARD), Buff(Discover.CARD, "AV_710e"))
 
 
 class AV_710e:

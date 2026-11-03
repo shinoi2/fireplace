@@ -9,7 +9,7 @@ class DRG_019:
 
     # <b>Rush</b>. <b>Battlecry:</b> If you've <b>Invoked</b> twice, summon 2_copies of
     # this.
-    play = INVOKED_TWICE & SummonBothSides(SELF, ExactCopy(SELF)) * 2
+    play = INVOKED_TWICE & SummonBothSides(CONTROLLER, ExactCopy(SELF)) * 2
 
 
 class DRG_020:

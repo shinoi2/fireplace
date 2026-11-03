@@ -27,14 +27,14 @@ class BOT_531:
 
 class BOT_531e:
     update = Refresh(CONTROLLER, {GameTag.SPELLPOWER: 2})
-    events = Play(CONTROLLER, SPELL).on(Destroy(SELF))
+    events = Play(CONTROLLER, SPELL).after(Destroy(SELF))
 
 
 class BOT_601:
     """Meteorologist"""
 
     # <b>Battlecry:</b> For each card in your hand, deal 1 damage to a random enemy.
-    play = Hit(RANDOM_ENEMY_MINION, 1) * Count(FRIENDLY_HAND)
+    play = Hit(RANDOM_ENEMY_CHARACTER, 1) * Count(FRIENDLY_HAND)
 
 
 ##

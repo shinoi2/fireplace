@@ -26,11 +26,7 @@ class SCH_224:
 
     # <b>Spellburst:</b> If the spell destroys any minions, summon them.
 
-    # TODO: need to be tested
-    def spellburst(self, spell):
-        for entity in self.game.graveyard:
-            if getattr(entity, "destroyed_source", None) is spell:
-                yield Summon(CONTROLLER, Copy(entity))
+    spellburst = Summon(CONTROLLER, Copy(DestroyedBy(Spellburst.SPELL)))
 
 
 class SCH_428:

@@ -81,7 +81,7 @@ class BOT_299:
 
     # [x]<b>Discover</b> a Mech. If you have 10 Mana Crystals, keep all 3 cards.
     powered_up = AT_MAX_MANA(CONTROLLER)
-    play = powered_up & Give(CONTROLLER, RandomMech()) * 3 | DISCOVER(RandomMech())
+    play = powered_up & Give(CONTROLLER, RandomMech() * 3) | DISCOVER(RandomMech())
 
 
 ##

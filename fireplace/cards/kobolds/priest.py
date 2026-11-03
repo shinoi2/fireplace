@@ -94,7 +94,9 @@ class LOOT_278:
     }
     play = Buff(TARGET, "LOOT_278e")
     entourage = ["LOOT_278t1", "LOOT_278t2", "LOOT_278t3", "LOOT_278t4"]
-    draw = Morph(SELF, RandomEntourage())
+
+    class Hand:
+        update = Morph(SELF, RandomEntourage())
 
 
 LOOT_278e = buff(+2, +2)
@@ -145,7 +147,9 @@ class LOOT_278t3:
     }
     play = (
         Buff(TARGET, "LOOT_278t3e"),
-        Summon(CONTROLLER, ExactCopy(TARGET)).then(Buff(Summon.CARD, "LOOT_278t3e2")),
+        SummonRightOf(CONTROLLER, ExactCopy(TARGET), TARGET).then(
+            Buff(Summon.CARD, "LOOT_278t3e2")
+        ),
     )
 
 

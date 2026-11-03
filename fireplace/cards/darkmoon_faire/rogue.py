@@ -18,6 +18,7 @@ class DMF_071:
 
 
 class DMF_071e:
+    tags = {GameTag.TAG_ONE_TURN_EFFECT: True}
     cost = SET(1)
     events = REMOVED_IN_PLAY
 
@@ -56,7 +57,7 @@ class DMF_516:
 
     # <b>Battlecry:</b> <b>Discover</b> a card in your deck and draw all copies
     # of it.
-    play = Choice(CONTROLLER, RANDOM(FRIENDLY_DECK, 3)).then(
+    play = Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK), 3)).then(
         ForceDraw(FRIENDLY_DECK + SameId(Choice.CARD))
     )
 

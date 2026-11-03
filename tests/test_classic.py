@@ -666,6 +666,24 @@ def test_cenarius():
     game.end_turn()
 
 
+def test_cenarius_with_both_choices_summons_a_treant_on_each_side():
+    # D-108, A109 (rule 80a): two minions summoned at once by a minion in play
+    # stand one on each side of it.
+    game = prepare_empty_game(CardClass.DRUID, CardClass.DRUID)
+    game.player1.give(FANDRAL_STAGHELM).play()
+    game.player1.give(WISP).play()
+    game.player1.used_mana = 0
+    cenarius = game.player1.give("EX1_573").play(index=1)
+    assert [m.id for m in game.player1.field] == [
+        FANDRAL_STAGHELM,
+        "EX1_573t",
+        "EX1_573",
+        "EX1_573t",
+        WISP,
+    ]
+    assert game.player1.field[2] is cenarius
+
+
 def test_cleave():
     game = prepare_game()
     # play some wisps
@@ -1991,6 +2009,20 @@ def test_leeroy():
     assert leeroy.can_attack()
     assert len(game.player2.field) == 2
     assert game.player2.field[0].id == game.player2.field[1].id == "EX1_116t"
+
+
+def test_leeroy_whelps_stop_at_the_opponents_full_board():
+    # The whelps are summoned for the opponent: their board is the one that counts,
+    # not Leeroy's owner's (a board of 8 turned up in Tavern Brawls, WP-129).
+    game = prepare_empty_game()
+    for _ in range(6):
+        game.player2.summon(WISP)
+    game.player1.give("EX1_116").play()
+    assert len(game.player2.field) == 7
+    assert [m.id for m in game.player2.field].count("EX1_116t") == 1
+    game.player1.give("EX1_116").play()
+    assert len(game.player2.field) == 7
+    assert len(game.player1.field) == 2
 
 
 def test_lightning_storm():
@@ -4071,3 +4103,14 @@ def test_gruul_ragnaros():
     assert len(game.player1.field) == 1
     assert gruul.atk == 9
     assert (gruul.damage == 8) ^ (game.player1.hero.damage == 8)
+
+
+def test_pilfer_another_class():
+    # "Add a random card from another class": never a Neutral card, never the
+    # hero's own class (it was Neutral one time in three).
+    for _ in range(40):
+        game = prepare_empty_game(CardClass.ROGUE, CardClass.MAGE)
+        # player1 is whoever goes first, Rogue or Mage.
+        game.player1.give("EX1_182").play()
+        card = game.player1.hand[0]
+        assert len(set(card.classes) - {game.player1.hero.card_class, CardClass.NEUTRAL}) > 0

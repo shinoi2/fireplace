@@ -30,13 +30,11 @@ class AV_128:
     """Frozen Mammoth"""
 
     # This is <b>Frozen</b> until you cast a Fire spell.
-    update = (
-        -Find(
-            FuncSelector(
-                lambda entities, source: [b for b in source.buffs if b.id == "AV_128e"]
-            )
+    update = Find(
+        FuncSelector(
+            lambda entities, source: [b for b in source.buffs if b.id == "AV_128e"]
         )
-    ) & Refresh(SELF, {GameTag.FROZEN: True})
+    ) | Refresh(SELF, {GameTag.FROZEN: True})
     events = Play(CONTROLLER, FIRE).after(Buff(SELF, "AV_128e"))
 
 

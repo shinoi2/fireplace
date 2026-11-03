@@ -22,9 +22,9 @@ class DAL_575:
     """Khadgar"""
 
     # Your cards that summon minions summon twice_as_many.
-    events = Summon(CONTROLLER, MINION, source=FRIENDLY - PLAYER - ID("DAL_575")).after(
-        Summon(CONTROLLER, ExactCopy(Summon.CARD))
-    )
+    events = Summon(
+        CONTROLLER, MINION, source=-GAME - ALL_PLAYERS - ID("DAL_575")
+    ).after(Summon(CONTROLLER, ExactCopy(Summon.CARD)))
 
 
 class DAL_576:
@@ -71,7 +71,10 @@ class DAL_177:
         PlayReq.REQ_TARGET_TO_PLAY: 0,
         PlayReq.REQ_MINION_TARGET: 0,
     }
-    play = Destroy(TARGET), Summon(CONTROLLER, RandomMinion(cost=COST(TARGET))) * 2
+    play = (
+        Destroy(TARGET),
+        SummonRightOf(TARGET_PLAYER, RandomMinion(cost=COST(TARGET)), TARGET) * 2,
+    )
 
 
 class DAL_177ts(DAL_177):

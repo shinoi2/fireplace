@@ -10,7 +10,9 @@ class BAR_334:
     # <b>Battlecry:</b> Resurrect 2 friendly <b>Frenzy</b> minions. Deal 1
     # damage to all other minions.
     play = (
-        Summon(CONTROLLER, Copy(RANDOM(FRIENDLY + KILLED + MINION + FRENZY) * 2)),
+        SummonBothSides(
+            CONTROLLER, Copy(RANDOM(FRIENDLY + KILLED + MINION + FRENZY) * 2)
+        ),
         Hit(ALL_MINIONS - SELF, 1),
     )
 
@@ -126,7 +128,7 @@ class BAR_842t:
     # [x]Give minions in your hand +2/+2. <i>(Upgrades when you have 10
     # Mana.)</i>
     class Hand:
-        update = (MANA(CONTROLLER) >= 5) & Morph(SELF, "BAR_842t2")
+        update = (MANA(CONTROLLER) >= 10) & Morph(SELF, "BAR_842t2")
 
     play = Buff(FRIENDLY_HAND + MINION, "BAR_842e2")
 
@@ -142,8 +144,9 @@ class BAR_845:
     """Rancor"""
 
     # [x]Deal $2 damage to all minions. Gain 2 Armor for each destroyed.
-    play = Hit(ALL_MINIONS, 2).then(
-        GainArmor(FRIENDLY_HERO, Count(ALL_MINIONS + DEAD) * 2)
+    play = (
+        Hit(ALL_MINIONS, 2),
+        GainArmor(FRIENDLY_HERO, Count(ALL_MINIONS + DEAD) * 2),
     )
 
 

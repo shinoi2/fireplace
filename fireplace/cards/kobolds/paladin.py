@@ -116,7 +116,9 @@ class LOOT_286:
 
     # Gains a bonus effect in_your hand.
     entourage = ["LOOT_286t1", "LOOT_286t2", "LOOT_286t3", "LOOT_286t4"]
-    draw = Morph(SELF, RandomEntourage())
+
+    class Hand:
+        update = Morph(SELF, RandomEntourage())
 
 
 class LOOT_286t1:

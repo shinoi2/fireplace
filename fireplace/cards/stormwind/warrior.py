@@ -18,7 +18,7 @@ class SW_024:
     # +3/+3.
     events = OWN_TURN_END.on(
         Find(ENEMY_MINIONS)
-        & Attack(SELF, RANDOM(ENEMY_MINIONS)).then(
+        & Attack(SELF, RANDOM_ENEMY_MINION).then(
             Dead(Attack.DEFENDER) & Buff(SELF, "SW_024e")
         )
     )

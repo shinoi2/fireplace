@@ -118,9 +118,9 @@ class UNG_963:
 class UNG_029:
     """Shadow Visions"""
 
-    play = GenericChoice(
+    play = Choice(
         CONTROLLER, Copy(RANDOM(DeDuplicate(FRIENDLY_DECK + SPELL)) * 3)
-    )
+    ).then(Give(CONTROLLER, Choice.CARD))
 
 
 class UNG_030:

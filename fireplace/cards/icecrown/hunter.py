@@ -35,9 +35,9 @@ class ICC_243:
 class ICC_415:
     """Stitched Tracker"""
 
-    play = GenericChoice(
+    play = Choice(
         CONTROLLER, Copy(RANDOM(DeDuplicate(FRIENDLY_DECK + MINION)) * 3)
-    )
+    ).then(Give(CONTROLLER, Choice.CARD))
 
 
 class ICC_825:

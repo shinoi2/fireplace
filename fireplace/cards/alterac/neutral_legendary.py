@@ -71,7 +71,7 @@ class AV_143:
 
     # [x]<b>Deathrattle:</b> If this wasn't <b>Honorably Killed</b>, resummon
     # Korrak.
-    deathrattle = (CURRENT_HEALTH(SELF) < 0) & Summon(CONTROLLER, "AV_143")
+    deathrattle = (CURRENT_HEALTH(SELF) != 0) & Summon(CONTROLLER, "AV_143")
 
 
 class ONY_004:

@@ -7,7 +7,7 @@ from ..utils import *
 class CFM_341:
     """Sergeant Sally"""
 
-    deathrattle = Hit(ALL_MINIONS, ATK(SELF))
+    deathrattle = Hit(ENEMY_MINIONS, ATK(SELF))
 
 
 class CFM_344:

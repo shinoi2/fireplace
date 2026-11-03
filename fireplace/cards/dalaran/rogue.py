@@ -75,7 +75,9 @@ class DAL_366:
     }
     entourage = ["DAL_366t1", "DAL_366t2", "DAL_366t3", "DAL_366t4"]
     play = Destroy(TARGET)
-    draw = Morph(SELF, RandomEntourage())
+
+    class Hand:
+        update = Morph(SELF, RandomEntourage())
 
 
 class DAL_366t1:

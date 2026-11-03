@@ -73,10 +73,10 @@ class AV_317:
     requirements = {
         PlayReq.REQ_FRIENDLY_DEATHRATTLE_MINION_DIED_THIS_GAME: 0,
     }
-    play = GenericChoice(
+    play = Choice(
         CONTROLLER,
         Copy(RANDOM(DeDuplicate(FRIENDLY + KILLED + DEATHRATTLE + MINION)) * 3),
-    ).then(CopyDeathrattleBuff(FRIENDLY_MINIONS, "AV_317e", GenericChoice.CARD))
+    ).then(CopyDeathrattleBuff(Choice.CARD, "AV_317e", FRIENDLY_MINIONS))
 
 
 class AV_277:

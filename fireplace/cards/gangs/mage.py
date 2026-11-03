@@ -24,7 +24,7 @@ class CFM_660:
 class CFM_671:
     """Cryomancer"""
 
-    play = Find(ENEMY + FROZEN) & Buff(CONTROLLER, "CFM_671e")
+    play = Find(ENEMY + FROZEN) & Buff(SELF, "CFM_671e")
 
 
 CFM_671e = buff(+2, +2)

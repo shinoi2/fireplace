@@ -1,3 +1,5 @@
+import pytest
+
 from utils import *
 from utils import _empty_mulligan
 
@@ -154,6 +156,28 @@ def test_brawl_fixed_decks():
         assert fireplace.cards.db[hero].type == CardType.HERO
     assert GrandTournamentBrawl.ALLERIA_DECK[0].count("AT_103") == 1
     assert GrandTournamentBrawl.ALLERIA_DECK[0].count("AT_108") == 2
+
+
+def test_showdown_nefarian_has_four_crystals_on_his_first_turn():
+    # The wiki: Nefarian starts his first turn with 4 mana crystals (Ragnaros, 1),
+    # whoever the coin sends first. setup() gives the crystals the turn will not add.
+    nefarian = BlackrockShowdownBrawl.NEFARIAN_DECK[1]
+    for seed in range(6):
+        random.seed(seed)
+        game = BlackrockShowdownBrawl.new_game(
+            Player("Player1", [], "HERO_01"), Player("Player2", [], "HERO_01")
+        )
+        game.start()
+        _empty_mulligan(game)
+        seen = set()
+        for _ in range(4):
+            player = game.current_player
+            if player.hero.id not in seen:
+                seen.add(player.hero.id)
+                expected = 4 if player.hero.id == nefarian else 1
+                assert player.max_mana == expected, (seed, player.hero.id)
+            game.end_turn()
+        assert len(seen) == 2
 
 
 def test_grand_tournament_brawl():
@@ -919,3 +943,88 @@ def test_monster_smash_boss_cards():
     assert all(w.zone == Zone.GRAVEYARD for w in wisps)
     assert len(p1.field) == 2 and len(p2.field) == 1
     assert all(m.controller is p1 for m in p1.field)
+
+
+def _assemble_game(deck1, deck2):
+    """Decks Assemble!, started with TB_010 on both players (as the Brawl gives
+    it), mulligan kept: the game stands on the first player's discovery."""
+    player1 = Player("Player1", list(deck1), CardClass.MAGE.default_hero)
+    player2 = Player("Player2", list(deck2), CardClass.WARRIOR.default_hero)
+    game = DecksAssembleBrawl(players=(player1, player2))
+    game.start()
+    for player in game.players:
+        enchant = player.card("TB_010", source=player.hero)
+        enchant.source = player.hero
+        enchant.apply(player)
+    assert [len(p.hand) for p in game.players] == [4, 4]
+    _empty_mulligan(game)
+    return game
+
+
+ASSEMBLE_START = ["PART_001", "GVG_092t", "TB_011", "PART_007"]
+
+
+def _discover(player):
+    player.choice.choose(player.choice.cards[0])
+
+
+@pytest.mark.skip("DecksAssembleBrawl not impl")
+def test_decks_assemble_starting_hands_and_discovery_in_place_of_the_draw():
+    game = _assemble_game(ASSEMBLE_START * 2, ASSEMBLE_START + ["GVG_092t"] * 4)
+    first, second = game.player1, game.player2
+    # 4 cards in hand for both, the Coin on top for the second, 3 to 5 in the deck
+    assert len(first.hand) == 4 and len(first.deck) == 4
+    assert len(second.hand) == 5 and second.hand.filter(id=THE_COIN)
+    assert len(second.deck) == 4
+    # The start of the turn is a discovery, not a draw
+    assert first.choice is not None and len(first.choice.cards) == 3
+    assert first.cards_drawn_this_turn == 0
+    _discover(first)
+    assert len(first.hand) == 5 and len(first.deck) == 4
+    assert first.cant_draw is False
+
+
+@pytest.mark.skip("DecksAssembleBrawl not impl")
+def test_decks_assemble_a_played_card_shuffles_a_copy_into_the_deck():
+    game = _assemble_game(["GVG_092t"] * 8, ["GVG_092t"] * 8)
+    first, second = game.player1, game.player2
+    _discover(first)
+    chicken = first.hand.filter(id="GVG_092t")[0]
+    deck_before = len(first.deck)
+    chicken.play()
+    assert first.field[0].id == "GVG_092t"
+    assert len(first.deck) == deck_before + 1
+    assert first.deck.filter(id="GVG_092t")
+    # The Coin makes no copy.
+    game.end_turn()
+    assert second.choice is not None
+    _discover(second)
+    deck_before = len(second.deck)
+    second.hand.filter(id=THE_COIN)[0].play()
+    assert len(second.deck) == deck_before
+
+
+@pytest.mark.skip("DecksAssembleBrawl not impl")
+def test_decks_assemble_the_hand_goes_back_into_the_deck_and_four_come_out():
+    game = _assemble_game(ASSEMBLE_START * 2, ASSEMBLE_START * 2)
+    first = game.player1
+    _discover(first)
+    total = len(first.hand) + len(first.deck)
+    seen = set(id(c) for c in first.hand) | set(id(c) for c in first.deck)
+    game.end_turn()
+    assert len(first.hand) == 4
+    assert len(first.hand) + len(first.deck) == total
+    assert set(id(c) for c in first.hand) | set(id(c) for c in first.deck) == seen
+    # not a draw: no card counted as drawn
+    assert first.cards_drawn_this_turn == 0
+
+
+@pytest.mark.skip("DecksAssembleBrawl not impl")
+def test_decks_assemble_the_other_player_is_not_touched_by_my_end_of_turn():
+    game = _assemble_game(ASSEMBLE_START * 2, ASSEMBLE_START * 2)
+    second = game.player2
+    hand = [id(c) for c in second.hand]
+    _discover(game.player1)
+    game.end_turn()
+    assert second.choice is not None
+    assert [id(c) for c in second.hand] == hand

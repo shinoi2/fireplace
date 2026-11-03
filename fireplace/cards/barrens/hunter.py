@@ -67,9 +67,9 @@ class BAR_037:
 
     # [x]<b>Battlecry:</b> <b>Discover</b> a Beast from your deck. Give all
     # copies of it +2/+1 <i>(wherever_they_are)</i>.
-    play = GenericChoice(
-        CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK + BEAST)) * 3
-    ).then(Buff(SameId(GenericChoice.CARD), "BAR_037e"))
+    play = Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK + BEAST)) * 3).then(
+        Give(CONTROLLER, Choice.CARD), Buff(FRIENDLY + SameId(Choice.CARD), "BAR_037e")
+    )
 
 
 BAR_037e = buff(+2, +1)

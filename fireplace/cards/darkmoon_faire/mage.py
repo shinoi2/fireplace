@@ -18,6 +18,7 @@ class DMF_101:
     # instead.
     requirements = {
         PlayReq.REQ_MINION_TARGET: 0,
+        PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
     }
     play = Hit(TARGET, 3)
     corrupt_card = "DMF_101t"
@@ -26,6 +27,7 @@ class DMF_101:
 class DMF_101t:
     requirements = {
         PlayReq.REQ_MINION_TARGET: 0,
+        PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
     }
     play = Hit(TARGET, 12)
 
@@ -61,30 +63,10 @@ class YOP_018:
     # <b><b>Spellburst</b>:</b> Get another copy.
     play = GenericChoice(
         CONTROLLER,
-        RandomCollectible(
-            multiple_classes=[
-                MultiClassGroup.PALADIN_PRIEST,
-                MultiClassGroup.PRIEST_WARLOCK,
-                MultiClassGroup.WARLOCK_DEMONHUNTER,
-                MultiClassGroup.HUNTER_DEMONHUNTER,
-                MultiClassGroup.DRUID_HUNTER,
-                MultiClassGroup.DRUID_SHAMAN,
-                MultiClassGroup.MAGE_SHAMAN,
-                MultiClassGroup.MAGE_ROGUE,
-                MultiClassGroup.ROGUE_WARRIOR,
-                MultiClassGroup.PALADIN_WARRIOR,
-                MultiClassGroup.MAGE_HUNTER,
-                MultiClassGroup.HUNTER_DEATHKNIGHT,
-                MultiClassGroup.DEATHKNIGHT_PALADIN,
-                MultiClassGroup.PALADIN_SHAMAN,
-                MultiClassGroup.SHAMAN_WARRIOR,
-                MultiClassGroup.WARRIOR_DEMONHUNTER,
-                MultiClassGroup.DEMONHUNTER_ROGUE,
-                MultiClassGroup.ROGUE_PRIEST,
-                MultiClassGroup.PRIEST_DRUID,
-                MultiClassGroup.DRUID_WARLOCK,
-                MultiClassGroup.WARLOCK_MAGE,
-            ]
+        RandomSpell(
+            multiple_classes=list(
+                group for group in MultiClassGroup if len(group.card_classes) == 2
+            )
         )
         * 3,
     ).then(StoringBuff(SELF, "YOP_018e", GenericChoice.CARD))
@@ -136,6 +118,7 @@ class DMF_105:
 
     # <b>Discover</b> a <b>Secret</b> and cast it. <b>Corrupt:</b>
     # <b>Discover</b> 2 instead.
+    corrupt_card = "DMF_105t"
     play = Discover(CONTROLLER, RandomSpell(secret=True)).then(CastSpell(Discover.CARD))
 
 
@@ -151,8 +134,9 @@ class DMF_107:
 
     # <b>Secret:</b> If you didn't take any damage during your opponent's turn,
     # draw 3 cards.
-    secret = OWN_TURN_BEGIN.on(
-        (DAMAGED_THIS_TURN(FRIENDLY_HERO) == 0) & (Reveal(SELF), Draw(CONTROLLER) * 3)
+    events = OWN_TURN_BEGIN.on(
+        (DAMAGED_ON_OPPONENT_TURN(FRIENDLY_HERO) == 0)
+        & (Reveal(SELF), Draw(CONTROLLER) * 3)
     )
 
 

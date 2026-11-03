@@ -103,9 +103,9 @@ class AV_333:
     """Revive Pet"""
 
     # <b>Discover</b> a friendly Beast that died this game. Summon it.
-    play = GenericChoice(
+    play = Choice(
         CONTROLLER, Copy(RANDOM(DeDuplicate(FRIENDLY + KILLED + MINION + BEAST)) * 3)
-    ).then(Summon(CONTROLLER, GenericChoice.CARD))
+    ).then(Summon(CONTROLLER, Choice.CARD))
 
 
 class ONY_008:
@@ -165,13 +165,21 @@ AV_244e = buff(+1, +1)
 # Heros
 
 
+def _beaststalker_tavish_effect(source, *args):
+    for e in source.entourage:
+        if e == args[Choice.CARD]:
+            source.entourage.remove(e)
+            break
+    yield Summon(CONTROLLER, Choice.CARD)
+
+
 class AV_113:
     """Beaststalker Tavish"""
 
     # [x]<b>Battlecry:</b> <b>Discover</b> and cast 2 Improved <b>Secrets</b>.
     entourage = ["AV_113t1", "AV_113t2", "AV_113t3", "AV_113t7", "AV_113t8", "AV_113t9"]
-    play = GenericChoice(CONTROLLER, RandomEntourage() * 3).then(
-        Summon(CONTROLLER, GenericChoice.CARD)
+    play = (
+        Choice(CONTROLLER, RandomEntourage() * 3).then(_beaststalker_tavish_effect) * 2
     )
 
 
@@ -242,8 +250,9 @@ class AV_113t8:
     # [x]<b>Secret:</b> When your turn starts, if you control two minions,
     # summon two Animal Companions.
     entourage = ["NEW1_032", "NEW1_033", "NEW1_034"]
-    secret = OWN_TURN_BEGIN.on(
-        FULL_BOARD | (Reveal(SELF), Summon(CONTROLLER, RandomEntourage() * 2))
+    events = OWN_TURN_BEGIN.on(
+        (Count(FRIENDLY_MINIONS) >= 2)
+        & (FULL_BOARD | (Reveal(SELF), Summon(CONTROLLER, RandomEntourage() * 2)))
     )
 
 

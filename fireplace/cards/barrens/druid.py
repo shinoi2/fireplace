@@ -37,7 +37,7 @@ class BAR_540:
 
     # [x]After a friendly minion with <b>Taunt</b> dies, summon a new _copy of
     # it without <b>Taunt</b>.
-    events = Death(FRIENDLY_MINIONS + TAUNT).after(
+    events = Death(FRIENDLY + MINION + TAUNT).after(
         Summon(CONTROLLER, Copy(Death.ENTITY)).then(
             UnsetTag(Summon.CARD, GameTag.TAUNT)
         )

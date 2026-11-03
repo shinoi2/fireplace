@@ -64,6 +64,9 @@ class YOP_014:
     play = powered_up & Buff(SELF, "YOP_014e")
 
 
+YOP_014e = buff(+2, +2)
+
+
 ##
 # Spells
 

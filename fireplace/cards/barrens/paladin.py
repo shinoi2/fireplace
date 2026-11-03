@@ -75,7 +75,7 @@ class BAR_550:
 
     # [x]<b>Secret:</b> After your opponent plays three cards in a turn, summon
     # a 3/4 Steed with <b>Taunt</b>.
-    secrets = Play(OPPONENT).after(
+    secret = Play(OPPONENT).after(
         (Attr(OPPONENT, GameTag.NUM_CARDS_PLAYED_THIS_TURN) >= 2)
         & (Reveal(SELF), Summon(CONTROLLER, "BAR_550t"))
     )

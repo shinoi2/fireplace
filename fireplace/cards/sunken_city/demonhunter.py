@@ -35,7 +35,7 @@ class TSC_057t:
 
     # <b>Charge</b>. After this attacks, deal 5 damage to a random enemy
     # minion.
-    events = Attack(SELF).after(Hit(RANDOM(ENEMY_MINIONS), 5))
+    events = Attack(SELF).after(Hit(RANDOM_ENEMY_MINION, 5))
 
 
 class TSC_217:

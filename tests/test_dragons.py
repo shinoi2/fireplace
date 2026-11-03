@@ -106,15 +106,16 @@ def test_sanctuary():
 
 
 def test_envoy_of_lazul():
-    game = prepare_game()
-    game.player1.give("DRG_306").play()
-    choice = game.player1.choice
-    assert game.player2.hand.contains(choice.correct_card.id)
-    assert game.player2.deck.contains(choice.card_1.id)
-    assert game.player2.deck.contains(choice.card_2.id)
-    card = choice.correct_card
-    choice.choose(choice.correct_card)
-    assert card in game.player1.hand
+    for _ in range(10):
+        game = prepare_game()
+        game.player1.give("DRG_306").play()
+        choice = game.player1.choice
+        assert game.player2.hand.contains(choice.correct_card.id)
+        assert game.player2.deck.contains(choice.card_1.id)
+        assert game.player2.deck.contains(choice.card_2.id)
+        card = choice.correct_card
+        choice.choose(choice.correct_card)
+        assert card in game.player1.hand
 
     game = prepare_empty_game()
     game.player1.give("DRG_306").play()
@@ -194,13 +195,8 @@ def test_kronx_dragonhoof_draw_unleash_devastation():
     game.player1.summon("DRG_650")
     wisp = game.player1.give(WISP).play()
     dragonhoof = game.player1.give("DRG_099").play()
-    choice = game.player1.choice
-    assert choice
-    choice.choose(choice.cards[2])
-    assert wisp.atk == 1 + 2
-    assert wisp.health == 1 + 2
-    assert dragonhoof.atk == 6
-    assert dragonhoof.health == 6
+    # A155 (D-108): the Devastation is drawn at random among the four, no choice
+    assert game.player1.choice.cards == ["DRG_099t1", "DRG_099t2", "DRG_099t3", "DRG_099t4"]
 
 
 def test_invoke():
@@ -278,3 +274,282 @@ def test_cleric_of_scales():
 def test_wyrmrest_purifier():
     game = prepare_game(CardClass.DRUID, CardClass.DRUID)
     game.player1.give("DRG_062").play()
+
+
+# WP-191: the cards the fork played otherwise than their text.
+
+
+def test_wing_commander_follows_the_dragons_in_hand():
+    game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE)
+    game.player1.give("BRM_020")
+    commander = game.player1.give("DRG_058").play()
+    assert commander.atk == 4
+    game.player1.give("BRM_020")
+    assert commander.atk == 6
+    game.player1.hand[0].discard()
+    assert commander.atk == 4
+
+
+def test_dread_raven_counts_the_other_ravens():
+    game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE)
+    ravens = [game.player1.give("DRG_088").play() for _ in range(3)]
+    assert [r.atk for r in ravens] == [9, 9, 9]
+    ravens[0].destroy()
+    assert [r.atk for r in ravens[1:]] == [6, 6]
+
+
+def test_troll_batrider_only_hits_a_minion():
+    game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE)
+    game.player1.give("DRG_067").play()
+    assert game.player2.hero.health == 30
+    golem = game.player2.summon("CS2_186")
+    game.player1.give("DRG_067").play()
+    assert golem.damage == 3
+    assert game.player2.hero.health == 30
+
+
+def test_dragonbane_hits_a_random_enemy_not_only_the_hero():
+    hit_minion = hit_hero = False
+    for _ in range(30):
+        game = prepare_empty_game(CardClass.HUNTER, CardClass.HUNTER)
+        golem = game.player2.summon("CS2_186")
+        game.player1.give("DRG_256").play()
+        game.player1.hero.power.use()  # Steady Shot: 2 to the enemy hero
+        assert (golem.damage == 5) != (game.player2.hero.health == 23)
+        hit_minion |= golem.damage == 5
+        hit_hero |= game.player2.hero.health == 23
+    assert hit_minion and hit_hero
+
+
+def test_toxic_reinforcements_summons_three_leper_gnomes():
+    game = prepare_empty_game(CardClass.HUNTER, CardClass.HUNTER)
+    game.player1.give("DRG_255").play()
+    for _ in range(3):
+        game.player1.hero.power.use()
+        game.skip_turn()
+    assert game.player1.field == ["EX1_029"] * 3
+
+
+def test_arcane_breath_discovers_a_spell():
+    game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE)
+    wisp = game.player2.summon(WISP)
+    game.player1.give("BRM_020")
+    game.player1.give("DRG_106").play(target=wisp)
+    assert wisp.dead
+    assert len(game.player1.choice.cards) == 3
+    assert all(c.type == CardType.SPELL for c in game.player1.choice.cards)
+
+
+def test_lightforged_crusader_adds_five_cards():
+    game = prepare_empty_game(CardClass.PALADIN, CardClass.MAGE)
+    game.player1.give("DRG_231").play()
+    assert len(game.player1.hand) == 5
+    game = prepare_empty_game(CardClass.PALADIN, CardClass.MAGE)
+    game.player1.give(WISP).shuffle_into_deck()
+    game.player1.give("DRG_231").play()
+    assert len(game.player1.hand) == 0
+
+
+def test_dragons_hoard_never_offers_a_neutral_or_own_class_card():
+    for _ in range(15):
+        game = prepare_empty_game(CardClass.ROGUE, CardClass.ROGUE)
+        game.player1.give("DRG_028").play()
+        for card in game.player1.choice.cards:
+            assert card.data.rarity == Rarity.LEGENDARY
+            assert len(set(card.data.classes) - {CardClass.ROGUE, CardClass.NEUTRAL}) > 0
+
+
+def test_overloaded_cards_see_the_crystals_about_to_be_locked():
+    game = prepare_empty_game(CardClass.SHAMAN, CardClass.SHAMAN)
+    tempest = game.player1.summon("DRG_216")
+    assert tempest.atk == 1
+    game.player1.give("EX1_238").play(target=game.player2.hero)  # Overload (1)
+    assert tempest.atk == 2
+    golem = game.player2.summon("CS2_186")
+    game.player1.give("DRG_223").play(target=golem)
+    assert golem.damage == 5
+
+
+def test_cumulo_maximus_needs_overloaded_crystals():
+    game = prepare_empty_game(CardClass.SHAMAN, CardClass.MAGE)
+    golem = game.player2.summon("CS2_186")
+    game.player1.give("DRG_223").play()
+    assert golem.damage == 0
+
+
+def test_scion_of_ruin_summons_a_copy_on_each_side():
+    game = prepare_empty_game(CardClass.WARRIOR, CardClass.MAGE)
+    game.player1.give(WISP).play()
+    game.player1.give(WISP).play(index=1)
+    game.player1.give("DRG_019").play(index=1)
+    assert game.player1.field == [WISP, "DRG_019", WISP]
+    game.player1.invoke_counter = 2
+    game.player1.give("DRG_019").play(index=1)
+    assert game.player1.field == [WISP] + ["DRG_019"] * 4 + [WISP]
+
+
+def test_valdris_felgorge_raises_the_hand_limit():
+    game = prepare_empty_game(CardClass.WARLOCK, CardClass.MAGE)
+    game.player1.give("DRG_208").play()
+    assert game.player1.max_hand_size == 12
+    for _ in range(12):
+        game.player1.give(WISP)
+    assert len(game.player1.hand) == 12
+
+
+def test_blowtorch_saboteur_makes_the_next_hero_power_cost_three():
+    game = prepare_empty_game(CardClass.HUNTER, CardClass.HUNTER)
+    game.player1.give("DRG_403").play()
+    assert game.player2.hero.power.cost == 3
+    assert game.player1.hero.power.cost == 2
+    game.end_turn()
+    game.player2.hero.power.use()
+    assert game.player2.hero.power.cost == 2
+
+
+def test_bandersmosh_becomes_a_5_5_each_turn():
+    game = prepare_empty_game(CardClass.SHAMAN, CardClass.MAGE)
+    game.player1.give("DRG_096")
+    for _ in range(2):
+        game.skip_turn()
+        card = game.player1.hand[0]
+        assert card.id != "DRG_096"
+        assert (card.atk, card.health) == (5, 5)
+
+
+def test_kronx_dragonhoof_draws_galakrond_and_unleashes_a_devastation():
+    game = prepare_empty_game(CardClass.WARRIOR, CardClass.WARRIOR)
+    game.player1.give("DRG_650").play()
+    game.player1.used_mana = 0
+    game.player1.give("DRG_660").shuffle_into_deck()
+    game.player2.give("DRG_610").shuffle_into_deck()
+    game.player1.give("DRG_099").play()
+    assert game.player1.hand == ["DRG_660"]
+    assert game.player2.deck == ["DRG_610"]
+    # the Devastation is drawn at random (A155, D-108): no choice opens
+    assert game.player1.choice.cards == ["DRG_099t1", "DRG_099t2", "DRG_099t3", "DRG_099t4"]
+
+
+def test_murozond_replays_the_cards_in_reverse_order_without_battlecries():
+    game = prepare_empty_game(CardClass.PRIEST, CardClass.PRIEST)
+    game.end_turn()
+    game.player2.max_mana = 10
+    game.player2.used_mana = 0
+    game.player2.give(WISP).play()
+    game.player2.give("CS2_120").play()
+    game.player2.give("CS2_122").play()
+    game.end_turn()
+    game.player1.max_mana = 10
+    game.player1.used_mana = 0
+    game.player1.give("DRG_090").play()
+    assert game.player1.field == ["DRG_090", "CS2_122", "CS2_120", WISP]
+
+
+# WP-192: the cards of Galakrond's Awakening (YEAR_OF_THE_DRAGON) the fork played otherwise
+# than their text.
+
+
+def test_arcane_amplifier_adds_two_to_the_hero_power():
+    game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE)
+    amplifier = game.player1.give("YOD_008").play()
+    game.player1.hero.power.use(target=game.player2.hero)
+    assert game.player2.hero.damage == 3
+    amplifier.destroy()
+    game.end_turn()
+    game.end_turn()
+    game.player1.hero.power.use(target=game.player2.hero)
+    assert game.player2.hero.damage == 4
+
+
+def test_skyvateer_draws_a_card_when_it_dies():
+    game = prepare_empty_game(CardClass.ROGUE, CardClass.ROGUE)
+    game.player1.give(WISP).shuffle_into_deck()
+    skyvateer = game.player1.give("YOD_016").play()
+    assert skyvateer.has_deathrattle
+    skyvateer.destroy()
+    assert game.player1.hand == [WISP]
+    assert len(game.player1.deck) == 0
+
+
+def test_aeon_reaver_deals_the_targets_attack():
+    game = prepare_empty_game(CardClass.PRIEST, CardClass.PRIEST)
+    game.end_turn()
+    golem = game.player2.give("CS2_186").play()  # War Golem 7/7
+    game.end_turn()
+    reaver = game.player1.give("YOD_014")
+    reaver.play(target=golem)
+    assert golem.dead
+    assert reaver.damage == 0
+
+
+def test_hailbringer_puts_an_ice_shard_on_each_side():
+    game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE)
+    game.player1.give(WISP).play()
+    game.player1.give("YOD_029").play()
+    assert game.player1.field == [WISP, "YOD_029t", "YOD_029", "YOD_029t"]
+
+
+def test_chaos_gazer_card_is_destroyed_at_the_end_of_the_opponents_turn():
+    game = prepare_empty_game(CardClass.WARLOCK, CardClass.WARLOCK)
+    for card in list(game.player2.hand):
+        card.discard()
+    wisp = game.player2.give(WISP)
+    game.player1.give("YOD_027").play()
+    assert len(wisp.buffs) == 1
+    game.end_turn()  # the end of the Gazer's own turn: the card is still there
+    assert wisp.zone == Zone.HAND
+    assert game.current_player is game.player2
+    game.end_turn()  # the end of the opponent's turn
+    assert wisp.zone == Zone.GRAVEYARD
+
+
+def test_rotnest_drake_needs_a_dragon_in_hand():
+    game = prepare_empty_game(CardClass.HUNTER, CardClass.HUNTER)
+    game.end_turn()
+    target = game.player2.give(WISP).play()
+    game.end_turn()
+    game.player1.give("YOD_036").play()
+    assert target.zone == Zone.PLAY
+    game.player1.used_mana = 0
+    game.player1.give("EX1_043")
+    game.player1.give("YOD_036").play()
+    assert target.zone == Zone.GRAVEYARD
+
+
+def test_winged_guardian_cannot_be_targeted_by_spells_and_hero_powers_and_comes_back():
+    game = prepare_empty_game(CardClass.DRUID, CardClass.DRUID)
+    guardian = game.player1.give("YOD_003").play()
+    game.end_turn()
+    fireball = game.player2.give(FIREBALL)
+    assert guardian not in fireball.targets
+    assert guardian not in game.player2.hero.power.targets
+    game.end_turn()
+    guardian.destroy()
+    assert [c.id for c in game.player1.field] == ["YOD_003"]
+    assert game.player1.field[0].health == 1
+
+
+def test_chaos_gazer_card_can_be_played_in_the_opponents_turn():
+    game = prepare_empty_game(CardClass.WARLOCK, CardClass.WARLOCK)
+    for card in list(game.player2.hand):
+        card.discard()
+    game.player2.max_mana = 3
+    yeti = game.player2.give("CS2_182")  # costs 4, playable next turn at 4 crystals
+    game.player1.give("YOD_027").play()
+    game.end_turn()
+    assert yeti.is_playable()
+    yeti.play()
+    assert yeti.zone == Zone.PLAY
+
+
+def test_skyfin_summons_a_murloc_on_each_side_of_itself():
+    # D-108, A109 (rule 80a): two minions summoned at once by a minion in play
+    # stand one on each side of it.
+    game = prepare_empty_game()
+    game.player1.give(WISP).play()
+    game.player1.give(WHELP)  # a Dragon in hand
+    skyfin = game.player1.give("DRG_072").play(index=1)
+    field = game.player1.field
+    assert field[2] is skyfin
+    assert len(field) == 4
+    assert Race.MURLOC in field[1].races and Race.MURLOC in field[3].races

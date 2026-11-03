@@ -92,6 +92,39 @@ def test_counterspell_wild_pyromancer():
     assert pyromancer.health == 2
 
 
+def test_counterspell_beats_whenever_you_cast_a_spell():
+    # Patch 11.2: "Counterspell beats 'whenever' and 'after' triggers". A
+    # countered spell is not cast: none of these minions reacts to it, whether
+    # they came into play before the Counterspell or after (WP-129d, A58).
+    reactions = {
+        "NEW1_012": lambda game, minion: minion.atk,  # Mana Wyrm
+        "NEW1_026": lambda game, minion: len(game.player1.field),  # Violet Teacher
+        "EX1_095": lambda game, minion: len(game.player1.deck),  # Gadgetzan Auctioneer
+        "LOE_086": lambda game, minion: len(game.player1.field),  # Summoning Stone
+        "KAR_021": lambda game, minion: len(game.player1.field),  # Wicked Witchdoctor
+        "KAR_035": lambda game, minion: game.player1.hero.damage,  # Priest of the Feast
+    }
+    for card_id, measure in reactions.items():
+        for countered in (False, True):
+            game = prepare_game()
+            minion = game.player1.give(card_id).play()
+            game.player1.hero.damage = 5
+            game.end_turn()
+            if countered:
+                game.player2.give("EX1_287").play()
+            game.end_turn()
+            before = measure(game, minion)
+            game.player1.give(MOONFIRE).play(target=game.player2.hero)
+            after = measure(game, minion)
+            if countered:
+                assert game.player2.hero.health == 30, card_id
+                assert not game.player2.secrets, card_id
+                assert after == before, card_id
+            else:
+                assert game.player2.hero.health == 29, card_id
+                assert after != before, card_id
+
+
 def test_dart_trap():
     game = prepare_game(CardClass.WARLOCK, CardClass.WARLOCK)
     darttrap = game.player1.give("LOE_021")

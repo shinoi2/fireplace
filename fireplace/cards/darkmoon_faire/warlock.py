@@ -32,7 +32,7 @@ class DMF_115:
     """Revenant Rascal"""
 
     # <b>Battlecry:</b> Destroy a Mana Crystal for each player.
-    play = GainEmptyMana(ALL_PLAYERS, -1)
+    play = GainEmptyMana(CONTROLLER, -1), GainEmptyMana(OPPONENT, -1)
 
 
 class DMF_533:
@@ -121,12 +121,12 @@ class DMF_118:
 
     # [x]<b>Battlecry:</b> Remove the top 5 cards from your deck.
     # <b>Corrupt:</b> Your opponent's deck instead.
-    play = Mill(CONTROLLER, 5)
+    play = Mill(CONTROLLER) * 5
     corrupt_card = "DMF_118t"
 
 
 class DMF_118t:
-    play = Mill(OPPONENT, 5)
+    play = Mill(OPPONENT) * 5
 
 
 class DMF_119:

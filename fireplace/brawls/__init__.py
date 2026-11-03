@@ -97,7 +97,7 @@ class BlackrockShowdownBrawl(Game):
         super().setup()
         for player in self.players:
             if player.hero.id == self.NEFARIAN_DECK[1]:
-                player.max_mana = 4
+                player.max_mana = 3
                 player.hero.armor = 30
             else:
                 player.summon("BRMC_94")  # Sulfuras

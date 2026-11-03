@@ -7,7 +7,8 @@ from ..utils import *
 class CFM_020:
     """Raza the Chained"""
 
-    play = Buff(CONTROLLER, "CFM_020e")
+    powered_up = -FindDuplicates(FRIENDLY_DECK)
+    play = powered_up & Buff(CONTROLLER, "CFM_020e")
 
 
 class CFM_020e:

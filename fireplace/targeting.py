@@ -48,16 +48,7 @@ def is_valid_target(self, target, requirements=None):
         # Battlecries can never target themselves
         return False
 
-    if (
-        target.type == CardType.HERO
-        and target.stealthed
-        and self.controller != target.controller
-    ):
-        return False
-
-    if target.type == CardType.MINION:
-        if target.dormant:
-            return False
+    if target.type in (CardType.MINION, CardType.HERO):
         if target.dead:
             return False
         if target.stealthed and self.controller != target.controller:
@@ -67,6 +58,10 @@ def is_valid_target(self, target, requirements=None):
         if self.type == CardType.SPELL and target.cant_be_targeted_by_abilities:
             return False
         if self.type == CardType.HERO_POWER and target.cant_be_targeted_by_hero_powers:
+            return False
+
+    if target.type == CardType.MINION:
+        if target.dormant:
             return False
 
     if target.cant_be_targeted_by_opponents and self.controller != target.controller:

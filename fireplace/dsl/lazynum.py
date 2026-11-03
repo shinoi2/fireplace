@@ -32,6 +32,7 @@ class LazyNum(LazyValue):
         return func
 
     __eq__ = _cmp("eq")
+    __ne__ = _cmp("ne")
     __ge__ = _cmp("ge")
     __gt__ = _cmp("gt")
     __le__ = _cmp("le")

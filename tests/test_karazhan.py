@@ -216,7 +216,8 @@ def test_swashburglar():
     burglar = game.player1.give("KAR_069")
     burglar.play()
     assert len(game.player1.hand) == 1
-    assert game.player2.hero.card_class in game.player1.hand[0].classes
+    # Patch 21.8: "from another class", not the opponent's class.
+    assert game.player1.hero.card_class not in game.player1.hand[0].classes
 
 
 def test_ethereal_peddler():
@@ -639,3 +640,205 @@ def test_silverware_golem():
     game.player1.give("KAR_205")
     game.player1.give(SOULFIRE).play(target=game.player2.hero)
     assert game.player1.field[0].id == "KAR_205"
+
+
+def test_cat_trick_reveals_once():
+    # A secret triggers once, then is gone: a second spell summons nothing.
+    game = prepare_game()
+    game.player1.give("KAR_004").play()
+    game.end_turn()
+
+    game.player2.give(MOONFIRE).play(target=game.player1.hero)
+    assert [m.id for m in game.player1.field] == ["KAR_004a"]
+    assert not game.player1.secrets
+    game.player2.give(MOONFIRE).play(target=game.player1.hero)
+    assert [m.id for m in game.player1.field] == ["KAR_004a"]
+
+
+def test_cat_trick_full_board():
+    game = prepare_game()
+    for _ in range(7):
+        game.player1.give(WISP).play()
+    game.player1.give("KAR_004").play()
+    game.end_turn()
+
+    game.player2.give(MOONFIRE).play(target=game.player1.hero)
+    assert len(game.player1.field) == 7
+    assert [s.id for s in game.player1.secrets] == ["KAR_004"]
+
+
+def test_babbling_book_mage_spell():
+    for _ in range(20):
+        game = prepare_game(CardClass.WARRIOR, CardClass.WARRIOR)
+        game.player1.discard_hand()
+        game.player1.give("KAR_009").play()
+        spell = game.player1.hand[0]
+        assert spell.type == CardType.SPELL
+        assert CardClass.MAGE in spell.classes
+
+
+def test_swashburglar_another_class():
+    for _ in range(20):
+        game = prepare_empty_game(CardClass.ROGUE, CardClass.MAGE)
+        # player1 is whoever goes first, Rogue or Mage.
+        game.player1.give("KAR_069").play()
+        card = game.player1.hand[0]
+        assert game.player1.hero.card_class not in card.classes
+        assert CardClass.NEUTRAL not in card.classes
+
+
+def test_arcane_anomaly_after_the_spell():
+    # "After you cast a spell": Moonfire kills the 2/1 before the +1 Health.
+    game = prepare_game()
+    anomaly = game.player1.give("KAR_036")
+    anomaly.play()
+    game.player1.give(MOONFIRE).play(target=anomaly)
+    assert anomaly.dead
+
+
+def test_atiesh_after_the_spell():
+    # "After you cast a spell": Twisting Nether resolves first, the summon survives.
+    game = prepare_game()
+    game.player1.give("KAR_097").play()
+    game.end_turn()
+    game.end_turn()
+    game.player1.give("EX1_312").play()
+    assert len(game.player1.field) == 1
+    assert game.player1.field[0].cost == 8
+    assert game.player1.weapon.durability == 2
+
+
+def test_atiesh_final_cost():
+    # The final Cost of the spell, Sorcerer's Apprentice included.
+    game = prepare_game()
+    game.player1.give("KAR_097").play()
+    game.end_turn()
+    game.end_turn()
+    game.player1.give("EX1_608").play()
+    frostbolt = game.player1.give("CS2_024")
+    assert frostbolt.cost == 1
+    frostbolt.play(target=game.player2.hero)
+    assert game.player1.field[-1].cost == 1
+    assert game.player1.weapon.durability == 2
+
+
+def test_atiesh_full_board():
+    # No room to summon: Atiesh keeps its Durability.
+    game = prepare_game()
+    game.player1.give("KAR_097").play()
+    for _ in range(6):
+        game.player1.give(WISP).play()
+    game.player1.give(MOONFIRE).play(target=game.player2.hero)
+    assert len(game.player1.field) == 7
+    assert game.player1.weapon.durability == 3
+
+
+def test_prince_malchezaar_five_different_legendaries_of_his_class():
+    starting = ["KAR_096", "EX1_016", "EX1_562"] + [WISP] * 27
+    for _ in range(10):
+        player1 = Player("Player1", list(starting), CardClass.MAGE.default_hero)
+        player2 = Player("Player2", [WISP] * 30, CardClass.WARRIOR.default_hero)
+        game = BaseTestGame(players=(player1, player2))
+        game.start()
+        for player in game.players:
+            if player.choice:
+                player.choice.choose()
+        mage = player1
+        added = [c for c in list(mage.deck) + list(mage.hand) if c.id not in starting]
+        added = [c for c in added if c.id != THE_COIN]
+        assert len(added) == 5
+        assert len({c.id for c in added}) == 5
+        for card in added:
+            assert card.type == CardType.MINION
+            assert card.rarity == Rarity.LEGENDARY
+            assert CardClass.MAGE in card.classes or CardClass.NEUTRAL in card.classes
+
+
+def test_barnes_keeps_the_enchantments_of_the_deck_card():
+    game = prepare_empty_game()
+    wisp = game.player1.give(WISP)
+    wisp.shuffle_into_deck()
+    game.queue_actions(game.player1, [Buff(wisp, "CS2_009e")])
+    assert wisp.taunt
+    game.player1.give("KAR_114").play()
+    summoned = game.player1.field[-1]
+    assert summoned.id == WISP
+    assert summoned.taunt
+    assert summoned.atk == 1
+    assert summoned.health == 1
+
+
+def test_moat_lurker_resummons_at_the_far_right():
+    # hearthstone.wiki.gg: "summons the minion to the far right of the
+    # controlling player's board", not where Moat Lurker stood.
+    game = prepare_game()
+    game.end_turn()
+    wisp = game.player2.give(WISP).play()
+    game.player2.give("CS2_182").play()
+    game.player2.give(CHICKEN).play()
+    game.end_turn()
+    lurker = game.player1.give("KAR_041")
+    lurker.play(target=wisp)
+    game.player1.give(FIREBALL).play(target=lurker)
+    assert [m.id for m in game.player2.field] == ["CS2_182", CHICKEN, WISP]
+
+
+def test_moat_lurker_own_minion_far_right():
+    game = prepare_game()
+    wisp = game.player1.give(WISP).play()
+    game.player1.give("CS2_182").play()
+    lurker = game.player1.give("KAR_041")
+    lurker.play(target=wisp, index=0)
+    game.end_turn()
+    game.end_turn()
+    game.player1.give(KOBOLD_GEOMANCER).play()
+    game.player1.give(FIREBALL).play(target=lurker)
+    assert [m.id for m in game.player1.field] == [
+        "CS2_182",
+        KOBOLD_GEOMANCER,
+        WISP,
+    ]
+
+
+def test_ivory_knight_heals_the_base_cost():
+    # Under the enemy's Loatheb, the discovered spell costs 5 more: the heal is its base Cost.
+    game = prepare_empty_game(CardClass.PALADIN, CardClass.PALADIN)
+    game.end_turn()
+    game.player2.give("FP1_030").play()  # Loatheb
+    game.end_turn()
+    game.player1.hero.set_current_health(1)
+    game.player1.give("KAR_057").play()
+    choice = game.player1.choice.cards[0]
+    base = fireplace.cards.db[choice.id].cost
+    game.player1.choice.choose(choice)
+    assert choice.cost == base + 5
+    assert game.player1.hero.health == 1 + base
+
+
+def test_arcane_giant_countered_spell_does_not_count():
+    game = prepare_game()
+    giant = game.player1.give("KAR_711")
+    game.end_turn()
+    game.player2.give("EX1_287").play()  # Counterspell
+    game.end_turn()
+    game.player1.give(MOONFIRE).play(target=game.player2.hero)
+    assert game.player2.hero.health == 30
+    assert giant.cost == 12
+    game.player1.give(MOONFIRE).play(target=game.player2.hero)
+    assert giant.cost == 11
+
+
+def test_spirit_claws_enemy_jungle_moonkin():
+    # "While you have Spell Damage": the enemy's Jungle Moonkin gives it to both players.
+    game = prepare_game()
+    game.player1.give("KAR_063").play()
+    claws = game.player1.weapon
+    assert claws.atk == 1
+    game.end_turn()
+    moonkin = game.player2.give("LOE_051")
+    moonkin.play()
+    assert game.player1.spellpower == 2
+    assert claws.atk == 3
+    game.player2.give(FIREBALL).play(target=moonkin)
+    assert moonkin.dead
+    assert claws.atk == 1
