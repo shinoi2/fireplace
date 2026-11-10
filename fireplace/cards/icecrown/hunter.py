@@ -43,7 +43,7 @@ class ICC_415:
 class ICC_825:
     """Abominable Bowman"""
 
-    deathrattle = Summon(CONTROLLER, Copy(FRIENDLY + KILLED + BEAST))
+    deathrattle = Summon(CONTROLLER, Copy(RANDOM(FRIENDLY + KILLED + BEAST)))
 
 
 ##
@@ -97,7 +97,9 @@ class ICC_828p:
 
         def do(self, source, player):
             beast_ids = RandomBeast(
-                card_class=[CardClass.HUNTER, CardClass.NEUTRAL], cost=range(0, 6)
+                card_class=[CardClass.HUNTER, CardClass.NEUTRAL],
+                cost=range(0, 6),
+                is_standard=None,
             ).find_cards(source)
             self.first_ids = []
             self.second_ids = []

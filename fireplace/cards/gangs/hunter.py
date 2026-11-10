@@ -55,7 +55,8 @@ class CFM_026:
     """Hidden Cache"""
 
     secret = Play(OPPONENT, MINION).after(
-        Reveal(SELF), Buff(RANDOM(FRIENDLY_HAND + MINION), "CFM_026e")
+        Find(FRIENDLY_HAND + MINION)
+        & (Reveal(SELF), Buff(RANDOM(FRIENDLY_HAND + MINION), "CFM_026e"))
     )
 
 

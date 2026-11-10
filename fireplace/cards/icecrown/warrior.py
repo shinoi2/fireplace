@@ -19,13 +19,13 @@ class ICC_238:
 class ICC_405:
     """Rotface"""
 
-    events = SELF_DAMAGE.on(Summon(CONTROLLER, RandomLegendaryMinion()))
+    events = SELF_DAMAGE.on(Dead(SELF) | Summon(CONTROLLER, RandomLegendaryMinion()))
 
 
 class ICC_408:
     """Val'kyr Soulclaimer"""
 
-    events = SELF_DAMAGE.on(Summon(CONTROLLER, "ICC_900t"))
+    events = SELF_DAMAGE.on(Dead(SELF) | Summon(CONTROLLER, "ICC_900t"))
 
 
 class ICC_450:

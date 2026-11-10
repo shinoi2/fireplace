@@ -163,11 +163,14 @@ class Action(metaclass=ActionMeta):
         ret.times = self.times
         return ret
 
+    def _event_class(self):
+        return self.__class__
+
     def _broadcast(self, entity, source, at, *args):
         for event in entity.events:
             if event.at != at:
                 continue
-            if isinstance(event.trigger, self.__class__) and event.trigger.matches(
+            if isinstance(event.trigger, self._event_class()) and event.trigger.matches(
                 entity, source, args
             ):
                 log.info("%r triggers off %r from %r", entity, self, source)
@@ -520,7 +523,8 @@ class Play(GameAction):
         player = source
         log.info("%s plays %r (target=%r, index=%r)", player, card, target, index)
 
-        player.pay_cost(card, card.cost)
+        card.cost_when_played = card.cost
+        player.pay_cost(card, card.cost_when_played)
 
         card.target = target
         card._summon_index = index
@@ -594,29 +598,29 @@ class Play(GameAction):
                 )
             self.broadcast(player, EventListener.AFTER, player, played_card, target)
 
-        player.combo = True
-        player.last_card_played = card
-        if card.type == CardType.MINION:
-            player.minions_played_this_turn += 1
-            if Race.TOTEM in card.races:
-                player.times_totem_summoned_this_game += 1
-            if Race.PIRATE in card.races:
-                player.times_pirate_summoned_this_game += 1
-            if Race.BEAST in card.races:
-                player.times_beast_summoned_this_game += 1
-            if Race.ELEMENTAL in card.races:
-                player.elemental_played_this_turn += 1
-        elif card.type == CardType.SPELL:
-            player.spells_played_this_game += 1
-            for entity in player.field.filter(dormant=False, card_type=CardType.MINION):
-                if entity.has_spellburst:
-                    source.game.queue_actions(card, [Spellburst(entity, card)])
-        player.cards_played_this_turn += 1
-        player.cards_played_this_game.append(card)
-        for hand in player.hand:
-            hand.cards_played_when_holding.append(card)
-        card.turn_played = source.game.turn
-        card.choose = None
+            player.combo = True
+            player.last_card_played = card
+            if card.type == CardType.MINION:
+                player.minions_played_this_turn += 1
+                if Race.TOTEM in card.races:
+                    player.times_totem_summoned_this_game += 1
+                if Race.PIRATE in card.races:
+                    player.times_pirate_summoned_this_game += 1
+                if Race.BEAST in card.races:
+                    player.times_beast_summoned_this_game += 1
+                if Race.ELEMENTAL in card.races:
+                    player.elemental_played_this_turn += 1
+            elif card.type == CardType.SPELL:
+                player.spells_played_this_game += 1
+                for entity in player.field.filter(dormant=False, card_type=CardType.MINION):
+                    if entity.has_spellburst:
+                        source.game.queue_actions(card, [Spellburst(entity, card)])
+            player.cards_played_this_turn += 1
+            player.cards_played_this_game.append(card)
+            for hand in player.hand:
+                hand.cards_played_when_holding.append(card)
+            card.turn_played = source.game.turn
+            card.choose = None
 
 
 class Activate(GameAction):
@@ -1080,7 +1084,7 @@ class Damage(TargetedAction):
             if (
                 hasattr(source, "lifesteal")
                 and source.lifesteal
-                and source.type != CardType.WEAPON
+                and not (source.type == CardType.WEAPON and target is source)
             ):
                 if source.controller.lifesteal_damages_opposing_hero:
                     source.game.queue_actions(
@@ -1094,7 +1098,8 @@ class Damage(TargetedAction):
             if (
                 hasattr(source, "poisonous")
                 and source.poisonous
-                and (target.type != CardType.HERO and source.type != CardType.WEAPON)
+                and target.type != CardType.HERO
+                and not (source.type == CardType.WEAPON and target is source)
             ):
                 target.destroy()
             if (
@@ -1864,6 +1869,10 @@ class Summon(TargetedAction):
     TARGET = ActionArg()
     CARD = ActionArg()
 
+    def _event_class(self):
+        # Summon subclasses must also notify ordinary Summon listeners.
+        return Summon
+
     def _broadcast(self, entity, source, at, *args):
         # Prevent cards from triggering off their own summon
         if entity is args[1]:
@@ -2206,7 +2215,7 @@ class Evolve(TargetedAction):
     AMOUNT = IntArg()
 
     def do(self, source, target, amount):
-        cost = target.cost + amount
+        cost = max(0, target.cost + amount)
         card_set = RandomMinion(cost=cost).find_cards(source)
         if card_set:
             card = source.game.random.choice(card_set)

@@ -1004,7 +1004,7 @@ class Character(LiveEntity):
 
     @property
     def attackable(self):
-        return not self.immune
+        return not self.immune and not self.stealthed
 
     @property
     def attacking(self):

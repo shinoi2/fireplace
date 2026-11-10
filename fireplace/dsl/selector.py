@@ -141,6 +141,7 @@ CURRENT_DURABILITY = AttrValue("durability")
 CURRENT_PROGRESS = AttrValue(GameTag.QUEST_PROGRESS)
 MIN_HEALTH = AttrValue(GameTag.HEALTH_MINIMUM)
 COST = AttrValue(GameTag.COST)
+ORIGIN_COST = AttrValue("_cost")
 DAMAGE = AttrValue(GameTag.DAMAGE)
 MANA = AttrValue(GameTag.RESOURCES)
 MAX_MANA = AttrValue(GameTag.MAXRESOURCES)
@@ -836,6 +837,19 @@ PLAY_OUTCAST = FuncSelector(
 )
 
 ENTOURAGE = FuncSelector(lambda entities, source: source.entourage)
+
+
+def _friendly_class_or_neutral(entities, source):
+    current_class = source.controller.hero.card_class
+    if current_class is CardClass.NEUTRAL:
+        current_class = source.controller.starting_hero.card_class
+    return [
+        current_class,
+        CardClass.NEUTRAL
+    ]
+
+
+FRIENDLY_CLASS_OR_NEUTRAL = FuncSelector(_friendly_class_or_neutral)
 
 
 def _another_class(entities, source):

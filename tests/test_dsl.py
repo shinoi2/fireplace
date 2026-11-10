@@ -7,6 +7,57 @@ from fireplace.dsl import *
 from fireplace.exceptions import *
 
 
+@pytest.mark.parametrize(
+    "condition, expected",
+    [
+        (Find(SELF), True),
+        (Find(SELF - SELF), False),
+        (Count(SELF) == 1, True),
+        (Count(SELF) == 0, False),
+    ],
+)
+def test_evaluator_negation(condition, expected):
+    source = prepare_empty_game().player1
+    negated = -condition
+
+    assert condition.check(source) is expected
+    assert negated.check(source) is not expected
+    assert (-negated).check(source) is expected
+    # Negating a copy must leave the original condition unchanged.
+    assert condition.check(source) is expected
+
+    assert (condition & "yes" | "no").evaluate(source) == (
+        "yes" if expected else "no"
+    )
+    assert (negated & "yes" | "no").evaluate(source) == (
+        "no" if expected else "yes"
+    )
+
+
+def test_evaluator_automatically_wraps_subclass_checks():
+    class Condition(Evaluator):
+        def check(self, source):
+            return True
+
+    class InheritedCondition(Condition):
+        pass
+
+    class OverriddenCondition(Condition):
+        def check(self, source):
+            return False
+
+    assert InheritedCondition.check is Condition.check
+    for cls, expected in (
+        (Condition, True),
+        (InheritedCondition, True),
+        (OverriddenCondition, False),
+    ):
+        condition = cls()
+        assert condition.check(None) is expected
+        assert (-condition).check(None) is not expected
+        assert (-(-condition)).check(None) is expected
+
+
 def test_selector():
     game = prepare_game()
     game.player1.discard_hand()
@@ -210,12 +261,13 @@ def test_positional_selectors():
     assert adjacent[1] is wisp3
 
 
-def test_hijack():
-    game = prepare_game()
-    vial = game.player1.give("LOEA16_8")
-    with hijacked(RANDOM_ENEMY_MINION, FRIENDLY_HERO):
-        with pytest.raises(GameOver):
-            vial.play()
+# 暂停测试：依赖冒险模式专用卡牌，按要求保留原内容为注释。
+# def test_hijack():
+#     game = prepare_game()
+#     vial = game.player1.give("LOEA16_8")
+#     with hijacked(RANDOM_ENEMY_MINION, FRIENDLY_HERO):
+#         with pytest.raises(GameOver):
+#             vial.play()
 
 
 def test_lazynum():

@@ -14,7 +14,7 @@ class CFM_064:
     """Blubber Baron"""
 
     class Hand:
-        events = Play(CONTROLLER, BATTLECRY + MINION).on(Buff(SELF, "CFM_064e"))
+        events = Summon(CONTROLLER, BATTLECRY + MINION).after(Buff(SELF, "CFM_064e"))
 
 
 CFM_064e = buff(+1, +1)
@@ -29,7 +29,8 @@ class CFM_095:
 class CFM_328:
     """Fight Promoter"""
 
-    play = Find(FRIENDLY_MINIONS + (CURRENT_HEALTH >= 6)) & Draw(CONTROLLER) * 2
+    powered_up = Find(FRIENDLY_MINIONS + (CURRENT_HEALTH >= 6))
+    play = powered_up & Draw(CONTROLLER) * 2
 
 
 class CFM_609:
@@ -53,7 +54,8 @@ class CFM_790:
 class CFM_810:
     """Leatherclad Hogleader"""
 
-    play = (Count(ENEMY_HAND) >= 6) & GiveCharge(SELF)
+    powered_up = Count(ENEMY_HAND) >= 6
+    play = powered_up & GiveCharge(SELF)
 
 
 class CFM_855:

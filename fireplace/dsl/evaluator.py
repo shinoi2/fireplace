@@ -1,4 +1,5 @@
 import copy
+from functools import wraps
 
 from hearthstone.enums import CardType, CardClass
 
@@ -10,8 +11,27 @@ class Evaluator:
     Lazily evaluate a condition at runtime.
 
     Evaluators must implement the check() method, which determines whether they
-    evaluate to True in the current state.
+    evaluate to True in the current state. Subclass check() methods are
+    automatically wrapped so direct checks also respect negation.
     """
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # Inherited checks are already wrapped by the class defining them.
+        check = cls.__dict__.get("check")
+        if check is not None:
+            cls.check = Evaluator.negatable_check(check)
+
+    @staticmethod
+    def negatable_check(check):
+        """Apply the evaluator's negation to a condition's result."""
+
+        @wraps(check)
+        def wrapper(self, source):
+            result = check(self, source)
+            return not result if self._neg else result
+
+        return wrapper
 
     def __init__(self):
         self._if = None
@@ -42,8 +62,6 @@ class Evaluator:
         Actions as a result.
         """
         ret = self.check(source)
-        if self._neg:
-            ret = not ret
         if ret:
             if self._if:
                 return self._if

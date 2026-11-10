@@ -29,7 +29,8 @@ class ICC_252:
         PlayReq.REQ_FROZEN_TARGET: 0,
         PlayReq.REQ_MINION_TARGET: 0,
     }
-    play = Find(ENEMY + FROZEN) & Draw(CONTROLLER)
+    powered_up = Find(ENEMY + FROZEN)
+    play = powered_up & Draw(CONTROLLER)
 
 
 class ICC_838:
@@ -66,7 +67,7 @@ class ICC_086:
 class ICC_823:
     """Simulacrum"""
 
-    play = Give(CONTROLLER, ExactCopy(LOWEST_COST(FRIENDLY_HAND)))
+    play = Give(CONTROLLER, ExactCopy(RANDOM(LOWEST_COST(FRIENDLY_HAND + MINION))))
 
 
 class ICC_836:

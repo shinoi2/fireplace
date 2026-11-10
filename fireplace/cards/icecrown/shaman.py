@@ -58,7 +58,7 @@ class ICC_078:
         PlayReq.REQ_TARGET_TO_PLAY: 0,
         PlayReq.REQ_MINION_TARGET: 0,
     }
-    play = Hit(TARGET, 3), Freeze(TARGET_ADJACENT)
+    play = Freeze(TARGET), Hit(TARGET_ADJACENT, 3)
 
 
 class ICC_089:

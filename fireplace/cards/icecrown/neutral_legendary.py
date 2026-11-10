@@ -63,7 +63,11 @@ class ICC_314t6:
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_TARGET_TO_PLAY: 0,
     }
-    play = Destroy(TARGET).then(Hit(FRIENDLY_HERO, ATK(TARGET)))
+
+    def play(self):
+        health = self.target.health
+        yield Destroy(TARGET)
+        yield Hit(FRIENDLY_HERO, health)
 
 
 class ICC_314t7:
@@ -89,7 +93,8 @@ class ICC_314t8:
 class ICC_851:
     """Prince Keleseth"""
 
-    play = Find(FRIENDLY_DECK + (COST == 2)) | Buff(FRIENDLY_DECK + MINION, "ICC_851e")
+    powered_up = -Find(FRIENDLY_DECK + (COST == 2))
+    play = powered_up & Buff(FRIENDLY_DECK + MINION, "ICC_851e")
 
 
 ICC_851e = buff(+1, +1)
@@ -102,6 +107,7 @@ class ICC_852:
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_TARGET_IF_AVAILABLE_AND_NO_3_COST_CARD_IN_DECK: 0,
     }
+    powered_up = -Find(FRIENDLY_DECK + (COST == 3))
     play = Morph(SELF, ExactCopy(TARGET)).then(Buff(Morph.CARD, "ICC_852e"))
 
 
@@ -113,7 +119,8 @@ class ICC_852e:
 class ICC_853:
     """Prince Valanar"""
 
-    play = Find(FRIENDLY_DECK + (COST == 2)) | (Taunt(SELF), GiveLifesteal(SELF))
+    powered_up = -Find(FRIENDLY_DECK + (COST == 4))
+    play = powered_up & (Taunt(SELF), GiveLifesteal(SELF))
 
 
 class ICC_854:

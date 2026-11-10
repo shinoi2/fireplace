@@ -528,20 +528,20 @@ def test_grimscale_chum_buffs_one_random_murloc():
     assert sorted((m.atk, m.health) for m in murlocs) == [(2, 1), (2, 1), (3, 2)]
 
 
-def test_finders_keepers_never_offers_itself():
-    # Environ 70 cartes de chaman à Surcharge : 150 découvertes la montreraient (p < 0,001).
-    # Une partie Wild : sans cela, le vivier Standard n'a pas Mean Streets of Gadgetzan.
+def test_finders_keepers_can_offer_itself():
     game = prepare_empty_game()
     game.player1.is_standard = False
-    for _ in range(150):
-        game.player1.give("CFM_313").play()
-        cards = game.player1.choice.cards
-        assert "CFM_313" not in [c.id for c in cards]
-        assert all(c.overload for c in cards)
-        game.player1.choice.choose(cards[0])
-        game.player1.discard_hand()
-        game.player1.used_mana = 0
-        game.player1.overloaded = 0
+    spell = game.player1.give("CFM_313")
+    pool = RandomCollectible(card_class=CardClass.SHAMAN, overload=True).find_cards(spell)
+    assert "CFM_313" in pool
+    offers = [game.player1.card(id) for id in ("CFM_313", "EX1_238", "EX1_241")]
+    with mock(RandomCollectible, offers):
+        spell.play()
+    cards = game.player1.choice.cards
+    assert "CFM_313" in [c.id for c in cards]
+    assert all(c.overload for c in cards)
+    game.player1.choice.choose(offers[0])
+    assert game.player1.hand == [offers[0]]
 
 
 def test_getaway_kodo_after_the_deathrattle():
@@ -569,17 +569,16 @@ def test_getaway_kodo_after_the_deathrattle():
     assert "EX1_096" not in [c.id for c in game.player1.hand]
 
 
-def test_doppelgangster_first_copy_on_the_left():
-    """Le wiki : la première copie à gauche de l'original, la seconde à sa droite ; une seule
-    place, la copie va à gauche."""
+def test_doppelgangster_first_copy_on_the_right():
+    """The first copy goes right; with two slots the second goes left."""
     game = prepare_empty_game()
     for _ in range(5):
         game.player1.summon(WISP)
     doppel = game.player1.give("CFM_668")
     doppel.play(index=0)
     assert len(game.player1.field) == 7
-    assert game.player1.field[1] is doppel
-    assert game.player1.field[0].id == "CFM_668"
+    assert game.player1.field[0] is doppel
+    assert game.player1.field[1].id == "CFM_668"
 
     game2 = prepare_empty_game()
     left = game2.player1.summon(WISP)

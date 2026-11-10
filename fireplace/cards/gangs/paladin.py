@@ -22,7 +22,7 @@ CFM_639e = buff(+1, +1)
 class CFM_650:
     """Grimscale Chum"""
 
-    play = Buff(FRIENDLY_HAND + MURLOC, "CFM_650e")
+    play = Buff(RANDOM(FRIENDLY_HAND + MURLOC), "CFM_650e")
 
 
 CFM_650e = buff(+1, +1)
@@ -59,7 +59,7 @@ CFM_305e = buff(+1, +1)
 class CFM_800:
     """Getaway Kodo"""
 
-    secret = Death(FRIENDLY + MINION).on(Reveal(SELF), Bounce(Death.ENTITY))
+    secret = Death(FRIENDLY + MINION).after(Reveal(SELF), Bounce(Death.ENTITY))
 
 
 class CFM_905:
