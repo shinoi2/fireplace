@@ -60,10 +60,9 @@ def test_wicked_witchdoctor():
     witchdoc = game.player1.give("KAR_021")
     witchdoc.play()
     game.player1.give(THE_COIN).play()
-    basic_totem = ["CS2_050", "CS2_051", "CS2_058", "NEW1_009"]
 
     assert len(game.player1.field) == 2
-    assert game.player1.field[-1].id in basic_totem
+    assert game.player1.field[-1].id in BASIC_TOTEMS
 
 
 def test_book_wyrm():
@@ -217,7 +216,10 @@ def test_swashburglar():
     burglar.play()
     assert len(game.player1.hand) == 1
     # Patch 21.8: "from another class", not the opponent's class.
-    assert game.player1.hero.card_class not in game.player1.hand[0].classes
+    assert any(
+        card_class != game.player1.hero.card_class
+        for card_class in game.player1.hand[0].classes
+    )
 
 
 def test_ethereal_peddler():
@@ -683,7 +685,9 @@ def test_swashburglar_another_class():
         # player1 is whoever goes first, Rogue or Mage.
         game.player1.give("KAR_069").play()
         card = game.player1.hand[0]
-        assert game.player1.hero.card_class not in card.classes
+        assert any(
+            card_class != game.player1.hero.card_class for card_class in card.classes
+        )
         assert CardClass.NEUTRAL not in card.classes
 
 

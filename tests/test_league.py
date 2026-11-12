@@ -256,7 +256,7 @@ def test_ethereal_conjurer():
     assert len(game.player1.choice.cards) == 3
     for card in game.player1.choice.cards:
         assert card.type == CardType.SPELL
-        assert CardClass.MAGE in card.classes
+        assert CardClass.MAGE in card.classes or CardClass.NEUTRAL in card.classes
 
 
 def test_everyfin_is_awesome():

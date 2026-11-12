@@ -8,8 +8,10 @@ class LOOT_130:
     """Arcane Tyrant"""
 
     # Costs (0) if you've cast a spell that costs (5) or more this turn.
-    class Hand:
-        events = Play(CONTROLLER, SPELL + (COST >= 5)).after(Buff(SELF, "LOOT_130e"))
+    cost_mod = Find(
+        CARDS_PLAYED_THIS_GAME + CARDS_PLAYED_THIS_TURN + SPELL
+        + (AttrValue("cost_when_played") >= 5)
+    ) & -5
 
 
 @custom_card
@@ -82,7 +84,7 @@ class LOOT_529:
     """Void Ripper"""
 
     # <b>Battlecry:</b> Swap the Attack and Health of all_other_minions.
-    play = Buff(ALL_MINIONS, "LOOT_529e")
+    play = Buff(ALL_MINIONS - SELF, "LOOT_529e")
 
 
 LOOT_529e = AttackHealthSwapBuff()

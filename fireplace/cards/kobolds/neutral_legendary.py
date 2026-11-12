@@ -32,7 +32,7 @@ class LOOT_998j:
         PlayReq.REQ_NUM_MINION_SLOTS: 1,
     }
     play = Discover(CONTROLLER, RandomLegendaryMinion()).then(
-        Summon(CONTROLLER, Discover.CARD) * 2
+        Summon(CONTROLLER, Copy(Discover.CARD)) * 2
     )
 
 
@@ -65,7 +65,7 @@ class LOOT_521:
     """Master Oakheart"""
 
     # <b>Battlecry:</b> <b>Recruit</b> a 1, 2, and 3-Attack minion.
-    play = Recruit(COST == 1), Recruit(COST == 2), Recruit(COST == 3)
+    play = Recruit(ATK == 1), Recruit(ATK == 2), Recruit(ATK == 3)
 
 
 class LOOT_526:
@@ -73,9 +73,9 @@ class LOOT_526:
 
     # [x]Starts dormant. <b>Battlecry:</b> Shuffle 3 Candles into the enemy deck. When
     # drawn, this awakens.
-    tags = {GameTag.DORMANT: True}
+    tags = {GameTag.DORMANT: True, GameTag.DONT_PICK_FROM_SUBSETS: True}
     progress_total = 3
-    play = Shuffle(CONTROLLER, "LOOT_526t") * 3
+    play = Shuffle(OPPONENT, "LOOT_526t") * 3
     reward = Awaken(SELF)
 
 

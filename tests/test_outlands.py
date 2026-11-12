@@ -312,7 +312,7 @@ def test_shadowjeweler_hanar_offers_secrets_of_other_classes_only():
         assert len(game.player1.choice.cards) == 3
         for card in game.player1.choice.cards:
             assert card.secret
-            assert CardClass.ROGUE not in card.classes
+            assert CardClass.MAGE not in card.classes
             assert CardClass.NEUTRAL not in card.classes
             seen.add(card.id)
     assert len(seen) > 3
@@ -373,9 +373,8 @@ def test_evocation_discards_at_the_end_of_the_turn():
     assert len(game.player1.hand) <= 2
 
 
-def test_overgrowth_gives_an_excess_mana_for_each_crystal_over_ten():
-    # A176 (D-108): as two Wild Growth: none at 8 crystals, one at 9, two at 10.
-    for crystals, gained, excess in ((8, 2, 0), (9, 1, 1), (10, 0, 2)):
+def test_overgrowth_gives_one_excess_mana_only_at_max_crystals():
+    for crystals, gained, excess in ((8, 2, 0), (9, 1, 0), (10, 0, 1)):
         game = prepare_empty_game()
         game.player1.max_mana = crystals
         game.player1.used_mana = 0

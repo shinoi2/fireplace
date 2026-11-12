@@ -72,10 +72,8 @@ class LOOT_187:
         PlayReq.REQ_FRIENDLY_MINION_DIED_THIS_GAME: 0,
     }
     play = (
-        Summon(CONTROLLER, Copy(RANDOM(FRIENDLY + KILLED + MINION + DEATHRATTLE))).then(
-            Buff(Summon.CARD, "LOOT_187e")
-        )
-        * 2
+        Summon(CONTROLLER, Copy(RANDOM(FRIENDLY + KILLED + MINION + DEATHRATTLE) * 2))
+        .then(Buff(Summon.CARD, "LOOT_187e"))
     )
 
 
@@ -178,7 +176,7 @@ class LOOT_278t4e:
         GameTag.ATK: 2,
         GameTag.HEALTH: 2,
     }
-    deathrattle = Summon(CONTROLLER, Copy(OWNER))
+    deathrattle = Give(CONTROLLER, Copy(OWNER))
 
 
 class LOOT_353:

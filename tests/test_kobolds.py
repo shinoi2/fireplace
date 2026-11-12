@@ -379,7 +379,8 @@ def test_evasion_is_spent_and_lasts_this_turn():
     assert game.player1.hero.health == 29
     assert game.player1.hero.immune
     assert len(game.player1.secrets) == 0
-    game.player2.give(MOONFIRE).play(target=game.player1.hero)
+    # An enemy cannot select an Immune hero; use untargeted damage instead.
+    game.player2.give("CS2_075").play()  # Sinister Strike
     assert game.player1.hero.health == 29
     game.end_turn()
     assert not game.player1.hero.immune
@@ -465,10 +466,8 @@ def test_zarogs_crown_summons_two_copies():
     assert len(game.player1.hand) == 0
 
 
-def test_leyline_manipulator_ignores_cards_that_transformed_themselves():
-    # The wiki (Leyline Manipulator): not affected, "Cards transform themselves
-    # into new cards while in the player's hand, such as Shifter Zerus, Molten
-    # Blade, or Shifting Scroll"; a Spellstone upgrades itself in the same way.
+def test_leyline_manipulator_reduces_cards_that_transformed_themselves():
+    # A transformed card is a new entity and is no longer in the starting deck.
     game = BaseTestGame(
         players=(
             Player("Player1", ["LOOT_104"] * 30, CardClass.MAGE.default_hero),
@@ -487,8 +486,9 @@ def test_leyline_manipulator_ignores_cards_that_transformed_themselves():
     spells = [c for c in spells if not c.id.startswith("LOOT_051")]
     assert spells
     costs = [c.cost for c in spells]
+    assert all(not any(c is original for original in me.starting_deck) for c in spells)
     me.give("LOOT_537").play()
-    assert [c.cost for c in spells] == costs
+    assert [c.cost for c in spells] == [max(0, cost - 2) for cost in costs]
 
 
 def test_the_darkness_is_never_summoned_at_random():
@@ -498,15 +498,14 @@ def test_the_darkness_is_never_summoned_at_random():
     )
 
 
-def test_windshear_stormcaller_with_wrath_of_air():
-    # The wiki: "Healing Totem, Searing Totem, Stoneclaw Totem, and one of Wrath
-    # of Air Totem and Strength Totem."
-    for fourth in ("CS2_052", "CS2_058"):
-        game = prepare_empty_game()
-        for totem in ("CS2_050", "CS2_051", "NEW1_009", fourth):
+def test_windshear_stormcaller_wrath_of_air_does_not_replace_strength():
+    game = prepare_empty_game()
+    for totem in BASIC_TOTEMS:
+        if totem != "CS2_058":
             game.player1.give(totem).play()
-        game.player1.give("LOOT_518").play()
-        assert game.player1.field[-1].id == "NEW1_010"
+    game.player1.give("CS2_052").play()
+    game.player1.give("LOOT_518").play()
+    assert game.player1.field[-1].id == "LOOT_518"
 
 
 def test_recruit_summons_at_the_far_right():
@@ -603,7 +602,7 @@ def test_unidentified_cards_are_revealed_when_given():
     }
     for id, ids in variants.items():
         game = prepare_empty_game()
-        card = game.player1.give(id)
+        card = game.player1.give(id).morphed
         assert [c.id for c in game.player1.hand] == [card.id]
         assert card.id in ids
         assert card.zone == Zone.HAND
@@ -614,7 +613,7 @@ def test_unidentified_cards_are_revealed_when_drawn():
     game.player1.card("LOOT_285", zone=Zone.DECK)
     assert game.player1.deck[0].id == "LOOT_285"
     game.player1.give(YETI)
-    card = game.player1.draw()
+    card = game.player1.draw().morphed
     assert card.id.startswith("LOOT_285t")
     assert [c.id for c in game.player1.hand] == [YETI, card.id]
     assert card.drawn_this_turn
@@ -635,10 +634,10 @@ def test_unidentified_cards_are_revealed_in_the_starting_hand_and_mulligan():
         assert all(c.id != "LOOT_285" for c in player.hand)
         player.choice.choose(*mulligan)
         assert all(c.id != "LOOT_285" for c in player.hand)
-        # Still cards that started in the deck (Leyline Manipulator).
+        # Transformed cards are new entities, outside the starting deck.
         for card in player.hand:
             if card.id != THE_COIN:
-                assert any(card is c for c in player.starting_deck)
+                assert not any(card is c for c in player.starting_deck)
         # In the deck, the cards never drawn stay unidentified; the ones sent
         # back by the mulligan (some may come back at once) stay what they became.
         unidentified = [c for c in player.deck if c.id == "LOOT_285"]

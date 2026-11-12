@@ -336,9 +336,9 @@ def test_deathrattle():
     assert not loothoarder.dead
     archer = game.current_player.give("CS2_189")
     archer.play(target=loothoarder)
-    # Minions restore to full health when in graveyard.
+    # Minions retain their damage when entering the graveyard.
     assert loothoarder in game.player1.graveyard
-    assert loothoarder.damage == 0
+    assert loothoarder.damage == 1
     assert loothoarder.dead
     assert len(game.current_player.opponent.hand) == cardcount + 1
     game.end_turn()

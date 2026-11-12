@@ -109,9 +109,9 @@ BT_253e = buff(+1, +2)
 class BT_257:
     """Apotheosis"""
 
-    # Give a minion +2/+3 and <b>Lifesteal</b>.
+    # Give a minion +1/+2 and <b>Lifesteal</b>.
     requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0, PlayReq.REQ_MINION_TARGET: 0}
     play = Buff(TARGET, "BT_257e")
 
 
-BT_257e = buff(+2, +3, lifesteal=True)
+BT_257e = buff(+1, +2, lifesteal=True)

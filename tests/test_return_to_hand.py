@@ -248,3 +248,31 @@ def test_returned_awakened_minion_is_dormant_again():
     ganarg.play()
     assert ganarg.dormant
     assert not ganarg.can_attack()
+
+
+def test_control_change_keeps_enchantments_until_returned_to_hand():
+    game = prepare_empty_game()
+    yeti = game.player1.summon(YETI)
+    game.player1.give(BLESSING_OF_KINGS).play(target=yeti)
+    game.end_turn()
+    game.player2.give(MIND_CONTROL).play(target=yeti)
+    assert yeti.controller is game.player2
+    assert (yeti.atk, yeti.health) == (8, 9)
+    game.end_turn()
+    game.player1.give(SAP).play(target=yeti)
+    assert yeti in game.player2.hand
+    assert (yeti.atk, yeti.health) == (4, 5)
+    assert yeti.turns_in_play == 0
+
+
+def test_immortal_prelate_keeps_enchantments_when_shuffled_after_death():
+    game = prepare_empty_game()
+    prelate = game.player1.summon("TRL_306")
+    game.player1.give(BLESSING_OF_KINGS).play(target=prelate)
+    game.player1.give(MOONFIRE).play(target=prelate)
+    prelate.destroy()
+    assert prelate.zone == Zone.DECK
+    assert (prelate.atk, prelate.health) == (5, 7)
+    assert prelate.damage == 0
+    assert prelate.buffs
+    assert not prelate.killed_this_turn

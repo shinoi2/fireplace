@@ -452,7 +452,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
                 self.choose_cards.append(card)
             # Clean up cards_played_when_holding
             self.cards_played_when_holding = CardList()
-            self.turn_drawn = self.game.turn
+            self.turn_drawn = -1
 
     def destroy(self):
         return self.game.cheat_action(self, [actions.Destroy(self), actions.Deaths()])
@@ -698,6 +698,11 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
 
         for req in TARGETING_PREREQUISITES:
             if req in self.requirements:
+                if (
+                    req == PlayReq.REQ_TARGET_IF_AVAILABLE_AND_NOT_DRAWN_THIS_TURN
+                    and self.drawn_this_turn
+                ):
+                    continue
                 return True
         return False
 
@@ -1286,6 +1291,7 @@ class Minion(Character):
 
     def __init__(self, data):
         self.always_wins_brawls = False
+        self._needs_card_reset = False
         self.divine_shield = False
         self.enrage = False
         self.silenced = False
@@ -1359,7 +1365,7 @@ class Minion(Character):
 
     @property
     def events(self):
-        if self.dormant:
+        if self.dormant and self.zone == Zone.PLAY:
             return self.data.scripts.dormant_events
         return super().events
 
@@ -1391,6 +1397,41 @@ class Minion(Character):
             return self.controller.field.index(self) + 1
         return super().zone_position
 
+    def _reset_card_state(self):
+        """Reset a former minion when it becomes a hand or deck card again."""
+        if not self.keep_buff:
+            self.clear_buffs()
+            self.additional_deathrattles = []
+        for attr in self.silenceable_attributes:
+            setattr(self, attr, False)
+        self.tags.update(
+            {
+                tag: value
+                for tag, value in self.data.tags.items()
+                if self.tags.map.get(tag) in self.silenceable_attributes
+            }
+        )
+        self.silenced = False
+        self._events = self.data.scripts.events[:]
+        self.damage = 0
+        self.predamage = 0
+        self.damaged_source = None
+        self.destroyed_source = None
+        self.turns_in_play = 0
+        self.turn_killed = -1
+        self.num_attacks = 0
+        self.num_attacks_only_minion = 0
+        self.additional_attacks = 0
+        self.additional_attacks_only_minion = 0
+        self.attack_target = None
+        self.damaged_this_turn = 0
+        self.damaged_on_opponent_turn = 0
+        self.healed_this_turn = 0
+        self.turn_played = -1
+        self.turn_drawn = -1
+        self.dormant = bool(self.data.tags.get(GameTag.DORMANT, False))
+        self.dormant_turns = self.data.scripts.dormant_turns
+
     def _set_zone(self, value):
         if self.zone == value:
             return
@@ -1406,25 +1447,19 @@ class Minion(Character):
         if self.zone == Zone.PLAY:
             self.log("%r is removed from the field", self)
             self.controller.field.remove(self)
-            if value not in (Zone.GRAVEYARD, Zone.SETASIDE):
-                # Back in the hand or the deck, the minion is its card again:
-                # its keywords come back and the silence is gone.
-                for attr in self.silenceable_attributes:
-                    setattr(self, attr, False)
-                self.tags.update(
-                    {
-                        tag: tag_value
-                        for tag, tag_value in self.data.tags.items()
-                        if self.tags.map.get(tag) in self.silenceable_attributes
-                    }
-                )
-                if self.silenced:
-                    self.silenced = False
-                    self._events = self.data.scripts.events[:]
+            self._needs_card_reset = True
             if self.data.tags.get(GameTag.DORMANT, False):
                 self.dormant = True
             if getattr(self.data.scripts, "dormant_turns"):
                 self.dormant_turns = getattr(self.data.scripts, "dormant_turns")
+        if value in (Zone.HAND, Zone.DECK) and (
+            self._needs_card_reset or self.zone == Zone.GRAVEYARD
+        ):
+            self._reset_card_state()
+            self._needs_card_reset = False
+        elif value == Zone.PLAY:
+            # Control changes also pass through SETASIDE, keeping board effects.
+            self._needs_card_reset = False
         super()._set_zone(value)
         if self.zone == Zone.PLAY and self.has_colossal:
             self.game.cheat_action(self, self.get_actions("colossal"))

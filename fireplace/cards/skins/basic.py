@@ -17,7 +17,7 @@ class HERO_02bp:
         PlayReq.REQ_ENTIRE_ENTOURAGE_NOT_IN_PLAY: 0,
         PlayReq.REQ_NUM_MINION_SLOTS: 1,
     }
-    entourage = ["CS2_050", "CS2_051", "CS2_058", "NEW1_009"]
+    entourage = BASIC_TOTEMS
     activate = Summon(CONTROLLER, RandomEntourage(exclude=FRIENDLY_MINIONS))
 
 

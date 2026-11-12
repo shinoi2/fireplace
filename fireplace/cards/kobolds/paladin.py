@@ -8,7 +8,9 @@ class LOOT_216:
     """Lynessa Sunsorrow"""
 
     # [x]<b>Battlecry:</b> Cast each spell you cast on your minions this game on this one.
-    play = CastSpell(CARDS_PLAYED_THIS_GAME + CAST_ON_FRIENDLY_MINIONS, SELF)
+    play = CastSpell(
+        RandomShuffle(CARDS_PLAYED_THIS_GAME + CAST_ON_FRIENDLY_MINIONS)[:30], SELF
+    )
 
 
 class LOOT_313:
@@ -59,7 +61,7 @@ class LOOT_091:
     reward = Morph(SELF, "LOOT_091t1")
 
     class Hand:
-        events = Heal().on(AddProgress(SELF, Heal.TARGET, Heal.AMOUNT))
+        events = Heal(source=FRIENDLY).on(AddProgress(SELF, Heal.TARGET, Heal.AMOUNT))
 
 
 class LOOT_091t1:
@@ -74,7 +76,7 @@ class LOOT_091t1:
     reward = Morph(SELF, "LOOT_091t2")
 
     class Hand:
-        events = Heal().on(AddProgress(SELF, Heal.TARGET, Heal.AMOUNT))
+        events = Heal(source=FRIENDLY).on(AddProgress(SELF, Heal.TARGET, Heal.AMOUNT))
 
 
 class LOOT_091t2:
@@ -156,7 +158,7 @@ class LOOT_500:
     """Val'anyr"""
 
     # <b>Deathrattle:</b> Give a minion in your hand +4/+2. When it dies, reequip this.
-    deathrattle = Buff(RANDOM(FRIENDLY_MINIONS), "LOOT_500e")
+    deathrattle = Buff(RANDOM(FRIENDLY_HAND + MINION), "LOOT_500e")
 
 
 class LOOT_500e:

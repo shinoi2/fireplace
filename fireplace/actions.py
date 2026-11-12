@@ -394,7 +394,7 @@ class Death(GameAction):
                 and target.type == CardType.MINION
                 and target.reborn
             ):
-                for hand in target.controller.hand:
+                for hand in target.controller.hand.filter(type=CardType.MINION):
                     hand.infuse += 1
                     if hand.has_infuse and hand.infuse >= hand.data_num_1:
                         source.game.queue_actions(target.controller, [Infuse(hand)])
@@ -474,6 +474,7 @@ class MulliganChoice(GameAction):
     def do(self, source, player):
         player.mulligan_state = Mulligan.INPUT
         player.choice = self
+        source.game.refresh_auras()
         # NOTE: Ideally, we give The Coin when the Mulligan is over.
         # Unfortunately, that's not compatible with Blizzard's way.
         self.cards = player.hand.exclude(id="GAME_005")
@@ -494,6 +495,7 @@ class MulliganChoice(GameAction):
             new_card._summon_index = card.zone_position
             card.zone = Zone.DECK
             new_card.zone = Zone.HAND
+        self.source.game.refresh_auras()
         self.player.shuffle_deck()
         self.player.mulligan_state = Mulligan.DONE
 
@@ -1346,14 +1348,13 @@ class Discover(Choice):
             picker = self._args[1] * 3
             return [picker.evaluate(source)]
         picker = self._args[1] * 3
-        picker = picker.copy_with_weighting(1, card_class=CardClass.NEUTRAL)
-        picker = picker.copy_with_weighting(1, card_class=discover_class)
+        picker.filters["card_class"] = [discover_class, CardClass.NEUTRAL]
         cards = picker.evaluate(source)
         if len(cards) == 0:
             picker = self._args[1] * 3
             # When discover random secret
             discover_class = source.data.card_class
-            picker = picker.copy_with_weighting(1, card_class=discover_class)
+            picker.filters["card_class"] = [discover_class, CardClass.NEUTRAL]
             cards = picker.evaluate(source)
         return [cards]
 
@@ -1712,8 +1713,9 @@ class Morph(TargetedAction):
         target.clear_buffs()
         target.zone = Zone.SETASIDE
         target.morphed = card
-        target.cards_played_when_holding = card.cards_played_when_holding[:]
-        target.infuse = card.infuse
+        card.cards_played_when_holding = target.cards_played_when_holding[:]
+        card.infuse = target.infuse
+        card.turn_drawn = target.turn_drawn
         source.game.manager.targeted_action(self, source, target, card)
         return card
 
@@ -1902,7 +1904,9 @@ class Summon(TargetedAction):
             ):
                 continue
             if card.zone != Zone.PLAY:
-                if source.type == CardType.MINION or source.type == CardType.LOCATION:
+                if card._summon_index is None and source.type in (
+                    CardType.MINION, CardType.LOCATION
+                ):
                     if source.zone == Zone.PLAY:
                         source_index = source.controller.field.index(source)
                         self._summon_count += 1

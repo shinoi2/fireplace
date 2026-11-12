@@ -8,7 +8,7 @@ class LOOT_048:
     """Ironwood Golem"""
 
     # <b>Taunt</b> Can only attack if you have 3 or more Armor.
-    update = (ARMOR(FRIENDLY_HAND) >= 3) | Refresh(SELF, {GameTag.CANT_ATTACK: True})
+    update = (ARMOR(FRIENDLY_HERO) >= 3) | Refresh(SELF, {GameTag.CANT_ATTACK: True})
 
 
 class LOOT_056:
@@ -154,5 +154,5 @@ class LOOT_309:
 class LOOT_392:
     """Twig of the World Tree"""
 
-    # <b>Deathrattle:</b> Gain 10 Mana Crystals.
-    deathrattle = GainMana(CONTROLLER, 10)
+    # <b>Deathrattle:</b> Refresh your Mana Crystals.
+    deathrattle = FillMana(CONTROLLER, 10)

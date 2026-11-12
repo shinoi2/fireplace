@@ -552,7 +552,8 @@ def test_wicked_shipment_starts_with_one_imp_and_gains_two_when_traded():
         imp.destroy()
     traded = game.player1.give("DED_504")
     traded.trade()
-    again = [c for c in game.player1.deck if c.id == "DED_504"][0]
+    # The random starting deck can contain another, unupgraded copy.
+    again = next(c for c in game.player1.deck if c is traded)
     again.zone = Zone.HAND
     again.play()
     assert len(game.player1.field) == 3

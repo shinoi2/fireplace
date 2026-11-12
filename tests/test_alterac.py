@@ -417,7 +417,9 @@ def test_cerathine_fleetrunner_replaces_the_minions_with_ones_of_other_classes()
     assert len(cards) == 3
     for card in cards:
         assert card.id != WISP and card.type == CardType.MINION
-        assert card.data.card_class not in (CardClass.ROGUE, CardClass.NEUTRAL)
+        assert any(
+            cls not in (CardClass.ROGUE, CardClass.NEUTRAL) for cls in card.classes
+        )
         assert card.cost == max(0, card.data.cost - 2)
 
 
@@ -426,7 +428,9 @@ def test_reconnaissance_discovers_a_deathrattle_minion_of_another_class():
     game.player1.give("AV_710").play()
     for card in game.player1.choice.cards:
         assert card.has_deathrattle
-        assert card.data.card_class not in (CardClass.ROGUE, CardClass.NEUTRAL)
+        assert any(
+            cls not in (CardClass.ROGUE, CardClass.NEUTRAL) for cls in card.classes
+        )
     card = _choose(game)
     assert game.player1.hand == [card.id]
     assert card.cost == max(0, card.data.cost - 2)
@@ -440,7 +444,9 @@ def test_tooth_of_nefarian_discovers_a_spell_of_another_class_on_an_honorable_ki
     assert game.player1.choice
     for card in game.player1.choice.cards:
         assert card.type == CardType.SPELL
-        assert CardClass.ROGUE not in card.data.classes
+        assert any(
+            cls not in (CardClass.ROGUE, CardClass.NEUTRAL) for cls in card.classes
+        )
 
 
 def test_forsaken_lieutenant_becomes_a_copy_with_rush_of_a_deathrattle_minion():

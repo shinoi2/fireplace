@@ -111,7 +111,7 @@ class BT_292:
     play = Buff(TARGET, "BT_292e"), Draw(CONTROLLER)
 
 
-BT_292e = buff(+2, 12)
+BT_292e = buff(+2, +1)
 
 
 ##

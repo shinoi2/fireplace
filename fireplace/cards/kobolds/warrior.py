@@ -15,7 +15,7 @@ class LOOT_365:
     """Gemstudded Golem"""
 
     # <b>Taunt</b> Can only attack if you have 5 or more Armor.
-    update = (ARMOR(FRIENDLY_HAND) >= 5) | Refresh(SELF, {GameTag.CANT_ATTACK: True})
+    update = (ARMOR(FRIENDLY_HERO) >= 5) | Refresh(SELF, {GameTag.CANT_ATTACK: True})
 
 
 class LOOT_367:
