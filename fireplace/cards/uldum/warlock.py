@@ -54,7 +54,7 @@ class ULD_167:
     """Diseased Vulture"""
 
     # After your hero takes damage on your turn, summon a random 3-Cost minion.
-    events = Hit(FRIENDLY_HERO).on(
+    events = Damage(FRIENDLY_HERO).on(
         Find(CURRENT_PLAYER + CONTROLLER) & Summon(CONTROLLER, RandomMinion(cost=3))
     )
 

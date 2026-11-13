@@ -17,15 +17,7 @@ class SCH_354:
     # [x]At the end of your turn, steal 1 Attack and Health from all enemy
     # minions.
     events = OWN_TURN_END.on(
-        Buff(ENEMY_MINIONS + (ATK <= 0) + (CURRENT_HEALTH == 0), "SCH_354ea").then(
-            Buff(SELF, "SCH_354e2a")
-        ),
-        Buff(ENEMY_MINIONS + (ATK == 0) + (CURRENT_HEALTH <= 0), "SCH_354e2b").then(
-            Buff(SELF, "SCH_354e2b")
-        ),
-        Buff(ENEMY_MINIONS + (ATK > 0) + (CURRENT_HEALTH > 0), "SCH_354e").then(
-            Buff(SELF, "SCH_354e2")
-        ),
+        Buff(ENEMY_MINIONS, "SCH_354e").then(Buff(SELF, "SCH_354e2"))
     )
 
 
@@ -70,7 +62,7 @@ class SCH_618:
     """Blood Herald"""
 
     # Whenever a friendly minion dies while this is in your hand, gain +1/+1.
-    class Hands:
+    class Hand:
         events = Death(FRIENDLY + MINION).on(Buff(SELF, "SCH_618e"))
 
 
@@ -184,5 +176,10 @@ class SCH_279:
 
     # After your Hero attacks a minion, your minions attack it too.
     events = Attack(FRIENDLY_HERO, ALL_MINIONS).after(
-        Attack(FRIENDLY_MINIONS, Attack.DEFENDER)
+        lambda self, attacker, defender: [
+            Attack(minion, defender)
+            for minion in self.controller.field.filter(
+                type=CardType.MINION, dead=False, dormant=False
+            )
+        ]
     )

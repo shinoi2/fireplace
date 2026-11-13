@@ -66,7 +66,7 @@ class SCH_305e:
 class SCH_305e2:
     events = (
         REMOVED_IN_PLAY,
-        OWN_TURN_END.on(Shuffle(OWNER), Destroy(SELF)),
+        OWN_TURN_END.on(Shuffle(CONTROLLER, OWNER), Destroy(SELF)),
     )
 
 
@@ -88,7 +88,7 @@ class SCH_522:
 
     # [x]<b>Battlecry:</b> Summon a random minion with Cost equal to your
     # weapon's Attack.
-    play = Find(FRIENDLY_WEAPON + MINION) & Summon(
+    play = Find(FRIENDLY_WEAPON) & Summon(
         CONTROLLER, RandomMinion(cost=ATK(FRIENDLY_WEAPON))
     )
 

@@ -126,7 +126,7 @@ class MAW_006:
     """Objection!"""
 
     # <b>Secret:</b> When your opponent plays a _minion, <b>Counter</b> it.
-    secret = Play(OPPONENT, MINION).on(Reveal(SELF), Counter(Play.CARD))
+    secret = Play(OPPONENT, MINION).before(Reveal(SELF), Counter(Play.CARD))
 
 
 class MAW_013:

@@ -144,7 +144,7 @@ class SW_040:
     """Fel Barrage"""
 
     # [x]Deal $2 damage to the lowest Health enemy, twice.
-    play = Hit(LOWEST_HEALTH(ENEMY_MINIONS), 2) * 2
+    play = Hit(LOWEST_HEALTH(ENEMY_CHARACTERS - DEAD), 2) * 2
 
 
 class SW_041:

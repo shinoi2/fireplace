@@ -90,7 +90,7 @@ class SCH_233:
     """Draconic Studies"""
 
     # [x]<b>Discover</b> a Dragon. Your next one costs (1) less.
-    play = Discover(CONTROLLER, RandomDragon()), Buff(CONTROLLER, "SCH_233e")
+    play = DISCOVER(RandomDragon()), Buff(CONTROLLER, "SCH_233e")
 
 
 class SCH_233e:

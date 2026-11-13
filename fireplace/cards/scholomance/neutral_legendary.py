@@ -26,7 +26,10 @@ class SCH_224:
 
     # <b>Spellburst:</b> If the spell destroys any minions, summon them.
 
-    spellburst = Summon(CONTROLLER, Copy(DestroyedBy(Spellburst.SPELL)))
+    def spellburst(self, spell):
+        minions = DestroyedBy(Spellburst.SPELL).eval(self.game, self)
+        for minion in sorted(minions, key=lambda card: card.play_counter):
+            yield SummonRightOf(CONTROLLER, Copy(minion), None)
 
 
 class SCH_428:

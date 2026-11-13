@@ -155,7 +155,7 @@ class tt_010:
 class EX1_287:
     """Counterspell"""
 
-    secret = Play(OPPONENT, SPELL).on(Reveal(SELF), Counter(Play.CARD))
+    secret = Play(OPPONENT, SPELL).before(Reveal(SELF), Counter(Play.CARD))
 
 
 class EX1_289:

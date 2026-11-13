@@ -61,6 +61,7 @@ def _eval_card(source, card):
 
 
 class EventListener:
+    BEFORE = 0
     ON = 1
     AFTER = 2
 
@@ -150,6 +151,9 @@ class Action(metaclass=ActionMeta):
     def after(self, *actions):
         return EventListener(self, actions, EventListener.AFTER)
 
+    def before(self, *actions):
+        return EventListener(self, actions, EventListener.BEFORE)
+
     def on(self, *actions):
         return EventListener(self, actions, EventListener.ON)
 
@@ -184,7 +188,10 @@ class Action(metaclass=ActionMeta):
 
     def broadcast(self, source, at, *args):
         source.game.action_start(BlockType.TRIGGER, source, 0, None)
+        self._broadcast_all(source, at, *args)
+        source.game.action_end(BlockType.TRIGGER, source)
 
+    def _broadcast_all(self, source, at, *args):
         for entity in source.game.entities:
             self._broadcast(entity, source, at, *args)
         for hand in source.game.hands:
@@ -193,8 +200,6 @@ class Action(metaclass=ActionMeta):
         for deck in source.game.decks:
             for entity in deck.entities:
                 self._broadcast(entity, source, at, *args)
-
-        source.game.action_end(BlockType.TRIGGER, source)
 
     def queue_broadcast(self, obj, args):
         self.event_queue.append((obj, args))
@@ -269,6 +274,14 @@ class Attack(GameAction):
     ATTACKER = CardArg()
     DEFENDER = CardArg()
 
+    def trigger(self, source):
+        args = self.get_args(source)
+        self.do(source, *args)
+        for action in self.callback:
+            actions = action(source, *args) if callable(action) else [action]
+            if actions:
+                source.game.queue_actions(source, actions, event_args=args)
+
     def do(self, source, attacker, defender):
         log.info("%r attacks %r", attacker, defender)
         if not attacker or not defender:
@@ -287,7 +300,7 @@ class Attack(GameAction):
         defender = source.game.proposed_defender
         source.game.proposed_attacker = None
         source.game.proposed_defender = None
-        if attacker.should_exit_combat:
+        if attacker.zone != Zone.PLAY or attacker.should_exit_combat:
             log.info("Attack has been interrupted.")
             attacker.attack_target = None
             defender.defending = False
@@ -515,11 +528,29 @@ class Play(GameAction):
     INDEX = IntArg()
     CHOOSE = CardArg()
 
+    def _broadcast_all(self, source, at, *args):
+        if at == EventListener.ON:
+            super()._broadcast_all(source, EventListener.BEFORE, *args)
+            if args[1].cant_play:
+                return
+        return super()._broadcast_all(source, at, *args)
+
     def _broadcast(self, entity, source, at, *args):
         # Prevent cards from triggering off their own play
         if entity is args[1]:
             return
+        if at == EventListener.BEFORE and args[1].cant_play:
+            return
         return super()._broadcast(entity, source, at, *args)
+
+    def _trigger_spellbursts(self, card, entities):
+        for index, entity in enumerate(entities):
+            if card.controller.choice:
+                card.controller.choice.choice_callback.append(
+                    functools.partial(self._trigger_spellbursts, card, entities[index:])
+                )
+                return
+            card.game.queue_actions(card, [Spellburst(entity, card)])
 
     def do(self, source, card, target, index, choose):
         player = source
@@ -614,9 +645,14 @@ class Play(GameAction):
                     player.elemental_played_this_turn += 1
             elif card.type == CardType.SPELL:
                 player.spells_played_this_game += 1
-                for entity in player.field.filter(dormant=False, card_type=CardType.MINION):
-                    if entity.has_spellburst:
-                        source.game.queue_actions(card, [Spellburst(entity, card)])
+                entities = list(player.field.filter(dormant=False, type=CardType.MINION))
+                if player.weapon:
+                    entities.append(player.weapon)
+                entities = sorted(
+                    (entity for entity in entities if entity.has_spellburst),
+                    key=lambda entity: entity.play_counter,
+                )
+                self._trigger_spellbursts(card, entities)
             player.cards_played_this_turn += 1
             player.cards_played_this_game.append(card)
             for hand in player.hand:
@@ -1387,6 +1423,9 @@ class Draw(TargetedAction):
         if len(target.hand) >= target.max_hand_size:
             log.info("%s overdraws and loses %r!", target, card)
             card.discard()
+            source.controller.cards_drawn_this_turn += 1
+            source.game.manager.targeted_action(self, source, target, card)
+            self.broadcast(source, EventListener.ON, target, card, source)
         else:
             log.info("%s draws %r", target, card)
             card.zone = Zone.HAND
@@ -1459,7 +1498,7 @@ class FullHeal(TargetedAction):
     TARGET = ActionArg()
 
     def do(self, source, target):
-        source.heal(target, target.max_health)
+        return source.game.queue_actions(source, [Heal(target, target.max_health)])
 
 
 class GainArmor(TargetedAction):
@@ -2090,6 +2129,13 @@ class Steal(TargetedAction):
 
     def do(self, source, target, controller):
         log.info("%s takes control of %r", controller, target)
+        if (
+            target.type == CardType.MINION
+            and target.zone == Zone.PLAY
+            and target.controller is not controller
+            and not controller.minion_slots
+        ):
+            return source.game.queue_actions(source, [Destroy(target)])
         zone = target.zone
         target.zone = Zone.SETASIDE
         target.controller = controller
@@ -2141,6 +2187,7 @@ class CastSpell(TargetedAction):
 
     TARGET = ActionArg()
     SPELL_TARGET = ActionArg()
+    requires_active_source = True
 
     def get_target_args(self, source, target):
         ret = super().get_target_args(source, target)
@@ -2153,7 +2200,7 @@ class CastSpell(TargetedAction):
         return source.game.random.choice(card.targets)
 
     def do(self, source, card, targets):
-        if source.type == CardType.MINION and (
+        if self.requires_active_source and source.type == CardType.MINION and (
             source.dead or source.silenced or source.zone != Zone.PLAY
         ):
             return
@@ -2165,6 +2212,11 @@ class CastSpell(TargetedAction):
         if card.twinspell:
             source.game.queue_actions(
                 card, [Give(card.controller, card.twinspell_copy)]
+            )
+        if card.data.choose_cards and not card.choose_cards:
+            card.choose_cards.extend(
+                player.card(card_id, source=card, parent=card)
+                for card_id in card.data.choose_cards
             )
         if card.must_choose_one:
             card = source.game.random.choice(card.choose_cards)
@@ -2389,7 +2441,13 @@ class Adapt(Choice):
     CARDS = ActionArg()
     CARD = CardArg()
 
+    def get_targets(self, source):
+        return [source.controller]
+
     def get_target_args(self, source, target):
+        self.adapt_targets = _eval_card(source, self._args[0])
+        if not self.adapt_targets:
+            return [[]]
         choices = [
             "UNG_999t10",
             "UNG_999t2",
@@ -2412,7 +2470,8 @@ class Adapt(Choice):
                 "%r is not a valid choice (one of %r)" % (card, self.cards)
             )
         self.player.choice = None
-        self.source.game.trigger(self.source, (Battlecry(card, self.target),), None)
+        for target in self.adapt_targets:
+            self.source.game.trigger(self.source, (Battlecry(card, target),), None)
         self.trigger_choice_callback(card)
 
 
@@ -2628,13 +2687,18 @@ class Spellburst(TargetedAction):
     SPELL = CardArg()
 
     def do(self, source, target, spell):
-        if not target.has_spellburst:
+        if (
+            not target.has_spellburst
+            or target.zone != Zone.PLAY
+            or target.dead
+            or getattr(target, "dormant", False)
+        ):
             log.info("%r does not have spellburst", target)
             return
 
         actions = target.get_actions("spellburst", spell)
-        source.game.queue_actions(target, actions, event_args=[target, spell])
         target.has_spellburst = False
+        source.game.queue_actions(target, actions, event_args=[target, spell])
         source.game.manager.targeted_action(self, source, target, spell)
 
 
@@ -2672,6 +2736,15 @@ class Trade(GameAction):
         player.pay_cost(player, 1)
         target.zone = Zone.SETASIDE
         self.broadcast(source, EventListener.ON, target)
+        self._complete(source, target)
+
+    def _complete(self, source, target):
+        player = target.controller
+        if player.choice:
+            player.choice.choice_callback.append(
+                functools.partial(self._complete, source, target)
+            )
+            return
         player.draw()
         target._summon_index = source.game.random.randint(0, len(player.deck))
         target.zone = Zone.DECK

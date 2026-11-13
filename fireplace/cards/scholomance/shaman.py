@@ -11,21 +11,24 @@ class SCH_236:
     spellburst = Give(CONTROLLER, Spellburst.SPELL)
 
 
+FIREHEART_DISCOVER = Discover(CONTROLLER, RandomSpell(cost=range(1, 100))).then(
+    Give(CONTROLLER, Discover.CARD),
+    StoringBuff(CONTROLLER, "SCH_507e", Discover.CARD),
+)
+
+
 class SCH_507:
     """Instructor Fireheart"""
 
     # [x]<b>Battlecry:</b> <b>Discover</b> a spell that costs (1) or more. If
     # you play it this turn, repeat this effect.
-    play = Discover(CONTROLLER, RandomSpell(cost=range(1, 100))).then(
-        Give(CONTROLLER, Discover.CARD), Buff(Discover.CARD, "SCH_507e")
-    )
+    play = FIREHEART_DISCOVER
 
 
 class SCH_507e:
-    events = Play(CONTROLLER, OWNER).after(
-        Discover(CONTROLLER, RandomSpell(cost=range(1, 100))).then(
-            Give(CONTROLLER, Discover.CARD), Buff(Discover.CARD, "SCH_507e")
-        )
+    events = (
+        Play(CONTROLLER, STORE_CARD).after(Destroy(SELF), FIREHEART_DISCOVER),
+        OWN_TURN_END.on(Destroy(SELF)),
     )
 
 

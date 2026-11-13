@@ -242,7 +242,7 @@ def test_witchs_cauldron_hears_a_friendly_minion_die():
     wisp = _play(game.player1, WISP)
     wisp.destroy()
     assert len(game.player1.hand) == 1
-    assert game.player1.hand[0].card_class == CardClass.SHAMAN
+    assert CardClass.SHAMAN in game.player1.hand[0].classes
     assert game.player1.hand[0].type == CardType.SPELL
     cauldron.destroy()
     assert len(game.player1.hand) == 1

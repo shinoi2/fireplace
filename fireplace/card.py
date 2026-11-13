@@ -22,7 +22,7 @@ from .entity import BaseEntity, Entity, boolean_property, int_property, slot_pro
 from .enums import PlayReq
 from .exceptions import InvalidAction
 from .managers import CardManager
-from .targeting import TARGETING_PREREQUISITES, is_valid_target
+from .targeting import SOUL_FRAGMENT, TARGETING_PREREQUISITES, is_valid_target
 from .utils import CardList
 
 if TYPE_CHECKING:
@@ -324,6 +324,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
 
     def __init__(self, data):
         self.cant_play = False
+        self.has_spellburst = False
         self.has_battlecry = False
         self.has_combo = False
         self.has_outcast = False
@@ -345,6 +346,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         self.immolatestage = 0
         self.infuse = 0
         self.tradeable = False
+        self.questline = False
         super().__init__(data)
 
     def dump(self):
@@ -518,7 +520,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         if (
             len(
                 self.controller.opponent.field.filter(
-                    dormant=False, card_type=CardType.MINION
+                    dormant=False, type=CardType.MINION
                 )
             )
             < min_enemy_minions
@@ -529,7 +531,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         if (
             len(
                 self.controller.game.board.filter(
-                    dormant=False, card_type=CardType.MINION
+                    dormant=False, type=CardType.MINION
                 )
             )
             < min_total_minions
@@ -715,6 +717,18 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
                 return bool(self.play_targets)
         if PlayReq.REQ_TARGET_IF_AVAILABLE in self.requirements:
             return bool(self.play_targets)
+        if (
+            PlayReq.REQ_TARGET_IF_AVAILABLE_AND_PLAYER_HEALTH_CHANGED_THIS_TURN
+            in self.requirements
+            and self.controller.hero_health_changed_this_turn
+        ):
+            return bool(self.play_targets)
+        if (
+            PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SOUL_FRAGMENT_IN_DECK
+            in self.requirements
+            and self.controller.deck.contains(SOUL_FRAGMENT)
+        ):
+            return bool(self.play_targets)
         if PlayReq.REQ_TARGET_IF_AVAILABLE_AND_DRAGON_IN_HAND in self.requirements:
             if self.controller.hand.filter(races=Race.DRAGON).exclude(self):
                 return bool(self.play_targets)
@@ -725,7 +739,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
             if (
                 len(
                     self.controller.field.filter(
-                        dormant=False, card_type=CardType.MINION
+                        dormant=False, type=CardType.MINION
                     )
                 )
                 >= req
@@ -817,7 +831,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
                 return bool(self.play_targets)
         req = self.requirements.get(PlayReq.REQ_TARGET_IF_AVAILABLE_AND_FRIENDLY_LACKEY)
         if req is not None:
-            if self.controller.field.filter(mark_of_evil=True):
+            if self.controller.field.filter(type=CardType.MINION, mark_of_evil=True):
                 return bool(self.play_targets)
         req = self.requirements.get(PlayReq.REQ_STEADY_SHOT)
         if req is not None:
@@ -833,7 +847,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_CONTROLLER_OTHER_WITH_RACE
         )
         if req is not None:
-            if self.controller.field.filter(races=req).exclude(self):
+            if self.controller.field.filter(type=CardType.MINION, races=req).exclude(self):
                 return bool(self.play_targets)
         req = self.requirements.get(PlayReq.REQ_TARGET_IF_AVAILABLE_AND_WEAPON_EQUIPPED)
         if req is not None:
@@ -841,7 +855,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
                 return bool(self.play_targets)
         req = self.requirements.get(PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SHADOW_IN_HAND)
         if req is not None:
-            if self.controller.hand.filter(spell_scholl=SpellSchool.SHADOW):
+            if self.controller.hand.filter(type=CardType.SPELL, spell_school=SpellSchool.SHADOW):
                 return bool(self.play_targets)
         req = self.requirements.get(
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_HERO_DAMAGED_THIS_TURN
@@ -1020,11 +1034,11 @@ class Character(LiveEntity):
         targets = self.controller.opponent.characters
         if self.cannot_attack_heroes:
             targets = self.controller.opponent.field.filter(
-                dormant=False, card_type=CardType.MINION
+                dormant=False, type=CardType.MINION
             )
         if self.rush and not self.turns_in_play:
             targets = self.controller.opponent.field.filter(
-                dormant=False, card_type=CardType.MINION
+                dormant=False, type=CardType.MINION
             )
         if (
             self.additional_attacks_only_minion > 0
@@ -1032,7 +1046,7 @@ class Character(LiveEntity):
             <= self.num_attacks - self.num_attacks_only_minion
         ):
             targets = self.controller.opponent.field.filter(
-                dormant=False, card_type=CardType.MINION
+                dormant=False, type=CardType.MINION
             )
         targets = targets.filter(dormant=False)
 
@@ -1325,7 +1339,7 @@ class Minion(Character):
         ret = CardList()
         index = self.zone_position - 1
         left = self.controller.field[:index].filter(
-            dormant=False, card_type=CardType.MINION
+            dormant=False, type=CardType.MINION
         )
         if left:
             ret.append(left[-1])
@@ -1337,7 +1351,7 @@ class Minion(Character):
         ret = CardList()
         index = self.zone_position - 1
         right = self.controller.field[index + 1 :].filter(
-            dormant=False, card_type=CardType.MINION
+            dormant=False, type=CardType.MINION
         )
         if right:
             ret.append(right[0])

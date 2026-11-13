@@ -103,7 +103,7 @@ class DMF_236:
 
     # [x]<b>Secret:</b> When your opponent casts a spell, they instead cast a
     # random one of the same Cost.
-    secret = Play(OPPONENT, SPELL).on(
+    secret = Play(OPPONENT, SPELL).before(
         Reveal(SELF),
         Counter(Play.CARD),
         CastSpell(Steal(RandomSpell(cost=COST(Play.CARD)), OPPONENT)),

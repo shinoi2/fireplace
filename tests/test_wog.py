@@ -706,13 +706,10 @@ def _cast_spells_recorder():
     """Records the spells that CastSpell (Yogg-Saron's own included) casts, the
     id of each, until restored."""
     from fireplace.actions import CastSpell
-    from fireplace.cards.wog.neutral_legendary import (
-        CastSpellWhateverBecomesOfTheCaster,
-    )
 
     cast = []
     real = {}
-    for cls in (CastSpell, CastSpellWhateverBecomesOfTheCaster):
+    for cls in (CastSpell,):
         real[cls] = cls.__dict__["do"]
 
         def do(self, source, card, targets, real_do=real[cls]):
@@ -801,25 +798,23 @@ def test_chogall_only_this_turn():
     assert game.player1.mana == 10 - 4
 
 
-def test_yogg_saron_keeps_casting_when_destroyed():
+def test_yogg_saron_keeps_casting_when_destroyed(monkeypatch):
     # Patch 16.6: "Yogg-Saron no longer stops casting if it is destroyed,
     # Silenced, transformed or returned to the hand" (hearthstone.wiki.gg).
+    from fireplace.cards.wog import neutral_legendary
+    from fireplace.dsl.random_picker import RandomID
+
+    monkeypatch.setattr(neutral_legendary, "RandomSpell", lambda: RandomID("EX1_312"))
+    game = prepare_empty_game()
+    for _ in range(8):
+        game.player1.give(THE_COIN).play()
     cast, restore = _cast_spells_recorder()
-    counts = []
     try:
-        for _ in range(15):
-            game = prepare_empty_game()
-            for _ in range(8):
-                game.player1.give(THE_COIN).play()
-            game.player1.give("OG_134").play()
-            if game.ended:
-                continue
-            counts.append(len(cast))
-            cast.clear()
+        yogg = game.player1.give("OG_134").play()
     finally:
         restore()
-    assert counts
-    assert all(n == 8 for n in counts), counts
+    assert yogg.dead
+    assert cast == ["EX1_312"] * 8
 
 
 def test_yogg_saron_does_not_count_countered_spells():

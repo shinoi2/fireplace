@@ -8,6 +8,7 @@ class SW_021:
     """Cowardly Grunt"""
 
     # <b>Deathrattle:</b> Summon a minion from your deck.
+    tags = {GameTag.DEATHRATTLE: True}
     deathrattle = Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION))
 
 
@@ -168,6 +169,7 @@ class SW_094:
     """Heavy Plate"""
 
     # <b>Tradeable</b> Gain 8 Armor.
+    tags = {GameTag.TRADEABLE: True}
     play = GainArmor(FRIENDLY_HERO, 8)
 
 

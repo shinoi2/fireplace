@@ -33,8 +33,8 @@ class SCH_351:
     # that dies _when it takes damage.
 
     def play(self):
-        minion1 = RandomMinion(cost=5).evaluate(self)
-        minion2 = RandomMinion(cost=5).evaluate(self)
+        minion1 = RandomMinion(cost=5).evaluate(self)[0]
+        minion2 = RandomMinion(cost=5).evaluate(self)[0]
         yield Summon(CONTROLLER, minion1)
         yield Summon(CONTROLLER, minion2)
         yield Choice(CONTROLLER, [minion1, minion2]).then(Buff(Choice.CARD, "SCH_351e"))
@@ -86,7 +86,9 @@ class SCH_348:
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_TARGET_TO_PLAY: 0,
     }
-    play = Hit(TARGET_ADJACENT, HitExcessDamage(TARGET, SPELL_DAMAGE(4)))
+    play = HitExcessDamage(TARGET, SPELL_DAMAGE(4)).then(
+        Hit(TARGET_ADJACENT, HitExcessDamage.EXCEDSS_AMOUNT)
+    )
 
 
 class SCH_353:

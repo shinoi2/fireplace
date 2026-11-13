@@ -87,7 +87,7 @@ class AV_226:
 
     # <b>Secret:</b> When your opponent casts a spell, return it to their hand
     # instead. It costs (1) more.
-    secret = Play(OPPONENT, SPELL).on(
+    secret = Play(OPPONENT, SPELL).before(
         Reveal(SELF),
         Counter(Play.CARD),
         Give(OPPONENT, Copy(Play.CARD)).then(Buff(Give.CARD, "AV_226e")),
@@ -261,7 +261,7 @@ class AV_113t9:
 
     # <b>Secret:</b> When your opponent casts a spell, return it to their hand
     # instead. It costs (2) more.
-    secret = Play(OPPONENT, SPELL).on(
+    secret = Play(OPPONENT, SPELL).before(
         Reveal(SELF),
         Counter(Play.CARD),
         Give(OPPONENT, Copy(Play.CARD)).then(Buff(Give.CARD, "AV_113t9e")),

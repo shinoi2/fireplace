@@ -27,6 +27,7 @@ if TYPE_CHECKING:
         Character,
         Hero,
         Minion,
+        Location,
         PlayableCard,
         Spell,
         Quest,
@@ -82,7 +83,7 @@ class Player(Entity, TargetableByAuras):
         super().__init__()
         self.deck = Deck()
         self.hand = CardList["PlayableCard"]()
-        self.field = CardList["Minion"]()
+        self.field = CardList["Minion | Location"]()
         self.graveyard = CardList["PlayableCard"]()
         self.secrets = CardList["Secret | Quest | SideQuest"]()
         self.removed = CardList()
@@ -282,7 +283,7 @@ class Player(Entity, TargetableByAuras):
         aura_power = self.controller.heropower_damage_adjustment
         minion_power = sum(
             minion.heropower_damage
-            for minion in self.field.filter(dormant=False, card_type=CardType.MINION)
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -291,7 +292,7 @@ class Player(Entity, TargetableByAuras):
         aura_power = self.controller.spellpower_arcane_adjustment
         minion_power = sum(
             minion.spellpower_arcane
-            for minion in self.field.filter(dormant=False, card_type=CardType.MINION)
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -300,7 +301,7 @@ class Player(Entity, TargetableByAuras):
         aura_power = self.controller.spellpower_fire_adjustment
         minion_power = sum(
             minion.spellpower_fire
-            for minion in self.field.filter(dormant=False, card_type=CardType.MINION)
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -309,7 +310,7 @@ class Player(Entity, TargetableByAuras):
         aura_power = self.controller.spellpower_frost_adjustment
         minion_power = sum(
             minion.spellpower_frost
-            for minion in self.field.filter(dormant=False, card_type=CardType.MINION)
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -318,7 +319,7 @@ class Player(Entity, TargetableByAuras):
         aura_power = self.controller.spellpower_nature_adjustment
         minion_power = sum(
             minion.spellpower_nature
-            for minion in self.field.filter(dormant=False, card_type=CardType.MINION)
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -327,7 +328,7 @@ class Player(Entity, TargetableByAuras):
         aura_power = self.controller.spellpower_holy_adjustment
         minion_power = sum(
             minion.spellpower_holy
-            for minion in self.field.filter(dormant=False, card_type=CardType.MINION)
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -336,7 +337,7 @@ class Player(Entity, TargetableByAuras):
         aura_power = self.controller.spellpower_shadow_adjustment
         minion_power = sum(
             minion.spellpower_shadow
-            for minion in self.field.filter(dormant=False, card_type=CardType.MINION)
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -345,7 +346,7 @@ class Player(Entity, TargetableByAuras):
         aura_power = self.controller.spellpower_fel_adjustment
         minion_power = sum(
             minion.spellpower_fel
-            for minion in self.field.filter(dormant=False, card_type=CardType.MINION)
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -354,7 +355,7 @@ class Player(Entity, TargetableByAuras):
         aura_power = self.controller.spellpower_physic_adjustment
         minion_power = sum(
             minion.spellpower_physic
-            for minion in self.field.filter(dormant=False, card_type=CardType.MINION)
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -363,7 +364,7 @@ class Player(Entity, TargetableByAuras):
         aura_power = self.controller.spellpower_adjustment
         minion_power = sum(
             minion.spellpower
-            for minion in self.field.filter(dormant=False, card_type=CardType.MINION)
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -376,7 +377,9 @@ class Player(Entity, TargetableByAuras):
 
     @property
     def characters(self):
-        return CardList(chain([self.hero] if self.hero else [], self.field))
+        return CardList(
+            chain([self.hero] if self.hero else [], self.field.filter(type=CardType.MINION))
+        )
 
     @property
     def entities(self):
@@ -390,7 +393,7 @@ class Player(Entity, TargetableByAuras):
 
     @property
     def live_entities(self):
-        yield from self.field.filter(dormant=False, card_type=CardType.MINION)
+        yield from self.field.filter(dormant=False, type=CardType.MINION)
         if self.hero:
             yield self.hero
         if self.weapon:
@@ -399,6 +402,7 @@ class Player(Entity, TargetableByAuras):
     @property
     def actionable_entities(self):
         yield from self.characters
+        yield from self.field.filter(type=CardType.LOCATION)
         yield from self.hand
         if self.hero.power:
             yield self.hero.power

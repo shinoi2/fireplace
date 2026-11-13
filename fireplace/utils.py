@@ -81,7 +81,7 @@ class CardList(list[T], Entity):
             return p == v
 
         return self.__class__(
-            e for k, v in kwargs.items() for e in self if conditional(e, k, v)
+            e for e in self if all(conditional(e, k, v) for k, v in kwargs.items())
         )
 
 
@@ -201,6 +201,8 @@ def weighted_card_choice(
 
     # for each card
     for i in range(count):
+        if totalweight <= 0:
+            break
         # choose a set according to weighting
         chosen_set = bisect(cum_weights, source.game.random.random() * totalweight)
 

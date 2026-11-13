@@ -55,7 +55,7 @@ class SCH_248:
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
     }
-    play = Hit(SELF, 1)
+    play = Hit(TARGET, 1)
     spellburst = Bounce(SELF)
 
 

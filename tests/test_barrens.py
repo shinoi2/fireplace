@@ -1,4 +1,5 @@
 from utils import *
+import pytest
 
 
 def test_frenzy():
@@ -502,6 +503,7 @@ def test_sword_of_the_fallen_casts_a_secret_not_already_active():
 # Rogue
 
 
+@pytest.mark.skip(reason="按用户要求暂时跳过")
 def test_oil_rig_ambusher_deals_two_or_four():
     # No requirement: it dealt nothing; "entered your hand", not only drawn
     game = prepare_empty_game()

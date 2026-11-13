@@ -44,7 +44,7 @@ class TRL_257:
     """Blood Troll Sapper"""
 
     # After a friendly minion dies, deal 2 damage to the enemy hero.
-    events = Death(FRIENDLY + MINION).on(Hit(FRIENDLY_HERO, 2))
+    events = Death(FRIENDLY + MINION).on(Hit(ENEMY_HERO, 2))
 
 
 class TRL_551:

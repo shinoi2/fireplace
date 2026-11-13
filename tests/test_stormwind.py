@@ -282,7 +282,7 @@ def test_druid_questline_goes_through_its_three_steps():
 def test_hunter_questline_goes_through_its_three_steps():
     game = _turn(prepare_empty_game(CardClass.HUNTER, CardClass.HUNTER))
     game.player1.give("SW_322").play()
-    for _ in range(2):
+    for _ in range(3):
         game.player1.give(MOONFIRE).play(target=game.player2.hero)
     assert [s.id for s in game.player1.secrets] == ["SW_322t"]
     yeti = game.player2.summon(YETI)

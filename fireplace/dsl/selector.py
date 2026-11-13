@@ -875,7 +875,7 @@ def _another_class_card(entities, source):
     return [
         e
         for e in entities
-        if all(c in classes for c in getattr(e, "classes", [CardClass.INVALID]))
+        if any(c in classes for c in getattr(e, "classes", [CardClass.INVALID]))
     ]
 
 

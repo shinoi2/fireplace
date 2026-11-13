@@ -709,52 +709,53 @@ def test_vectus_whelps_copy_a_deathrattle():
     assert len(game.player1.hand) == 1
 
 
-def _transfer_student_offer(game):
-    game.player1.give("SCH_199").play()
-    offer = list(game.player1.choice.cards)
-    assert len(offer) == 3
-    return offer
+def _transfer_student_on_board(board):
+    class FixedBoardGame(BaseTestGame):
+        def setup(self):
+            super().setup()
+            self.skin = board
+
+    game = prepare_game(
+        CardClass.MAGE, CardClass.MAGE,
+        include=("SCH_199",), game_class=FixedBoardGame,
+    )
+    student = next(
+        card for card in [*game.player1.hand, *game.player1.deck]
+        if card.id.startswith("SCH_199")
+    )
+    if student.zone != Zone.HAND:
+        student.zone = Zone.HAND
+    return game, student
 
 
-def test_transfer_student_discovers_from_the_expansion_the_game_names():
-    """D-107 (WP-182c) : « Discover a card from the month's expansions » ; plus de plateau.
-    Le vivier est `game.month_expansions` (CardSet, nom de CardSet, identifiants)."""
-    from hearthstone.enums import CardSet
+def test_transfer_student_uses_orgrimmar_battlecry():
+    from fireplace.enums import BoardEnum
 
-    game = _game(CardClass.MAGE)
-    game.month_expansions = ["GANGS", CardSet.UNGORO]
-    for _ in range(5):
-        _refill(game)
-        offer = _transfer_student_offer(game)
-        for card in offer:
-            assert card.data.card_set in (CardSet.GANGS, CardSet.UNGORO), card.id
-            assert card.data.collectible
-            assert card.data.classes[0] in (CardClass.NEUTRAL, CardClass.MAGE) or (
-                CardClass.MAGE in card.data.classes
-            ), card.id
-        game.player1.choice.choose(offer[0])
-        assert game.player1.hand[-1].id == offer[0].id
-        assert game.player1.choice is None
-    assert (
-        game.player1.field[0].id == "SCH_199"
-    )  # une carte 2/2, sans version de plateau
-    assert game.player1.field[0].atk == 2
+    game, student = _transfer_student_on_board(BoardEnum.ORGRIMMAR)
+    assert student.id == "SCH_199t2"
+    student.play(target=game.player2.hero)
+    assert game.player2.hero.health == 28
 
 
-def test_transfer_student_uses_card_ids_and_ignores_the_mode_reservoir():
-    game = _game(CardClass.MAGE)
-    game.month_expansions = [FIREBALL, MOONFIRE, WISP, "CS2_029", "EX1_277"]
-    offer = _transfer_student_offer(game)
-    assert {card.id for card in offer} <= {FIREBALL, "EX1_277", WISP, "CS2_029"}
+def test_transfer_student_on_scholomance_adds_a_dual_class_card():
+    from fireplace.enums import BoardEnum
+
+    game, student = _transfer_student_on_board(BoardEnum.SCHOLOMANCE)
+    assert student.id == "SCH_199t23"
+    game.player1.discard_hand()
+    student.zone = Zone.HAND
+    student.play()
+    assert len(game.player1.hand) == 1
+    assert len(game.player1.hand[0].classes) >= 2
 
 
-def test_transfer_student_without_a_named_pool_discovers_in_scholomance():
-    from hearthstone.enums import CardSet
+def test_transfer_student_on_stormwind_has_no_discover_battlecry():
+    from fireplace.enums import BoardEnum
 
-    game = _game(CardClass.PRIEST)
-    assert getattr(game, "month_expansions", None) is None
-    for card in _transfer_student_offer(game):
-        assert card.data.card_set == CardSet.SCHOLOMANCE, card.id
+    game, student = _transfer_student_on_board(BoardEnum.STORMWIND)
+    assert student.id == "SCH_199t"
+    student.play()
+    assert game.player1.choice is None
 
 
 def test_troublemaker_summons_a_ruffian_on_each_side_of_itself():

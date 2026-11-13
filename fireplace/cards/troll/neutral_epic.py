@@ -73,7 +73,7 @@ class TRL_535:
     """Snapjaw Shellfighter"""
 
     # [x]Whenever an adjacent minion takes damage, this _minion takes it instead.
-    events = Predamage(SELF_ADJACENT).on(
+    events = Predamage(SELF_ADJACENT + (AttrValue("predamage") > 0)).on(
         Predamage(Predamage.TARGET, 0), Damage(SELF, Predamage.AMOUNT)
     )
 

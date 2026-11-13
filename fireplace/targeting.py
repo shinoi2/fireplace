@@ -148,7 +148,7 @@ def is_valid_target(self, target, requirements=None):
             if not self.controller.hero_health_changed_this_turn:
                 return False
         elif req == PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SOUL_FRAGMENT_IN_DECK:
-            if SOUL_FRAGMENT not in target.controller.deck:
+            if not self.controller.deck.contains(SOUL_FRAGMENT):
                 return False
         elif req == PlayReq.REQ_DAMAGED_TARGET_UNLESS_COMBO:
             if not target.damage and not self.controller.combo:

@@ -17,11 +17,10 @@ class TRL_315:
     """Pyromaniac"""
 
     # Whenever your Hero Power_kills a minion, draw a card.
-    events = Activate(FRIENDLY_HERO_POWER).after(
-        lambda source, *args: (
+    events = Death(MINION).on(
+        lambda self, minion: (
             Draw(CONTROLLER)
-            if args[Activate.TARGET].dead
-            and args[Activate.TARGET].destroy_source is source
+            if minion.destroyed_source is self.controller.hero.power
             else None
         )
     )

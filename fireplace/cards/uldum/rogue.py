@@ -89,7 +89,7 @@ class ULD_328:
     """Clever Disguise"""
 
     # Add 2 random spells from another class to_your hand.
-    play = Give(CONTROLLER, RandomSpell(card_class=ANOTHER_CLASS))
+    play = Give(CONTROLLER, RandomSpell(card_class=ANOTHER_CLASS)) * 2
 
 
 class ULD_715:

@@ -73,7 +73,9 @@ class SW_045:
     # draw instead.
     events = Trade(FRIENDLY).on(
         Find(FRIENDLY_DECK)
-        & Choice(RANDOM(FRIENDLY_DECK, 3)).then(PutOnTop(Choice.CARD))
+        & Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK), 3)).then(
+            PutOnTop(CONTROLLER, Choice.CARD)
+        )
     )
 
 

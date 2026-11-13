@@ -35,8 +35,13 @@ class UNG_034:
 class UNG_035:
     """Curious Glimmerroot"""
 
-    class GlimmerrootAction(TargetedAction):
+    class GlimmerrootAction(Choice):
+        def get_target_args(self, source, target):
+            return []
+
         def do(self, source, player):
+            self._callback = self.callback
+            self.callback = []
             self.player = player
             self.source = source
             self.min_count = 1

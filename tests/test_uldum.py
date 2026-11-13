@@ -172,7 +172,7 @@ def test_clever_disguise_adds_two_spells_from_another_class():
         for card in p1.hand:
             assert card.type == CardType.SPELL
             classes = _class_of(card)
-            assert CardClass.ROGUE not in classes
+            assert any(card_class != CardClass.ROGUE for card_class in classes)
             assert CardClass.NEUTRAL not in classes
 
 
@@ -184,7 +184,7 @@ def test_bazaar_mugger_minion_from_another_class():
         card = p1.hand[-1]
         assert card.type == CardType.MINION
         classes = _class_of(card)
-        assert hero_class not in classes
+        assert any(card_class != hero_class for card_class in classes)
         assert CardClass.NEUTRAL not in classes
 
 

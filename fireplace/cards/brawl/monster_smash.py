@@ -34,11 +34,11 @@ class AttackRandomEnemyMinions(TargetedAction):
     TARGET = ActionArg()
 
     def do(self, source, target):
-        for minion in list(source.game.board):
+        for minion in source.game.board.filter(type=CardType.MINION):
             if minion.zone != Zone.PLAY or minion.dead or minion.dormant:
                 continue
             enemies = minion.controller.opponent.field.filter(
-                dormant=False, card_type=CardType.MINION, dead=False
+                dormant=False, type=CardType.MINION, dead=False
             )
             if not enemies:
                 continue
@@ -55,13 +55,15 @@ class DestroyWispsAndSteal(TargetedAction):
     TARGET = ActionArg()
 
     def do(self, source, target):
-        wisps = [m for m in target.field if m.name_enUS == "Wisp" and not m.dead]
+        wisps = target.field.filter(type=CardType.MINION, name_enUS="Wisp", dead=False)
         if not wisps:
             return
         source.game.queue_actions(source, [Destroy(w) for w in wisps])
         source.game.process_deaths()
         for _ in wisps:
-            enemies = [m for m in target.opponent.field if not m.dead and not m.dormant]
+            enemies = target.opponent.field.filter(
+                type=CardType.MINION, dead=False, dormant=False
+            )
             if not enemies or len(target.field) >= source.game.MAX_MINIONS_ON_FIELD:
                 break
             source.game.queue_actions(
@@ -78,7 +80,7 @@ class Amalgamate(TargetedAction):
     TARGET = ActionArg()
 
     def do(self, source, target):
-        minions = [m for m in source.game.board if not m.dormant]
+        minions = source.game.board.filter(type=CardType.MINION, dormant=False)
         atk = sum(m.atk for m in minions)
         health = sum(max(0, m.health) for m in minions)
         source.game.queue_actions(source, [Destroy(m) for m in minions])

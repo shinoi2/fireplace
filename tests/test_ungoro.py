@@ -338,7 +338,7 @@ def test_hallucination_discovers_any_card_of_the_opponent_class():
             assert enemy_class in card.classes
             types.add(card.type)
         game.player1.choice.choose(cards[0])
-        assert game.player1.hand[-1] is cards[0]
+        assert game.player1.hand[-1] is (cards[0].morphed or cards[0])
     assert CardType.MINION in types
 
 
@@ -418,6 +418,12 @@ def test_evolving_spores_one_adaptation_for_every_minion():
     assert game.player1.choice is None
     assert all(len(minion.buffs) == 1 for minion in minions)
     assert len({minion.buffs[0].id for minion in minions}) == 1
+
+
+def test_evolving_spores_without_minions_does_not_offer_a_choice():
+    game = prepare_empty_game(CardClass.DRUID, CardClass.WARRIOR)
+    game.player1.give("UNG_103").play()
+    assert game.player1.choice is None
 
 
 def test_lightfused_stegodon_one_adaptation_for_every_recruit():

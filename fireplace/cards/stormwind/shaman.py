@@ -147,7 +147,7 @@ class SW_035:
     # [x]<b>Discover</b> a @-Cost minion and summon it. <i>(Upgraded for each
     # <b>Overload</b> card you played this game!)</i>
     play = DISCOVER(
-        RandomCollectible(cost=(Count(CARDS_PLAYED_THIS_GAME + OVERLOAD) + 1))
+        RandomMinion(cost=(Count(CARDS_PLAYED_THIS_GAME + OVERLOAD) + 1))
     ).then(Summon(CONTROLLER, Discover.CARD))
 
 

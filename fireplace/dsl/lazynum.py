@@ -55,9 +55,7 @@ class LazyNum(LazyValue):
         return ret
 
     def __floordiv__(self, other):
-        ret = copy.copy(self)
-        ret.base //= other
-        return ret
+        return BinOpAttr(self, other, operator.floordiv)
 
     def __mod__(self, other):
         return BinOpAttr(self, other, operator.mod)

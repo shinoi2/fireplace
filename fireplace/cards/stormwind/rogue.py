@@ -216,7 +216,16 @@ class DED_005:
     """Parrrley"""
 
     # Swap this for a card in your opponent's deck.
-    play = Swap(SELF, RANDOM(ENEMY_DECK + MINION))
+    def play(self):
+        cards = RANDOM(ENEMY_DECK).eval(self.game, self)
+        if not cards:
+            return
+        card = cards[0]
+        player = self.controller
+        opponent = card.controller
+        card.zone = Zone.SETASIDE
+        yield Shuffle(opponent, SELF)
+        yield Give(player, card)
 
 
 ##
