@@ -127,7 +127,9 @@ class TSC_079:
 
     # [x]Scan the bottom 5 cards of your deck. Draw any Mechs found this way,
     # then shuffle your deck.
-    play = ForceDraw(FRIENDLY_DECK[:5] + MECH), Shuffle(FRIENDLY_DECK)
+    def play(self):
+        yield ForceDraw(FRIENDLY_DECK[:5] + MECH)
+        self.controller.shuffle_deck()
 
 
 class TSC_076:
