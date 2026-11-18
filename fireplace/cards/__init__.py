@@ -274,6 +274,9 @@ class CardDB(dict[str, cardxml.CardXML]):
         else:
             kwargs.pop("can_pick_from_subsets")
 
+        if "colossal" not in kwargs:
+            kwargs["colossal"] = False
+
         # exclude default hero
         if "include_default_hero" not in kwargs:
             cards = [card for card in cards if not card.id.startswith("HERO_")]
