@@ -46,14 +46,14 @@ def main():
         "--card_set",
         dest="card_set",
         type=int,
-        default=CardSet.REVENDRETH,
+        default=CardSet.RETURN_OF_THE_LICH_KING,
         help="Generate cards of card set",
     )
     p.add_argument("--card_id", dest="card_id", help="Generate single card")
     p.add_argument(
         "--output_dir",
         dest="output_dir",
-        default="./fireplace/cards/revendreth",
+        default="./fireplace/cards/lich_king",
         help="Generate code output dir",
     )
     args = p.parse_args(sys.argv[1:])

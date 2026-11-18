@@ -8,10 +8,15 @@ class LOOT_130:
     """Arcane Tyrant"""
 
     # Costs (0) if you've cast a spell that costs (5) or more this turn.
-    cost_mod = Find(
-        CARDS_PLAYED_THIS_GAME + CARDS_PLAYED_THIS_TURN + SPELL
-        + (AttrValue("cost_when_played") >= 5)
-    ) & -5
+    cost_mod = (
+        Find(
+            CARDS_PLAYED_THIS_GAME
+            + CARDS_PLAYED_THIS_TURN
+            + SPELL
+            + (AttrValue("cost_when_played") >= 5)
+        )
+        & -5
+    )
 
 
 @custom_card

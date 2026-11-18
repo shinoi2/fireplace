@@ -145,6 +145,7 @@ class LOOT_504t:
         PlayReq.REQ_FRIENDLY_TARGET: 0,
     }
     play = Evolve(TARGET, 1), Give(CONTROLLER, "LOOT_504t")
+
     class Hand:
         events = OWN_TURN_END.on(Destroy(SELF))
 

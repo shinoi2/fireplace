@@ -110,6 +110,30 @@ class Count(LazyNum):
         return self.num(len(self.get_entities(source)))
 
 
+class SpellDamage(LazyNum):
+    def __init__(self, amount):
+        super().__init__()
+        self.amount = amount
+
+    def evaluate(self, source):
+        amount = self.amount
+        if isinstance(amount, LazyValue):
+            amount = amount.evaluate(source)
+        return self.num(source.controller.get_spell_damage(source, amount))
+
+
+class SpellHeal(LazyNum):
+    def __init__(self, amount):
+        super().__init__()
+        self.amount = amount
+
+    def evaluate(self, source):
+        amount = self.amount
+        if isinstance(amount, LazyValue):
+            amount = amount.evaluate(source)
+        return self.num(source.controller.get_spell_heal(source, amount))
+
+
 class Max(LazyNum):
     """
     Lazily max selectors

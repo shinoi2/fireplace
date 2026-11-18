@@ -212,20 +212,24 @@ class KAR_096:
     class Deck:
         events = GameStart().on(
             Shuffle(
-                CONTROLLER, RandomLegendaryMinion(
+                CONTROLLER,
+                RandomLegendaryMinion(
                     card_class=FRIENDLY_CLASS_OR_NEUTRAL,
-                    exclude=DeDuplicate(STARTING_DECK)
-                ) * 5
+                    exclude=DeDuplicate(STARTING_DECK),
+                )
+                * 5,
             )
         )
 
     class Hand:
         events = GameStart().on(
             Shuffle(
-                CONTROLLER, RandomLegendaryMinion(
+                CONTROLLER,
+                RandomLegendaryMinion(
                     card_class=FRIENDLY_CLASS_OR_NEUTRAL,
-                    exclude=DeDuplicate(STARTING_DECK)
-                ) * 5
+                    exclude=DeDuplicate(STARTING_DECK),
+                )
+                * 5,
             )
         )
 
@@ -238,7 +242,8 @@ class KAR_097:
 
 class KAR_097t:
     events = OWN_SPELL_PLAY.after(
-        -FULL_BOARD & (
+        -FULL_BOARD
+        & (
             Summon(CONTROLLER, RandomMinion(cost=Attr(Play.CARD, "cost_when_played"))),
             Hit(SELF, 1),
         )

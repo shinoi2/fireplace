@@ -452,6 +452,7 @@ class BaseGame(Entity):
         """
         for p in self.players:
             p.cards_drawn_this_turn = 0
+            p.damage_dealt_to_enemy_hero_this_turn = 0
 
         player.turn_start = timegm(time.gmtime())
         player.last_turn = player.turn
@@ -493,6 +494,8 @@ class BaseGame(Entity):
         self.manager.step(self.next_step, Step.MAIN_ACTION)
 
         for entity in player.entities:
+            if entity.type == CardType.LOCATION and entity.cooldown:
+                entity.cooldown -= 1
             if getattr(entity, "dormant_turns", 0):
                 entity.dormant_turns -= 1
                 if entity.dormant_turns == 0:

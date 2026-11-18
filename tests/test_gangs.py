@@ -532,7 +532,9 @@ def test_finders_keepers_can_offer_itself():
     game = prepare_empty_game()
     game.player1.is_standard = False
     spell = game.player1.give("CFM_313")
-    pool = RandomCollectible(card_class=CardClass.SHAMAN, overload=True).find_cards(spell)
+    pool = RandomCollectible(card_class=CardClass.SHAMAN, overload=True).find_cards(
+        spell
+    )
     assert "CFM_313" in pool
     offers = [game.player1.card(id) for id in ("CFM_313", "EX1_238", "EX1_241")]
     with mock(RandomCollectible, offers):

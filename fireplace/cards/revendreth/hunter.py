@@ -10,7 +10,6 @@ class REV_352:
     # [x]<b>Rush</b> <b>Infuse (@):</b> Also damages the minions next to
     # __whomever this attacks.
     infuse_card = "REV_352t"
-    events = Attack(SELF).on(CLEAVE)
 
 
 class REV_352t:
@@ -74,6 +73,7 @@ class REV_360t:
     """Fox Spirit Wildseed"""
 
     # <b>Dormant</b> for 1 turn. <b>Rush</b>
+    tags = {GameTag.DORMANT: True}
     dormant_turns = 1
 
 
@@ -81,6 +81,7 @@ class REV_360t1:
     """Bear Spirit Wildseed"""
 
     # <b>Dormant</b> for 2 turns. <b>Taunt</b>
+    tags = {GameTag.DORMANT: True}
     dormant_turns = 2
 
 
@@ -88,6 +89,7 @@ class REV_360t2:
     """Stag Spirit Wildseed"""
 
     # <b>Dormant</b> for 3 turns. When this awakens, equip a 3/2 Greatbow.
+    tags = {GameTag.DORMANT: True}
     dormant_turns = 3
     awaken = Summon(CONTROLLER, "REV_360t4")
 
@@ -102,13 +104,15 @@ class REV_363:
 class MAW_009:
     """Shadehound"""
 
+    infuse_race = Race.BEAST
+
     # [x]Whenever this attacks, give your other Beasts +2/+2. <b>Infuse (@
     # Beasts):</b> Gain <b>Rush</b>.
     infuse_card = "MAW_009t"
     events = Attack(SELF).on(Buff(FRIENDLY_MINIONS - SELF + BEAST, "MAW_009e"))
 
 
-MAW_009e = buff(atk=2)
+MAW_009e = buff(+2, +2)
 
 
 class MAW_009t:
@@ -124,10 +128,11 @@ class MAW_011:
 
     # [x]<b>Battlecry:</b> <b>Discover</b> a friendly <b>Deathrattle</b> minion
     # that died this game. Trigger and gain its <b>Deathrattle</b>.
-    play = Choice(CONTROLLER, RANDOM(FRIENDLY + KILLED + DEATHRATTLE, 3)).then(
+    play = Choice(
+        CONTROLLER, RANDOM(DeDuplicate(FRIENDLY + DEAD_MINIONS + DEATHRATTLE), 3)
+    ).then(
         Deathrattle(Choice.CARD),
         CopyDeathrattleBuff(Choice.CARD, "MAW_011e"),
-        Give(CONTROLLER, Choice.CARD),
     )
 
 
@@ -161,7 +166,7 @@ class REV_361:
     # awaken 1 turn sooner.
     requirements = {PlayReq.REQ_NUM_MINION_SLOTS: 1}
     play = Summon(CONTROLLER, RandomID(*WILDSEED) * 2).then(
-        AwakenSooner(IN_PLAY + MINION + DORMANT + IDS(WILDSEED), 1)
+        AwakenSooner(FRIENDLY + IN_PLAY + MINION + DORMANT + IDS(WILDSEED), 1)
     )
 
 
@@ -179,7 +184,7 @@ class MAW_010:
     # [x]<b>Secret:</b> After your opponent plays three cards in a turn, deal
     # $6 damage to the enemy hero.
     secret = Play(OPPONENT).after(
-        (Attr(OPPONENT, GameTag.NUM_CARDS_PLAYED_THIS_TURN) >= 3)
+        (Attr(OPPONENT, GameTag.NUM_CARDS_PLAYED_THIS_TURN) >= 2)
         & (Reveal(SELF), Hit(ENEMY_HERO, 6))
     )
 
@@ -189,7 +194,20 @@ class REV_369:
 
     # [x]Deal $6 damage to three random enemy minions. Excess damage hits the
     # enemy hero.
-    play = Hit(ENEMY_HERO, HitExcessDamage(RANDOM_ENEMY_MINION * 3, SPELL_DAMAGE(6)))
+    def play(self):
+        targets = RANDOM(ENEMY_MINIONS, 3).eval(self.game, self)
+        excess = 0
+        for target in targets:
+            if target.zone != Zone.PLAY or target.dead:
+                continue
+            damage = self.controller.get_spell_damage(self, 6)
+            if not target.divine_shield and not target.immune:
+                excess += max(0, damage - target.health)
+            if not target.immune:
+                yield Predamage(target, damage)
+        if excess and not self.controller.opponent.hero.immune:
+            # Spell Damage has already been included in the excess.
+            yield Predamage(ENEMY_HERO, excess)
 
 
 ##

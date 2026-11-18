@@ -155,7 +155,7 @@ class TID_075:
     # [x]Deal $3 damage to a random enemy minion. Repeat this with 1 less
     # damage.
     def play(self):
-        damage = SPELL_DAMAGE(3).eval(self.game, self)
+        damage = SPELL_DAMAGE(3).evaluate(self)
         while damage > 0:
             yield Hit(RANDOM_ENEMY_MINION, damage)
             damage -= 1

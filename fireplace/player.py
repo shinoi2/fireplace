@@ -13,7 +13,17 @@ from hearthstone.enums import (
     Zone,
 )
 
-from .actions import Concede, Draw, Fatigue, Give, Hit, SpendMana, Steal, Summon
+from .actions import (
+    Concede,
+    Discard,
+    Draw,
+    Fatigue,
+    Give,
+    Hit,
+    SpendMana,
+    Steal,
+    Summon,
+)
 from .aura import TargetableByAuras
 from .card import Card
 from .cards import db
@@ -67,6 +77,8 @@ class Player(Entity, TargetableByAuras):
     spells_cost_health = slot_property("spells_cost_health")
     lifesteal_damages_opposing_hero = slot_property("lifesteal_damages_opposing_hero")
     cant_trigger_deathrattle = slot_property("cant_trigger_deathrattle")
+    infuse_in_deck = slot_property("infuse_in_deck")
+    cant_reveal_secrets = slot_property("cant_reveal_secrets")
     type = CardType.PLAYER
 
     def __init__(self, name, deck: list[str], hero: str, is_standard=True):
@@ -121,6 +133,7 @@ class Player(Entity, TargetableByAuras):
         self.elemental_played_this_turn = 0
         self.elemental_played_last_turn = 0
         self.cards_drawn_this_turn = 0
+        self.damage_dealt_to_enemy_hero_this_turn = 0
         self.cards_played_this_turn = 0
         self.cards_played_this_game = CardList()
         self.hero_power_damage_this_game = 0
@@ -378,14 +391,18 @@ class Player(Entity, TargetableByAuras):
     @property
     def characters(self):
         return CardList(
-            chain([self.hero] if self.hero else [], self.field.filter(type=CardType.MINION))
+            chain(
+                [self.hero] if self.hero else [],
+                self.field.filter(type=CardType.MINION),
+            )
         )
 
     @property
     def entities(self):
         for entity in self.field:
             yield from entity.entities
-        yield from self.secrets
+        for secret in self.secrets:
+            yield from secret.entities
         yield from self.buffs
         if self.hero:
             yield from self.hero.entities
@@ -530,6 +547,7 @@ class Player(Entity, TargetableByAuras):
         self.log("%r discards their entire hand!", self)
         # iterate the list in reverse so we don't skip over cards in the process
         # yes it's stupid.
+        self.game.refresh_auras()
         for card in self.hand[::-1]:
             card.discard()
 

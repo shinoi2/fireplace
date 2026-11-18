@@ -34,7 +34,8 @@ class LOOT_124:
     # <b>Battlecry:</b> If you control no other minions, gain <b>Taunt</b> and <b>Divine
     # Shield</b>.
     play = Find(FRIENDLY_MINIONS - SELF) | (
-        Buff(SELF, "LOOT_124e"), GiveDivineShield(SELF)
+        Buff(SELF, "LOOT_124e"),
+        GiveDivineShield(SELF),
     )
 
 

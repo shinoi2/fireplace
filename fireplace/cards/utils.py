@@ -16,6 +16,19 @@ from ..dsl import *
 from ..enums import PlayReq, BoardEnum
 from ..events import *
 
+MINION_TARGET = {PlayReq.REQ_TARGET_TO_PLAY: 0, PlayReq.REQ_MINION_TARGET: 0}
+FRIENDLY_MINION_TARGET = {
+    PlayReq.REQ_TARGET_TO_PLAY: 0,
+    PlayReq.REQ_MINION_TARGET: 0,
+    PlayReq.REQ_FRIENDLY_TARGET: 0,
+}
+ENEMY_MINION_BATTLECRY = {
+    PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
+    PlayReq.REQ_MINION_TARGET: 0,
+    PlayReq.REQ_ENEMY_TARGET: 0,
+}
+
+
 # For buffs which are removed when the card is moved to play (eg. cost buffs)
 # This needs to be Summon, because of Summon from the hand
 REMOVED_IN_PLAY = Summon(ALL_PLAYERS, OWNER).after(Destroy(SELF))
@@ -157,7 +170,7 @@ RELICS = ["REV_943", "REV_508", "REV_834"]
 
 GARGON_COMPANION = ["REV_353t3", "REV_353t4", "REV_353t5"]
 
-WILDSEED = ["REV_360t", "REV_360t1", "REV_360t4"]
+WILDSEED = ["REV_360t", "REV_360t1", "REV_360t2"]
 
 RandomBasicTotem = lambda *args, **kw: RandomID(*BASIC_TOTEMS, **kw)
 RandomBasicHeroPower = lambda *args, **kw: RandomID(*BASIC_HERO_POWERS, **kw)
@@ -420,6 +433,30 @@ def buff(atk=0, health=0, **kwargs):
         tags = buff_tags
 
     return Buff
+
+
+class FixedStats:
+    atk = lambda self, i: self._xatk
+    max_health = lambda self, i: self._xhealth
+
+
+def suspicious_discover(picker):
+    return Discover(CONTROLLER, picker).then(
+        Give(CONTROLLER, Copy(Discover.CARD)),
+        lambda source, player, cards, correct: (
+            yield Choice(OPPONENT, cards).then(
+                lambda source, player, cards, chosen: (
+                    [Give(OPPONENT, Copy(chosen))] if chosen.id == correct.id else []
+                )
+            )
+        ),
+    )
+
+
+def gain_keywords(source, count, keywords):
+    available = [tag for tag in keywords if not source.tags[tag]]
+    for tag in source.game.random.sample(available, min(count, len(available))):
+        yield SetTag(SELF, tag)
 
 
 def cost_buff(cost=0, **kwargs):

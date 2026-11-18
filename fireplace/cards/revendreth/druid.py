@@ -114,11 +114,11 @@ class REV_311:
     # a spell to cast.
     choose = ("REV_311t", "REV_311t2")
     play = ChooseBoth(CONTROLLER) & (
-        Discover(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK + SPELL), 3)).then(
-            CastSpell(Discover.CARD)
+        Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK + SPELL), 3)).then(
+            CastSpell(Choice.CARD)
         ),
-        Discover(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK + MINION), 3)).then(
-            CastSpell(Discover.CARD)
+        Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK + MINION), 3)).then(
+            Summon(CONTROLLER, Choice.CARD)
         ),
     )
 
@@ -127,8 +127,8 @@ class REV_311t:
     """Sunlight Blossom"""
 
     # <b>Discover</b> a spell from your deck to cast.
-    play = Discover(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK + SPELL), 3)).then(
-        CastSpell(Discover.CARD)
+    play = Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK + SPELL), 3)).then(
+        CastSpell(Choice.CARD)
     )
 
 
@@ -136,8 +136,8 @@ class REV_311t2:
     """Moonlight Blossom"""
 
     # [x]<b>Discover</b> a minion from your deck to summon.
-    play = Discover(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK + MINION), 3)).then(
-        Summon(CONTROLLER, Discover.CARD)
+    play = Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK + MINION), 3)).then(
+        Summon(CONTROLLER, Choice.CARD)
     )
 
 
@@ -145,7 +145,9 @@ class REV_313:
     """Planted Evidence"""
 
     # <b>Discover</b> a spell. It costs (2) less this turn.
-    play = Discover(CONTROLLER, RandomSpell()).then(Buff(Discover.CARD, "REV_313e"))
+    play = Discover(CONTROLLER, RandomSpell()).then(
+        Give(CONTROLLER, Discover.CARD), Buff(Discover.CARD, "REV_313e")
+    )
 
 
 REV_313e = cost_buff(cost=-2)
@@ -184,7 +186,7 @@ class MAW_024:
 
 
 class MAW_024e2:
-    events = OWN_TURN_BEGIN.on(Draw(CONTROLLER))
+    events = BeginTurn(OWNER).on(Draw(OWNER))
 
 
 ##

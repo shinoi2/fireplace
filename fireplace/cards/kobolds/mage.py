@@ -33,7 +33,15 @@ class LOOT_537:
 
     # <b>Battlecry:</b> If you're holding any cards that didn't start in your deck, reduce
     # their Cost by (2).
-    play = Buff(FRIENDLY_HAND - STARTING_DECK, "LOOT_537e")
+    play = Buff(
+        FRIENDLY_HAND
+        + FilterSelector(
+            lambda card, source: not any(
+                card is original for original in source.controller.starting_deck
+            )
+        ),
+        "LOOT_537e",
+    )
 
 
 @custom_card

@@ -225,7 +225,8 @@ def test_swampqueen_hagatha():
     assert horror.id == "DAL_431t"
     assert horror.entity_1 == card1.id
     assert horror.entity_2 == card2.id
-    assert horror.overload == card1.overload + card2.overload
+    # The taught spells apply their own Overload when CastSpell casts them.
+    assert horror.overload == 0
 
 
 def test_darkest_hour():
@@ -658,6 +659,24 @@ def test_swampqueen_hagatha_horror_casts_both_spells():
     assert yeti.damage in (2, 3)
     assert len(game.player1.hand) == hand
     assert game.player1.overloaded == 2
+
+
+def test_swampqueen_hagatha_taught_spells_each_apply_overload_once():
+    game = prepare_empty_game()
+    # Both Lightning Storm and Feral Spirit have Overload.
+    horror, _ = _swampqueen(game, "EX1_259", "EX1_248")
+    assert horror.entity_1.overload > 0
+    assert horror.entity_2.overload > 0
+    overload = horror.entity_1.overload + horror.entity_2.overload
+    assert horror.overload == 0
+    assert game.player1.overloaded == 0
+    game.end_turn()
+    game.end_turn()
+    horror.play()
+    assert game.player1.overloaded == overload
+    game.end_turn()
+    game.end_turn()
+    assert game.player1.overload_locked == overload
 
 
 def test_unidentified_contract_is_revealed_however_it_enters_the_hand():

@@ -71,10 +71,9 @@ class LOOT_187:
     requirements = {
         PlayReq.REQ_FRIENDLY_MINION_DIED_THIS_GAME: 0,
     }
-    play = (
-        Summon(CONTROLLER, Copy(RANDOM(FRIENDLY + KILLED + MINION + DEATHRATTLE) * 2))
-        .then(Buff(Summon.CARD, "LOOT_187e"))
-    )
+    play = Summon(
+        CONTROLLER, Copy(RANDOM(FRIENDLY + KILLED + MINION + DEATHRATTLE) * 2)
+    ).then(Buff(Summon.CARD, "LOOT_187e"))
 
 
 class LOOT_187e:

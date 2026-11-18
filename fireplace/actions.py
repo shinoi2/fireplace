@@ -407,10 +407,6 @@ class Death(GameAction):
                 and target.type == CardType.MINION
                 and target.reborn
             ):
-                for hand in target.controller.hand.filter(type=CardType.MINION):
-                    hand.infuse += 1
-                    if hand.has_infuse and hand.infuse >= hand.data_num_1:
-                        source.game.queue_actions(target.controller, [Infuse(hand)])
                 source.game.queue_actions(
                     target, [Summon(target.controller, RebornCopy(SELF))]
                 )
@@ -427,6 +423,23 @@ class Death(GameAction):
             card.zone = Zone.GRAVEYARD
             source.game.check_for_end_game()
             source.game.refresh_auras()
+            if card.type == CardType.MINION:
+                controller = card.controller
+                candidates = list(controller.hand)
+                if controller.infuse_in_deck:
+                    candidates += list(controller.deck)
+                for candidate in candidates:
+                    if not candidate.has_infuse:
+                        continue
+                    race = getattr(candidate.data.scripts, "infuse_race", None)
+                    if race is not None and race not in card.races:
+                        continue
+                    candidate.infuse += 1
+                    hook = getattr(candidate.data.scripts, "on_infuse", None)
+                    if hook:
+                        source.game.queue_actions(candidate, hook(candidate, card))
+                    if candidate.infuse >= candidate.data_num_1:
+                        source.game.queue_actions(candidate, [Infuse(candidate)])
             log.info("Processing Deathrattle for %r", card)
             self._trigger = False
             source.game.manager.game_action(self, source, card)
@@ -645,7 +658,9 @@ class Play(GameAction):
                     player.elemental_played_this_turn += 1
             elif card.type == CardType.SPELL:
                 player.spells_played_this_game += 1
-                entities = list(player.field.filter(dormant=False, type=CardType.MINION))
+                entities = list(
+                    player.field.filter(dormant=False, type=CardType.MINION)
+                )
                 if player.weapon:
                     entities.append(player.weapon)
                 entities = sorted(
@@ -830,6 +845,19 @@ class Buff(TargetedAction):
         return target
 
 
+class SetStats(TargetedAction):
+    TARGET = ActionArg()
+    BUFF = CardArg()
+    ATK = IntArg()
+    HEALTH = IntArg()
+
+    def do(self, source, target, buff, atk, health):
+        buff._xatk = atk
+        buff._xhealth = health
+        buff.source = source
+        buff.apply(target)
+
+
 class MultiBuff(TargetedAction):
     TARGET = ActionArg()
     BUFFS = ActionArg()
@@ -855,7 +883,7 @@ class StoringBuff(TargetedAction):
     def do(self, source, target, buff, cards):
         log.info("%r store card %r", buff, cards)
         buff.source = source
-        buff.store_card = cards
+        buff.store_card = cards if isinstance(cards, list) else [cards]
         buff.apply(target)
         return target
 
@@ -1167,6 +1195,11 @@ class Damage(TargetedAction):
             if target.type == CardType.MINION:
                 if target.has_frenzy:
                     source.game.queue_actions(source, [Frenzy(target, amount)])
+            if (
+                target.type == CardType.HERO
+                and target.controller is source.controller.opponent
+            ):
+                source.controller.damage_dealt_to_enemy_hero_this_turn += amount
             target.damaged_this_turn += amount
             if target.controller != source.game.current_player:
                 target.damaged_on_opponent_turn += amount
@@ -1250,13 +1283,13 @@ class Battlecry(TargetedAction):
 
         if card.has_combo and player.combo:
             log.info("Activating %r combo targeting %r", card, target)
-            actions = card.get_actions("combo")
+            action_name = "combo"
         elif card.has_outcast and card.play_outcast:
             log.info("Activating %r outcast targeting %r", card, target)
-            actions = card.get_actions("outcast")
+            action_name = "outcast"
         else:
             log.info("Activating %r action targeting %r", card, target)
-            actions = card.get_actions("play")
+            action_name = "play"
 
         if card.battlecry_requires_target() and not target:
             log.info("%r requires a target for its battlecry. Will not trigger.")
@@ -1264,10 +1297,12 @@ class Battlecry(TargetedAction):
 
         source.game.manager.targeted_action(self, source, card, target)
         source.target = target
-        source.game.main_power(source, actions, target)
+        source.game.main_power(source, card.get_actions(action_name), target)
 
         if self.has_extra_battlecries(player, card):
-            source.game.main_power(source, actions, target)
+            # Callable scripts may return generators and depend on the state
+            # after the first battlecry. Invoke the script again for each cast.
+            source.game.main_power(source, card.get_actions(action_name), target)
 
         if card.overload:
             source.game.queue_actions(card, [Overload(player, card.overload)])
@@ -1742,6 +1777,14 @@ class Morph(TargetedAction):
         return [card]
 
     def do(self, source, target, card):
+        if (
+            target.zone == Zone.PLAY
+            and card.type == CardType.MINION
+            and not target.ignore_scripts
+            and getattr(target.data.scripts, "summon_instead_of_transform", False)
+        ):
+            source.game.queue_actions(source, [Summon(target.controller, card)])
+            return target
         log.info("Morphing %r into %r", target, card)
         target_zone = target.zone
         if card.zone != target_zone:
@@ -1753,7 +1796,9 @@ class Morph(TargetedAction):
         target.zone = Zone.SETASIDE
         target.morphed = card
         card.cards_played_when_holding = target.cards_played_when_holding[:]
-        card.infuse = target.infuse
+        card.infuse = 0 if target.has_infuse else target.infuse
+        card.copied_from = getattr(target, "copied_from", None)
+        card.copied_from_controller = getattr(target, "copied_from_controller", None)
         card.turn_drawn = target.turn_drawn
         source.game.manager.targeted_action(self, source, target, card)
         return card
@@ -1802,6 +1847,8 @@ class Reveal(TargetedAction):
     TARGET = ActionArg()
 
     def do(self, source, target):
+        if target.controller.cant_reveal_secrets:
+            return
         log.info("Revealing %r", target)
         if target.zone == Zone.SECRET and target.data.secret:
             self.broadcast(source, EventListener.ON, target)
@@ -1944,7 +1991,8 @@ class Summon(TargetedAction):
                 continue
             if card.zone != Zone.PLAY:
                 if card._summon_index is None and source.type in (
-                    CardType.MINION, CardType.LOCATION
+                    CardType.MINION,
+                    CardType.LOCATION,
                 ):
                     if source.zone == Zone.PLAY:
                         source_index = source.controller.field.index(source)
@@ -2200,9 +2248,14 @@ class CastSpell(TargetedAction):
         return source.game.random.choice(card.targets)
 
     def do(self, source, card, targets):
-        if self.requires_active_source and source.type == CardType.MINION and (
-            source.dead or source.silenced or source.zone != Zone.PLAY
+        if (
+            self.requires_active_source
+            and source.type == CardType.MINION
+            and (source.dead or source.silenced or source.zone != Zone.PLAY)
         ):
+            return
+
+        if card.data.secret and not card.is_summonable():
             return
 
         player = card.controller
@@ -2618,7 +2671,7 @@ class AwakenSooner(TargetedAction):
         target.dormant_turns = max(0, target.dormant_turns - amount)
         source.game.manager.targeted_action(self, source, target, amount)
         if target.dormant_turns == 0:
-            self.queue_actions(source.controller, [Awaken(target)])
+            source.game.queue_actions(source, [Awaken(target)])
 
 
 class SwapDecks(GameAction):
@@ -2848,7 +2901,9 @@ class ActivateLocation(GameAction):
         source.game.action_end(BlockType.PLAY, location)
         location.target = None
         location.cooldown = 2
-        source.game.queue_actions(location, [Hit(location, 1)])
+        location.durability -= 1
+        if location.durability <= 0:
+            source.game.queue_actions(location, [Destroy(location)])
 
         self.broadcast(source, EventListener.AFTER, location, target)
 

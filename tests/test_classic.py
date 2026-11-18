@@ -4113,4 +4113,7 @@ def test_pilfer_another_class():
         # player1 is whoever goes first, Rogue or Mage.
         game.player1.give("EX1_182").play()
         card = game.player1.hand[0]
-        assert len(set(card.classes) - {game.player1.hero.card_class, CardClass.NEUTRAL}) > 0
+        assert (
+            len(set(card.classes) - {game.player1.hero.card_class, CardClass.NEUTRAL})
+            > 0
+        )

@@ -17,7 +17,12 @@ class REV_916:
     """Creepy Painting"""
 
     # After another minion dies, become a copy of it.
-    events = Death(ALL_MINIONS - SELF).after(Morph(SELF, Copy(Death.ENTITY)))
+    def copy_dead_minion(self, minion):
+        copy = ExactCopy(minion).evaluate(self)[0]
+        copy.damage = 0
+        yield Morph(SELF, copy)
+
+    events = Death(MINION - SELF).after(copy_dead_minion)
 
 
 class REV_251:
@@ -74,7 +79,7 @@ class REV_351:
     play = Buff(TARGET, "REV_351e")
 
 
-REV_315e = buff(atk=2)
+REV_351e = buff(atk=2)
 
 
 class REV_338:
@@ -105,7 +110,7 @@ class REV_841:
 
 
 class REV_841e:
-    update = Refresh(FRIENDLY_HAND + SECRET, "REV_841e2")
+    update = Refresh(FRIENDLY_HAND + SECRET, buff="REV_841e2")
     events = Play(CONTROLLER, SECRET).on(Destroy(SELF))
 
 
@@ -179,8 +184,8 @@ class REV_378:
 
 
 class REV_378e:
-    update = Refresh(FRIENDLY_HAND + MINION, {GameTag.COST: 1})
-    events = OWN_TURN_END.on(Destroy(SELF))
+    update = Refresh(ENEMY_HAND + MINION, {GameTag.COST: 1})
+    events = EndTurn(OPPONENT).on(Destroy(SELF))
 
 
 class REV_020:

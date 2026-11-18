@@ -173,11 +173,16 @@ class PlayerManager(Manager):
         enums.ELEMENTAL_PLAYED_LAST_TURN: "elemental_played_last_turn",
         enums.HERO_HEALTH_CHANGED_THIS_TURN: "hero_health_changed_this_turn",
         enums.HERO_HEALTH_CHANGED_ON_OWN_TURN: "hero_health_changed_on_own_turn",
+        enums.INFUSE_IN_DECK: "infuse_in_deck",
+        enums.CANT_REVEAL_SECRETS: "cant_reveal_secrets",
         enums.RELIC_LEVEL: "relic_level",
     }
 
 
 CARD_ATTRIBUTE_MAP = {
+    enums.INFUSE_IN_DECK: "infuse_in_deck",
+    enums.CANT_REVEAL_SECRETS: "cant_reveal_secrets",
+    enums.CANT_BE_TARGETED_BY_OPPONENT_ABILITIES: "cant_be_targeted_by_opponent_abilities",
     GameTag.ADJACENT_BUFF: "adjacent_buff",
     GameTag.ALL_TARGETS_RANDOM: "all_targets_random",
     GameTag.ARMOR: "armor",

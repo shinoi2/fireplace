@@ -22,6 +22,12 @@ class Copy(LazyValue):
         """
         log.info("Creating a copy of %r", entity)
         new_entity = source.controller.card(entity.id, source)
+        new_entity.copied_from = entity
+        new_entity.copied_from_controller = entity.controller
+        new_entity.data_num_1 = entity.data_num_1
+        new_entity.data_num_2 = entity.data_num_2
+        if hasattr(entity, "infuse"):
+            new_entity.infuse = entity.infuse
         if entity.custom_card:
             new_entity.custom_card = True
             new_entity.create_custom_card = entity.create_custom_card
@@ -34,6 +40,8 @@ class Copy(LazyValue):
             entities = [entity] if entity else []
         elif isinstance(self.selector, Selector):
             entities = self.selector.eval(source.game, source)
+        elif isinstance(self.selector, list):
+            entities = self.selector
         else:
             entities = [self.selector]
 

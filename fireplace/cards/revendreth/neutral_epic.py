@@ -14,8 +14,8 @@ class REV_960:
 
 class REV_960e:
     events = (
-        Draw(CONTROLLER).on(Find(CURRENT_PLAYER + CONTROLLER) & Hit(FRIENDLY_HERO, 2)),
-        OWN_TURN_END.on(Destroy(SELF)),
+        Draw(OPPONENT).on(Find(CURRENT_PLAYER + OPPONENT) & Hit(ENEMY_HERO, 2)),
+        EndTurn(OPPONENT).on(Destroy(SELF)),
     )
 
 
@@ -24,7 +24,10 @@ class REV_370:
 
     # [x]<b>Battlecry:</b> Choose an enemy minion. Throw a random minion from
     # your hand at it.
-    pass
+    requirements = ENEMY_MINION_BATTLECRY
+    play = Summon(CONTROLLER, RANDOM(FRIENDLY_HAND + MINION)).then(
+        Attack(Summon.CARD, TARGET)
+    )
 
 
 class REV_017:
@@ -32,14 +35,22 @@ class REV_017:
 
     # [x]<b>Battlecry:</b> Devour an enemy minion and gain its stats.
     # _<b>Infuse (@):</b> And its neighbors.
-    pass
+    requirements = ENEMY_MINION_BATTLECRY
+    infuse_card = "REV_017t"
+
+    def play(self):
+        if self.target:
+            yield Buff(
+                SELF, "REV_017e", atk=self.target.atk, max_health=self.target.health
+            )
+            yield Destroy(TARGET)
 
 
 class MAW_032:
     """Tight-Lipped Witness"""
 
     # <b>Secrets</b> can't be revealed.
-    pass
+    update = Refresh(ALL_PLAYERS, {enums.CANT_REVEAL_SECRETS: True})
 
 
 class REV_843:
@@ -47,11 +58,42 @@ class REV_843:
 
     # <b>Infuse (@):</b> Gain stats equal to the Attack of the minions that
     # <b>Infused</b> this.
-    pass
+    infuse_card = "REV_843t"
+
+    def on_infuse(self, minion):
+        self.data_num_2 += minion.atk
+        if self.infuse >= self.data_num_1:
+            yield Buff(
+                SELF, "REV_843e", atk=self.data_num_2, max_health=self.data_num_2
+            )
 
 
 class REV_023:
     """Demolition Renovator"""
 
     # <b>Battlecry:</b> Destroy an enemy location.
-    pass
+    requirements = {
+        PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
+        PlayReq.REQ_LOCATION_TARGET: 0,
+        PlayReq.REQ_ENEMY_TARGET: 0,
+    }
+    play = Destroy(TARGET)
+
+
+REV_017e = buff()
+REV_843e = buff()
+
+
+class REV_017t:
+    requirements = ENEMY_MINION_BATTLECRY
+
+    def play(self):
+        if self.target:
+            targets = (TARGET | ADJACENT(TARGET)).eval(self.game, self)
+            yield Buff(
+                SELF,
+                "REV_017e",
+                atk=sum(c.atk for c in targets),
+                max_health=sum(c.health for c in targets),
+            )
+            yield Destroy(targets)

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from types import SimpleNamespace
+
 import pytest
 from utils import *
 
@@ -26,12 +28,8 @@ def test_evaluator_negation(condition, expected):
     # Negating a copy must leave the original condition unchanged.
     assert condition.check(source) is expected
 
-    assert (condition & "yes" | "no").evaluate(source) == (
-        "yes" if expected else "no"
-    )
-    assert (negated & "yes" | "no").evaluate(source) == (
-        "no" if expected else "yes"
-    )
+    assert (condition & "yes" | "no").evaluate(source) == ("yes" if expected else "no")
+    assert (negated & "yes" | "no").evaluate(source) == ("no" if expected else "yes")
 
 
 def test_evaluator_automatically_wraps_subclass_checks():
@@ -69,6 +67,97 @@ def test_selector():
     targets = selector.eval(game, game.player1)
     assert len(targets) == 1
     assert targets[0] == alex
+
+
+@pytest.mark.parametrize(
+    "selector",
+    [
+        Selector(),
+        FilterSelector(lambda entity, source: True),
+        FuncSelector(lambda entities, source: entities),
+    ],
+)
+def test_selectors_resolve_morph_chains_without_changing_order_or_duplicates(selector):
+    latest = SimpleNamespace(morphed=None)
+    intermediate = SimpleNamespace(morphed=latest)
+    original = SimpleNamespace(morphed=intermediate)
+    unchanged = object()
+    entities = [original, unchanged, original]
+
+    result = selector.eval(entities, None)
+
+    assert len(result) == 3
+    assert result[0] is latest
+    assert result[1] is unchanged
+    assert result[2] is latest
+    assert entities[0] is original
+    assert selector.eval([], None) == []
+
+
+def test_selector_subclasses_resolve_morphs_when_inheriting_or_overriding_eval():
+    class ParentSelector(Selector):
+        def eval(self, entities, source):
+            return entities
+
+    class InheritedSelector(ParentSelector):
+        pass
+
+    class OverriddenSelector(ParentSelector):
+        def eval(self, entities, source):
+            return entities[::-1]
+
+    latest = SimpleNamespace(morphed=None)
+    original = SimpleNamespace(morphed=latest)
+    unchanged = object()
+    assert InheritedSelector.eval is ParentSelector.eval
+    result = InheritedSelector().eval([original, unchanged], None)
+    assert result[0] is latest
+    assert result[1] is unchanged
+    result = OverriddenSelector().eval([original, unchanged], None)
+    assert result[0] is unchanged
+    assert result[1] is latest
+
+
+def test_self_selector_follows_repeated_infuse_transformations():
+    game = prepare_empty_game()
+    original = game.player1.give("REV_906")
+    for _ in range(3):
+        game.player1.summon(WISP).destroy()
+    latest = game.player1.hand[-1]
+
+    result = SELF.eval(game, original)
+
+    assert len(result) == 1
+    assert result[0] is latest
+    assert latest.data_num_2 == 8
+
+
+def test_target_selector_and_set_operations_follow_transformed_target():
+    game = prepare_empty_game()
+    original = game.player2.summon(WISP)
+    spell = game.player1.give(MOONFIRE)
+    spell.target = original
+    game.cheat_action(spell, [Morph(original, "CS2_182")])
+    game.cheat_action(spell, [Morph(original.morphed, "EX1_tk28")])
+    latest = original.morphed.morphed
+
+    result = TARGET.eval(game, spell)
+    assert len(result) == 1
+    assert result[0] is latest
+    result = (TARGET + MINION + IN_PLAY).eval(game, spell)
+    assert len(result) == 1
+    assert result[0] is latest
+
+
+def test_game_selectors_do_not_match_a_morphed_entity_by_its_former_type():
+    game = prepare_empty_game()
+    original = game.player1.give("VAN_EX1_323")
+    original.play()
+    assert original.morphed is game.player1.hero
+    assert all(card.type == CardType.MINION for card in MINION.eval(game, game.player1))
+    assert ALL_MINIONS.eval(game, game.player1) == []
+    assert FRIENDLY_MINIONS.eval(game, game.player1) == []
+    assert SELF.eval(game, original) == [game.player1.hero]
 
 
 def test_empty_selector():
@@ -114,7 +203,9 @@ def test_controller():
 
 
 def test_self_selector():
-    game = prepare_game()
+    game = prepare_empty_game()
+    game.player1.summon(WISP)
+    game.player2.give(FIREBALL)
     selector = SELF
     for source in game:
         targets = selector.eval(game, source)
@@ -285,3 +376,81 @@ def test_lazynum():
     assert total == 9
     diff = (Count(FRIENDLY_MINIONS) - Count(ENEMY_MINIONS)).evaluate(game.player1)
     assert diff == -1
+
+
+def test_spell_damage_and_heal_are_lazy_numbers_and_support_arithmetic():
+    game = prepare_empty_game()
+    spell = game.player1.give(HOLY_LIGHT)
+    damage = SPELL_DAMAGE(3)
+    healing = SPELL_HEAL(3)
+    for value in (damage, healing):
+        assert isinstance(value, LazyNum)
+        assert not isinstance(value, Selector)
+        assert value.evaluate(spell) == 3
+
+    game.player1.summon(KOBOLD_GEOMANCER)
+    assert damage.evaluate(spell) == 4
+    assert healing.evaluate(spell) == 3
+    game.player1.summon("EX1_350")  # Prophet Velen
+    for value, expected in ((damage, 8), (healing, 6)):
+        assert value.evaluate(spell) == expected
+        assert (value * 2).evaluate(spell) == expected * 2
+        assert (value + 1).evaluate(spell) == expected + 1
+        assert (-value).evaluate(spell) == -expected
+        assert (value == expected).check(spell)
+
+
+def test_spell_damage_and_heal_accept_lazy_amounts():
+    game = prepare_empty_game()
+    spell = game.player1.give(HOLY_LIGHT)
+    minion = game.player1.summon(KOBOLD_GEOMANCER)
+    assert SPELL_DAMAGE(Count(FRIENDLY_MINIONS)).evaluate(spell) == 2
+    assert SPELL_HEAL(Count(FRIENDLY_MINIONS)).evaluate(spell) == 1
+    minion.destroy()
+    assert SPELL_DAMAGE(Count(FRIENDLY_MINIONS)).evaluate(spell) == 0
+    assert SPELL_HEAL(Count(FRIENDLY_MINIONS)).evaluate(spell) == 0
+
+
+def test_starting_hero_selector_returns_a_list():
+    game = prepare_empty_game()
+    result = STARTING_HERO.eval(game, game.player1.hero)
+    assert isinstance(result, list)
+    assert len(result) == 1
+    assert result[0] is game.player1.starting_hero
+
+
+def test_enchantments_initialize_independent_stored_card_lists():
+    game = prepare_empty_game()
+    first = game.player1.card("REV_373e")
+    second = game.player1.card("REV_373e")
+    assert first.store_card == []
+    assert second.store_card == []
+    assert first.store_card is not second.store_card
+    first.store_card.append(game.player1.card(MOONFIRE))
+    assert second.store_card == []
+    assert STORE_CARD.eval(game, second) == []
+
+
+@pytest.mark.parametrize("multiple", [False, True])
+def test_storing_buff_always_stores_a_list(multiple):
+    game = prepare_empty_game()
+    owner = game.player1.summon(WISP)
+    cards = [game.player1.card(MOONFIRE), game.player1.card(FIREBALL)]
+    stored = cards if multiple else cards[0]
+    buff = game.player1.card("REV_373e")
+    StoringBuff(owner, buff, stored).do(owner, owner, buff, stored)
+    assert isinstance(buff.store_card, list)
+    assert buff.store_card == (cards if multiple else [cards[0]])
+    assert STORE_CARD.eval(game, buff) == buff.store_card
+
+
+def test_stored_card_selector_follows_a_transformed_card():
+    game = prepare_empty_game()
+    owner = game.player1.summon(WISP)
+    stored = game.player1.summon(WISP)
+    game.cheat_action(owner, [StoringBuff(owner, "REV_373e", stored)])
+    buff = owner.buffs[-1]
+    game.cheat_action(owner, [Morph(stored, "CS2_182")])
+    result = STORE_CARD.eval(game, buff)
+    assert len(result) == 1
+    assert result[0] is stored.morphed

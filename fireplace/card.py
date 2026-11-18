@@ -307,6 +307,8 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
     windfury = boolean_property("windfury")
     mega_windfury = boolean_property("mega_windfury")
     has_choose_one = boolean_property("has_choose_one")
+    has_infuse = boolean_property("has_infuse")
+    cant_play = boolean_property("cant_play")
     playable_zone = Zone.HAND
     lifesteal = boolean_property("lifesteal")
     keep_buff = boolean_property("keep_buff")
@@ -529,11 +531,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
 
         min_total_minions = self.requirements.get(PlayReq.REQ_MINIMUM_TOTAL_MINIONS, 0)
         if (
-            len(
-                self.controller.game.board.filter(
-                    dormant=False, type=CardType.MINION
-                )
-            )
+            len(self.controller.game.board.filter(dormant=False, type=CardType.MINION))
             < min_total_minions
         ):
             return False
@@ -737,11 +735,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         )
         if req is not None:
             if (
-                len(
-                    self.controller.field.filter(
-                        dormant=False, type=CardType.MINION
-                    )
-                )
+                len(self.controller.field.filter(dormant=False, type=CardType.MINION))
                 >= req
             ):
                 return bool(self.play_targets)
@@ -847,7 +841,9 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_CONTROLLER_OTHER_WITH_RACE
         )
         if req is not None:
-            if self.controller.field.filter(type=CardType.MINION, races=req).exclude(self):
+            if self.controller.field.filter(type=CardType.MINION, races=req).exclude(
+                self
+            ):
                 return bool(self.play_targets)
         req = self.requirements.get(PlayReq.REQ_TARGET_IF_AVAILABLE_AND_WEAPON_EQUIPPED)
         if req is not None:
@@ -855,7 +851,9 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
                 return bool(self.play_targets)
         req = self.requirements.get(PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SHADOW_IN_HAND)
         if req is not None:
-            if self.controller.hand.filter(type=CardType.SPELL, spell_school=SpellSchool.SHADOW):
+            if self.controller.hand.filter(
+                type=CardType.SPELL, spell_school=SpellSchool.SHADOW
+            ):
                 return bool(self.play_targets)
         req = self.requirements.get(
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_HERO_DAMAGED_THIS_TURN
@@ -873,7 +871,15 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
 
     @property
     def play_targets(self):
-        return [card for card in self.game.characters if is_valid_target(self, card)]
+        candidates = list(self.game.characters)
+        if PlayReq.REQ_LOCATION_TARGET in self.requirements:
+            candidates = [
+                card
+                for player in self.game.players
+                for card in player.field
+                if card.type == CardType.LOCATION
+            ]
+        return [card for card in candidates if is_valid_target(self, card)]
 
     @property
     def targets(self):
@@ -988,6 +994,9 @@ class Character(LiveEntity):
     cant_attack = boolean_property("cant_attack")
     cant_be_frozen = boolean_property("cant_be_frozen")
     cant_be_targeted_by_opponents = boolean_property("cant_be_targeted_by_opponents")
+    cant_be_targeted_by_opponent_abilities = boolean_property(
+        "cant_be_targeted_by_opponent_abilities"
+    )
     cant_be_targeted_by_abilities = boolean_property("cant_be_targeted_by_abilities")
     cant_be_targeted_by_hero_powers = boolean_property(
         "cant_be_targeted_by_hero_powers"
@@ -1262,7 +1271,6 @@ class Hero(Character):
 class Minion(Character):
     charge = boolean_property("charge")
     has_inspire = boolean_property("has_inspire")
-    has_infuse = boolean_property("has_infuse")
     spellpower = int_property("spellpower")
     spellpower_arcane = int_property("spellpower_arcane")
     spellpower_fire = int_property("spellpower_fire")
@@ -1338,9 +1346,7 @@ class Minion(Character):
         assert self.zone is Zone.PLAY, self.zone
         ret = CardList()
         index = self.zone_position - 1
-        left = self.controller.field[:index].filter(
-            dormant=False, type=CardType.MINION
-        )
+        left = self.controller.field[:index].filter(dormant=False, type=CardType.MINION)
         if left:
             ret.append(left[-1])
         return ret
@@ -1584,8 +1590,14 @@ class Secret(Spell):
 
     @property
     def events(self):
+        if self.zone == Zone.SECRET and self.controller.cant_reveal_secrets:
+            return []
         ret = super().events
-        if self.zone == Zone.SECRET and not self.exhausted:
+        if (
+            self.zone == Zone.SECRET
+            and not self.exhausted
+            and not self.controller.cant_reveal_secrets
+        ):
             ret += self.data.scripts.secret
         return ret
 
@@ -1737,6 +1749,7 @@ class Enchantment(BaseCard):
     def __init__(self, data):
         self.one_turn_effect = False
         self.additional_deathrattles = []
+        self.store_card = []
         super().__init__(data)
 
     @property
@@ -1815,8 +1828,7 @@ class Weapon(rules.WeaponRules, LiveEntity):
 
     @property
     def max_durability(self):
-        ret = self._max_durability
-        ret += self._getattr("max_health", 0)
+        ret = self._getattr("max_health", self._max_durability)
         return max(0, ret)
 
     @max_durability.setter
@@ -1993,6 +2005,7 @@ class Location(PlayableCard):
         self.durability = 0
         self.cooldown = 0
         super().__init__(data)
+        self.durability = data.tags.get(GameTag.HEALTH, 0)
 
     @property
     def exhausted(self):
@@ -2015,9 +2028,14 @@ class Location(PlayableCard):
         return summonable
 
     def is_usable(self):
-        if self.exhausted:
+        if (
+            self.zone != Zone.PLAY
+            or self.exhausted
+            or not self.controller.current_player
+            or self.controller.choice
+        ):
             return False
-        return super().is_playable()
+        return not self.requires_target() or bool(self.play_targets)
 
     def _set_zone(self, value):
         if self.zone == value:
@@ -2033,6 +2051,10 @@ class Location(PlayableCard):
         super()._set_zone(value)
 
     def activate(self, target=None):
+        if not self.is_usable():
+            raise InvalidAction("%r can't be used." % self)
+        if self.requires_target() and target not in self.play_targets:
+            raise InvalidAction("%r is not a valid target for %r." % (target, self))
         return self.game.queue_actions(
             self.controller, [actions.ActivateLocation(self, target)]
         )

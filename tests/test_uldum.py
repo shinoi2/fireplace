@@ -388,9 +388,13 @@ def test_diseased_vulture_on_your_turn_only():
     p1.give(MOONFIRE).play(target=p1.hero)
     assert len(p1.field) == 2
     assert p1.field[1].cost == 3
+
+    game = prepare_empty_game(CardClass.WARLOCK, CardClass.WARLOCK)
+    p1, p2 = game.player1, game.player2
+    p1.give("ULD_167").play()
     game.end_turn()
     p2.give(MOONFIRE).play(target=p1.hero)
-    assert len(p1.field) == 2
+    assert len(p1.field) == 1
 
 
 def test_oasis_surger_gains_two_two():

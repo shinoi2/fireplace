@@ -54,9 +54,7 @@ ICC_810e = buff(+2, +2)
 class ICC_812:
     """Meat Wagon"""
 
-    deathrattle = Summon(
-        CONTROLLER, RANDOM(FRIENDLY_DECK + MINION + (ATK < ATK(SELF)))
-    )
+    deathrattle = Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION + (ATK < ATK(SELF))))
 
 
 class ICC_901:

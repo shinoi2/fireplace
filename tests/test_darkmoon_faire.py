@@ -214,7 +214,11 @@ def test_ring_toss_corrupted_discovers_and_casts_two_secrets():
     assert game.player1.choice
     game.player1.choice.choose(game.player1.choice.cards[0])
     assert game.player1.choice
-    game.player1.choice.choose(game.player1.choice.cards[0])
+    # An already active Secret cannot be cast a second time.
+    active_ids = {card.id for card in game.player1.secrets}
+    game.player1.choice.choose(
+        next(card for card in game.player1.choice.cards if card.id not in active_ids)
+    )
     assert len(game.player1.secrets) == 2
 
 

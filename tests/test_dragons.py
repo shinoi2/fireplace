@@ -196,7 +196,12 @@ def test_kronx_dragonhoof_draw_unleash_devastation():
     wisp = game.player1.give(WISP).play()
     dragonhoof = game.player1.give("DRG_099").play()
     # A155 (D-108): the Devastation is drawn at random among the four, no choice
-    assert game.player1.choice.cards == ["DRG_099t1", "DRG_099t2", "DRG_099t3", "DRG_099t4"]
+    assert game.player1.choice.cards == [
+        "DRG_099t1",
+        "DRG_099t2",
+        "DRG_099t3",
+        "DRG_099t4",
+    ]
 
 
 def test_invoke():
@@ -356,7 +361,9 @@ def test_dragons_hoard_never_offers_a_neutral_or_own_class_card():
         game.player1.give("DRG_028").play()
         for card in game.player1.choice.cards:
             assert card.data.rarity == Rarity.LEGENDARY
-            assert len(set(card.data.classes) - {CardClass.ROGUE, CardClass.NEUTRAL}) > 0
+            assert (
+                len(set(card.data.classes) - {CardClass.ROGUE, CardClass.NEUTRAL}) > 0
+            )
 
 
 def test_overloaded_cards_see_the_crystals_about_to_be_locked():
@@ -427,7 +434,12 @@ def test_kronx_dragonhoof_draws_galakrond_and_unleashes_a_devastation():
     assert game.player1.hand == ["DRG_660"]
     assert game.player2.deck == ["DRG_610"]
     # the Devastation is drawn at random (A155, D-108): no choice opens
-    assert game.player1.choice.cards == ["DRG_099t1", "DRG_099t2", "DRG_099t3", "DRG_099t4"]
+    assert game.player1.choice.cards == [
+        "DRG_099t1",
+        "DRG_099t2",
+        "DRG_099t3",
+        "DRG_099t4",
+    ]
 
 
 def test_murozond_replays_the_cards_in_reverse_order_without_battlecries():

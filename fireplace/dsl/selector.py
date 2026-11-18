@@ -1,6 +1,7 @@
 import operator
 from abc import ABCMeta, abstractmethod
 from enum import IntEnum
+from functools import wraps
 from typing import Any, Callable, Iterable, List, Optional, Set, Union
 
 from hearthstone.enums import (
@@ -15,7 +16,7 @@ from hearthstone.enums import (
 
 from .. import enums
 from ..entity import BaseEntity
-from .lazynum import Attr, LazyNum, LazyValue, OpAttr
+from .lazynum import Attr, LazyNum, LazyValue, OpAttr, SpellDamage, SpellHeal
 
 # Type aliases
 SelectorLike = Union["Selector", LazyValue]
@@ -34,8 +35,38 @@ class Selector:
     Medivh, where ordering matters)
     """
 
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # Inherited implementations have already been wrapped.
+        evaluate = cls.__dict__.get("eval")
+        if evaluate is None:
+            return
+
+        @wraps(evaluate)
+        def wrapper(self, entities, source):
+            if getattr(entities, "type", None) == CardType.GAME:
+                # Old morph objects remain in SETASIDE. Filter the live game
+                # universe before their former types can match selectors.
+                entities = [
+                    entity
+                    for entity in entities
+                    if getattr(entity, "morphed", None) is None
+                ]
+            return Selector._resolve_morphed(evaluate(self, entities, source))
+
+        cls.eval = wrapper
+
+    @staticmethod
+    def _resolve_morphed(entities):
+        result = []
+        for entity in entities:
+            while getattr(entity, "morphed", None) is not None:
+                entity = entity.morphed
+            result.append(entity)
+        return result
+
     def eval(self, entities: List[BaseEntity], source: BaseEntity) -> List[BaseEntity]:
-        return entities
+        return self._resolve_morphed(entities)
 
     def __add__(self, other: SelectorLike) -> "Selector":
         return SetOpSelector(operator.and_, self, other)
@@ -659,6 +690,24 @@ GAME = EnumSelector(CardType.GAME)
 PLAYER = EnumSelector(CardType.PLAYER)
 HERO = EnumSelector(CardType.HERO)
 MINION = EnumSelector(CardType.MINION)
+IMPS = FuncSelector(
+    lambda entities, source: [
+        e
+        for e in entities
+        if getattr(e, "is_card", False)
+        and e.type == CardType.MINION
+        and e.data.tags.get(GameTag.IMP, False)
+    ]
+)
+
+# Cards destroyed in a deck did not die on the battlefield.
+DEAD_MINIONS = (
+    KILLED
+    + MINION
+    + FilterSelector(lambda card, source: getattr(card, "turn_killed", -1) >= 0)
+)
+
+
 LOCATION = EnumSelector(CardType.LOCATION)
 CHARACTER = MINION | HERO
 WEAPON = EnumSelector(CardType.WEAPON)
@@ -761,6 +810,15 @@ FRIENDLY_CLASS_CHARACTER = FuncSelector(
         and e.card_class == e.controller.hero.card_class
     ]
 )
+COPIED_FROM_OPPONENT = FuncSelector(
+    lambda entities, source: [
+        e
+        for e in entities
+        if getattr(e, "copied_from_controller", None) is source.controller.opponent
+    ]
+)
+
+
 OTHER_CLASS_CHARACTER = FuncSelector(
     lambda entities, src: [
         e
@@ -805,7 +863,7 @@ TRIGGERED_SECRET = FuncSelector(
 )
 STARTING_DECK = FuncSelector(lambda entities, source: source.controller.starting_deck)
 STARTING_HAND = FuncSelector(lambda entities, source: source.controller.starting_hand)
-STARTING_HERO = FuncSelector(lambda entities, source: source.controller.starting_hero)
+STARTING_HERO = FuncSelector(lambda entities, source: [source.controller.starting_hero])
 ENEMY_STARTING_DECK = FuncSelector(
     lambda entities, source: source.controller.opponent.starting_deck
 )
@@ -813,12 +871,8 @@ ENEMY_STARTING_HAND = FuncSelector(
     lambda entities, source: source.controller.opponent.starting_hand
 )
 
-SPELL_DAMAGE = lambda amount: FuncSelector(
-    lambda entities, source: source.controller.get_spell_damage(source, amount)
-)
-SPELL_HEAL = lambda amount: FuncSelector(
-    lambda entities, source: source.controller.get_spell_heal(source, amount)
-)
+SPELL_DAMAGE = SpellDamage
+SPELL_HEAL = SpellHeal
 
 PLAY_RIGHT_MOST = FuncSelector(
     lambda entities, source: [
@@ -843,10 +897,7 @@ def _friendly_class_or_neutral(entities, source):
     current_class = source.controller.hero.card_class
     if current_class is CardClass.NEUTRAL:
         current_class = source.controller.starting_hero.card_class
-    return [
-        current_class,
-        CardClass.NEUTRAL
-    ]
+    return [current_class, CardClass.NEUTRAL]
 
 
 FRIENDLY_CLASS_OR_NEUTRAL = FuncSelector(_friendly_class_or_neutral)

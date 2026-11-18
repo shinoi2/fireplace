@@ -716,11 +716,14 @@ def _transfer_student_on_board(board):
             self.skin = board
 
     game = prepare_game(
-        CardClass.MAGE, CardClass.MAGE,
-        include=("SCH_199",), game_class=FixedBoardGame,
+        CardClass.MAGE,
+        CardClass.MAGE,
+        include=("SCH_199",),
+        game_class=FixedBoardGame,
     )
     student = next(
-        card for card in [*game.player1.hand, *game.player1.deck]
+        card
+        for card in [*game.player1.hand, *game.player1.deck]
         if card.id.startswith("SCH_199")
     )
     if student.zone != Zone.HAND:

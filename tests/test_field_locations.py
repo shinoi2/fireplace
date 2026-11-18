@@ -1,6 +1,5 @@
 from utils import *
 
-
 LOCATION = "REV_942"  # Relic Vault
 YETI = "CS2_182"
 

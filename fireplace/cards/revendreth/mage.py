@@ -9,18 +9,7 @@ class REV_000:
 
     # [x]<b>Battlecry:</b> <b>Discover</b> a spell. If your opponent guesses
     # your choice, they get a copy.
-    play = Discover(CONTROLLER, RandomSpell()).then(
-        Give(CONTROLLER, Discover.CARD),
-        lambda source, *args: (
-            yield Choice(OPPONENT, args[Discover.CARDS]).then(
-                lambda source2, *args2: (
-                    (yield Give(OPPONENT, Copy(Choice.CARD)))
-                    if args[Discover.CARD] == args2[Choice.CARD]
-                    else None
-                )
-            )
-        ),
-    )
+    play = suspicious_discover(RandomSpell())
 
 
 class REV_513:
@@ -37,14 +26,13 @@ class REV_514:
     # [x]<b>Battlecry:</b> Resurrect your Volatile Skeletons. Any that can't
     # fit on the battlefield instantly explode! @<i>(@)</i>
     def play(self):
-        minions = self.controller.graveyard.filter(id="REV_845")
-        if len(minions) <= self.controller.minion_slots:
+        minions = (FRIENDLY + DEAD_MINIONS + ID("REV_845")).eval(self.game, self)
+        slots = self.controller.minion_slots
+        if len(minions) <= slots:
             yield SummonBothSides(CONTROLLER, "REV_845") * len(minions)
         else:
-            yield SummonBothSides(CONTROLLER, "REV_845") * self.controller.minion_slots
-            yield Hit(RANDOM_ENEMY_CHARACTER, 2) * (
-                len(minions) - self.controller.minion_slots
-            )
+            yield SummonBothSides(CONTROLLER, "REV_845") * slots
+            yield Hit(RANDOM_ENEMY_CHARACTER, 2) * (len(minions) - slots)
 
 
 class REV_515:
@@ -104,7 +92,7 @@ class REV_516:
         FULL_BOARD
         | (
             Reveal(SELF),
-            Summon(CONTROLLER, Copy(Attack.ATTACKER)).then(
+            Summon(CONTROLLER, ExactCopy(Attack.ATTACKER)).then(
                 Attack(Summon.CARD, ENEMY_HERO)
             ),
         )
@@ -137,7 +125,7 @@ class MAW_013:
         PlayReq.REQ_TARGET_TO_PLAY: 0,
         PlayReq.REQ_MINION_TARGET: 0,
     }
-    activate = Remove(TARGET)
+    play = Remove(TARGET)
 
 
 class REV_601:

@@ -8,7 +8,14 @@ class DRG_090:
     """Murozond the Infinite"""
 
     # <b>Battlecry:</b> Play all cards your opponent played last_turn.
-    play = Replay(Copy(CARDS_OPPONENT_PLAYED_LAST_TURN))
+    def play(self):
+        # Replay the cards that were played, rather than their later morphs.
+        opponent = self.controller.opponent
+        return [
+            Replay(Copy(card))
+            for card in opponent.cards_played_this_game
+            if card.turn_played == opponent.turn
+        ]
 
 
 class DRG_300:
@@ -69,8 +76,7 @@ class DRG_306:
             if len(player.opponent.hand) <= 0:
                 return
             self.correct_card = player.card(
-                source.game.random.choice(player.opponent.hand).id,
-                self
+                source.game.random.choice(player.opponent.hand).id, self
             )
             op_deck = player.opponent.deck.exclude(id=self.correct_card)
             if len(op_deck) <= 1:
@@ -78,7 +84,8 @@ class DRG_306:
             if len(op_deck) <= 1:
                 return
             self.card_1, self.card_2 = [
-                player.card(card.id, self) for card in source.game.random.sample(op_deck, 2)
+                player.card(card.id, self)
+                for card in source.game.random.sample(op_deck, 2)
             ]
             self.cards = [self.correct_card, self.card_1, self.card_2]
             source.game.random.shuffle(self.cards)

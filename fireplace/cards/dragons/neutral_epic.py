@@ -58,7 +58,9 @@ class DRG_088:
     """Dread Raven"""
 
     # Has +3 Attack for each other Dread Raven you_control.
-    update = Refresh(SELF, {GameTag.ATK: Count(FRIENDLY_MINIONS + ID("DRG_088") - SELF) * 3})
+    update = Refresh(
+        SELF, {GameTag.ATK: Count(FRIENDLY_MINIONS + ID("DRG_088") - SELF) * 3}
+    )
 
 
 class DRG_092:
