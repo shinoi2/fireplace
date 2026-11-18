@@ -8,7 +8,7 @@ class TRL_405:
     """Untamed Beastmaster"""
 
     # Whenever you draw a Beast, give it +2/+2.
-    events = Draw(CONTROLLER, BEAST).on(Buff(Draw.TARGET, "TRL_405e"))
+    events = Draw(CONTROLLER, BEAST).on(Buff(Draw.CARD, "TRL_405e"))
 
 
 TRL_405e = buff(+2, +2)
@@ -27,8 +27,8 @@ class TRL_527:
     # [x]<b>Battlecry:</b> Give each player a copy of a random card from their opponent's
     # deck.
     play = (
-        Give(CONTROLLER, ExactCopy(RANDOM(FRIENDLY_DECK))),
-        Give(OPPONENT, ExactCopy(RANDOM(ENEMY_DECK))),
+        Give(CONTROLLER, ExactCopy(RANDOM(ENEMY_DECK))),
+        Give(OPPONENT, ExactCopy(RANDOM(FRIENDLY_DECK))),
     )
 
 
@@ -48,7 +48,9 @@ class TRL_530:
 
     # <b>Battlecry:</b> If you control a_<b>Secret</b>, play a <b>Secret</b> from_your
     # deck.
-    play = Find(FRIENDLY_SECRETS) & Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + SECRET))
+    play = Find(FRIENDLY_SECRETS) & Summon(
+        CONTROLLER, RANDOM(FRIENDLY_DECK + SECRET + IS_SUMMONABLE)
+    )
 
 
 class TRL_532:
@@ -71,7 +73,7 @@ class TRL_535:
     """Snapjaw Shellfighter"""
 
     # [x]Whenever an adjacent minion takes damage, this _minion takes it instead.
-    events = Predamage(SELF_ADJACENT).on(
+    events = Predamage(SELF_ADJACENT + (AttrValue("predamage") > 0)).on(
         Predamage(Predamage.TARGET, 0), Damage(SELF, Predamage.AMOUNT)
     )
 

@@ -15,7 +15,7 @@ class DMF_222:
     """Redeemed Pariah"""
 
     # After you play an <b>Outcast</b> card, gain +1/+1.
-    events = Play(OUTCAST).after(Buff(SELF, "DMF_222e"))
+    events = Play(CONTROLLER, OUTCAST).after(Buff(SELF, "DMF_222e"))
 
 
 DMF_222e = buff(+1, +1)
@@ -26,6 +26,7 @@ class DMF_223:
 
     # [x]<b>Rush</b> <b>Deathrattle:</b> Summon two __1/1 Assistants with
     # <b>Taunt</b>.__
+    tags = {GameTag.RUSH: True}
     deathrattle = Summon(CONTROLLER, "DMF_223t") * 2
 
 
@@ -46,7 +47,7 @@ class DMF_229:
 
 
 class DMF_229e2:
-    events = Play(OWNER).after(Buff(FRIENDLY_HERO, "DMF_229e"))
+    events = Play(CONTROLLER, OWNER).after(Buff(FRIENDLY_HERO, "DMF_229e"))
 
 
 DMF_229e = buff(atk=4)
@@ -57,6 +58,7 @@ class DMF_230:
 
     # [x]<b>Lifesteal</b> Your <b>Lifesteal</b> damages the enemy hero instead
     # of healing you.
+    tags = {GameTag.LIFESTEAL: True}
     update = Refresh(
         CONTROLLER,
         {
@@ -69,7 +71,12 @@ class DMF_231:
     """Zai, the Incredible"""
 
     # <b>Battlecry:</b> Copy the left- and right-most cards in your hand.
-    play = Give(CONTROLLER, Copy(OUTERMOST(FRIENDLY_HAND)))
+    def play(self):
+        cards = OUTERMOST(FRIENDLY_HAND).eval(self.game, self)
+        for card in cards:
+            copy_card = self.controller.card(card.id, source=self)
+            copy_card._summon_index = card.zone_position
+            yield Give(CONTROLLER, copy_card)
 
 
 class DMF_247:
@@ -83,14 +90,14 @@ class DMF_248:
     """Felsteel Executioner"""
 
     # <b>Corrupt:</b> Become a weapon.
-    corrupted_card = "DMF_248t"
+    corrupt_card = "DMF_248t"
 
 
 class YOP_002:
     """Felsaber"""
 
     # Can only attack if your hero attacked this turn.
-    update = (NUM_ATTACKS_THIS_TURN(FRIENDLY_HERO) == 0) | Refresh(
+    update = (NUM_ATTACKS_THIS_TURN(FRIENDLY_HERO) == 0) & Refresh(
         SELF, {GameTag.CANT_ATTACK: True}
     )
 
@@ -113,6 +120,10 @@ class DMF_221:
     """Felscream Blast"""
 
     # <b>Lifesteal</b>. Deal $1 damage to a minion and its neighbors.
+    requirements = {
+        PlayReq.REQ_MINION_TARGET: 0,
+        PlayReq.REQ_TARGET_TO_PLAY: 0,
+    }
     play = Hit(TARGET, 1), Hit(TARGET_ADJACENT, 1)
 
 
@@ -124,15 +135,14 @@ class DMF_224:
     requirements = {
         PlayReq.REQ_NUM_MINION_SLOTS: 1,
     }
-    play = (Summon(CONTROLLER, "BT_036t") * 7).then(
-        StoringBuff(SELF, "DMF_224e", Summon.CARD)
-    )
+    play = StoringBuff(CONTROLLER, "DMF_224e", (Summon(CONTROLLER, "BT_036t") * 7))
 
 
 class DMF_224e:
     update = Find(STORE_CARD - DEAD) | (
-        Summon(CONTROLLER, "BT_036t") * 7,
         Destroy(SELF),
+        Deaths(),
+        Summon(CONTROLLER, "BT_036t") * 7,
     )
 
 
@@ -154,13 +164,13 @@ class DMF_249:
     """Acrobatics"""
 
     # Draw 2 cards. If you play both this turn, draw 2 more.
-    play = (Draw(CONTROLLER) * 2).then(StoringBuff(SELF, "DMF_249e", Draw.CARD))
+    play = StoringBuff(CONTROLLER, "DMF_249e", (Draw(CONTROLLER) * 2))
 
 
 class DMF_249e:
     update = (Count(CARDS_PLAYED_THIS_TURN + STORE_CARD) == 2) & (
-        Draw(CONTROLLER) * 2,
         Destroy(SELF),
+        Draw(CONTROLLER) * 2,
     )
 
 
@@ -169,14 +179,14 @@ class YOP_001:
 
     # <b>Discover</b> an <b>Outcast</b> card. Your next one costs (1) less.
     play = (
-        Discover(CONTROLLER, RandomCollectible(outcast=True)),
+        DISCOVER(RandomCollectible(outcast=True)),
         Buff(CONTROLLER, "YOP_001e"),
     )
 
 
 class YOP_001e:
     update = Refresh(FRIENDLY_HAND + OUTCAST, {GameTag.COST: -1})
-    events = Play(CONTROLLER, OUTCAST).after(Destroy(SELF))
+    events = Play(CONTROLLER, OUTCAST - CREATOR).after(Destroy(SELF))
 
 
 ##

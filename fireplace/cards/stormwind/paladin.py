@@ -88,7 +88,7 @@ class SW_313:
         self.entourage = []
 
     def add_progress(self, card):
-        if card not in self.entourage:
+        if not any(previous.id == card.id for previous in self.entourage):
             self.entourage.append(card)
 
     quest = Play(CONTROLLER, COST == 1).on(AddProgress(SELF, Play.CARD))
@@ -107,7 +107,7 @@ class SW_313t:
         self.entourage = []
 
     def add_progress(self, card):
-        if card not in self.entourage:
+        if not any(previous.id == card.id for previous in self.entourage):
             self.entourage.append(card)
 
     quest = Play(CONTROLLER, COST == 1).on(AddProgress(SELF, Play.CARD))
@@ -126,7 +126,7 @@ class SW_313t2(QuestRewardProtect):
         self.entourage = []
 
     def add_progress(self, card):
-        if card not in self.entourage:
+        if not any(previous.id == card.id for previous in self.entourage):
             self.entourage.append(card)
 
     quest = Play(CONTROLLER, COST == 1).on(AddProgress(SELF, Play.CARD))
@@ -183,7 +183,13 @@ class SW_049:
     # <b>Discover</b> a <b>Secret</b>, weapon, or <b>Divine Shield</b> minion.
     play = GenericChoice(
         CONTROLLER,
-        [RandomSpell(secret=True), RandomWeapon(), RandomMinion(divine_shield=True)],
+        [
+            RandomSpell(secret=True, card_class=CardClass.PALADIN),
+            RandomWeapon(card_class=CardClass.PALADIN),
+            RandomMinion(
+                divine_shield=True, card_class=[CardClass.PALADIN, CardClass.NEUTRAL]
+            ),
+        ],
     )
 
 
@@ -231,7 +237,7 @@ class SW_048:
     # [x]After a friendly minion loses <b>Divine Shield</b>, give minions in
     # your hand  +1/+1. Lose 1 Durability.
     events = LosesDivineShield(FRIENDLY_MINIONS).after(
-        Buff(RANDOM(FRIENDLY_HAND + MINION), "SW_048e").then(Hit(SELF, 1))
+        Buff(FRIENDLY_HAND + MINION, "SW_048e"), Hit(SELF, 1)
     )
 
 

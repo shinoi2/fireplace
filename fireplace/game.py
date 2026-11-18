@@ -150,12 +150,6 @@ class BaseGame(Entity):
         if type != BlockType.PLAY:
             self._action_stack -= 1
 
-        if self.current_player:
-            while self.current_player.opponent.choice:
-                choice = self.current_player.opponent.choice
-                card = self.random.choice(choice.cards)
-                choice.choose(card)
-
         if not self._action_stack:
             self.log("Empty stack, refreshing auras and processing deaths")
             self.refresh_auras()
@@ -458,6 +452,7 @@ class BaseGame(Entity):
         """
         for p in self.players:
             p.cards_drawn_this_turn = 0
+            p.damage_dealt_to_enemy_hero_this_turn = 0
 
         player.turn_start = timegm(time.gmtime())
         player.last_turn = player.turn
@@ -498,7 +493,9 @@ class BaseGame(Entity):
         self.manager.step(self.next_step, Step.MAIN_START)
         self.manager.step(self.next_step, Step.MAIN_ACTION)
 
-        for entity in player.live_entities:
+        for entity in player.entities:
+            if entity.type == CardType.LOCATION and entity.cooldown:
+                entity.cooldown -= 1
             if getattr(entity, "dormant_turns", 0):
                 entity.dormant_turns -= 1
                 if entity.dormant_turns == 0:

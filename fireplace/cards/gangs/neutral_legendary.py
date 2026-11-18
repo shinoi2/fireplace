@@ -7,7 +7,7 @@ from ..utils import *
 class CFM_341:
     """Sergeant Sally"""
 
-    deathrattle = Hit(ALL_MINIONS, ATK(SELF))
+    deathrattle = Hit(ENEMY_MINIONS, ATK(SELF))
 
 
 class CFM_344:
@@ -140,7 +140,7 @@ class CFM_670:
     """Mayor Noggenfogger"""
 
     update = (Refresh(PLAYER, {GameTag.ALL_TARGETS_RANDOM: True}),)
-    events = Attack(MINION).on(
+    events = Attack(CHARACTER).on(
         COINFLIP
         & Retarget(
             Attack.ATTACKER,
@@ -174,7 +174,7 @@ class CFM_806:
     """Wrathion"""
 
     play = Draw(CONTROLLER).then(
-        Find(Draw.CARD + DRAGON) & (FULL_HAND | ExtraBattlecry(SELF, None))
+        Find(Draw.CARD + DRAGON + IN_HAND) & ExtraBattlecry(SELF, None)
     )
 
 

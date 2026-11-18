@@ -33,7 +33,15 @@ class LOOT_537:
 
     # <b>Battlecry:</b> If you're holding any cards that didn't start in your deck, reduce
     # their Cost by (2).
-    play = Buff(FRIENDLY_HAND + STARTING_DECK, "LOOT_537e")
+    play = Buff(
+        FRIENDLY_HAND
+        + FilterSelector(
+            lambda card, source: not any(
+                card is original for original in source.controller.starting_deck
+            )
+        ),
+        "LOOT_537e",
+    )
 
 
 @custom_card
@@ -100,7 +108,7 @@ class LOOT_104:
     }
 
     class Hand:
-        events = OWN_TURN_BEGIN.on(
+        events = OWN_TURN_END.on(
             Morph(SELF, RandomSpell(card_class=CardClass.MAGE)).then(
                 Buff(Morph.CARD, "LOOT_104e")
             )
@@ -109,7 +117,7 @@ class LOOT_104:
 
 class LOOT_104e:
     class Hand:
-        events = OWN_TURN_BEGIN.on(
+        events = OWN_TURN_END.on(
             Morph(OWNER, RandomSpell(card_class=CardClass.MAGE)).then(
                 Buff(Morph.CARD, "LOOT_104e")
             )

@@ -17,6 +17,7 @@ class SW_306:
     """Encumbered Pack Mule"""
 
     # [x]<b>Taunt</b> When you draw this, add a _copy of it to your hand.
+    tags = {GameTag.TAUNT: True}
     draw = Give(CONTROLLER, ExactCopy(SELF))
 
 
@@ -62,15 +63,7 @@ class DED_524:
 
     # [x]<b>Battlecry:</b> Draw a card for each different spell school _you've
     # cast this game.
-    play = (
-        Find(CARDS_PLAYED_THIS_GAME + ARCANE)
-        & ForceDraw(RANDOM(FRIENDLY_DECK + ARCANE)),
-        Find(CARDS_PLAYED_THIS_GAME + FIRE) & ForceDraw(RANDOM(FRIENDLY_DECK + FIRE)),
-        Find(CARDS_PLAYED_THIS_GAME + FROST) & ForceDraw(RANDOM(FRIENDLY_DECK + FROST)),
-        Find(CARDS_PLAYED_THIS_GAME + NATURE)
-        & ForceDraw(RANDOM(FRIENDLY_DECK + NATURE)),
-        Find(CARDS_PLAYED_THIS_GAME + HOLY) & ForceDraw(RANDOM(FRIENDLY_DECK + HOLY)),
-        Find(CARDS_PLAYED_THIS_GAME + SHADOW)
-        & ForceDraw(RANDOM(FRIENDLY_DECK + SHADOW)),
-        Find(CARDS_PLAYED_THIS_GAME + FEL) & ForceDraw(RANDOM(FRIENDLY_DECK + FEL)),
+    play = tuple(
+        Find(CARDS_PLAYED_THIS_GAME + EnumSelector(school)) & Draw(CONTROLLER)
+        for school in SPELL_SCHOOLS
     )

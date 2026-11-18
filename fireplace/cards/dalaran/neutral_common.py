@@ -49,7 +49,7 @@ class DAL_089:
     """Spellbook Binder"""
 
     # <b>Battlecry:</b> If you have <b>Spell Damage</b>, draw a card.
-    powered_up = Find(FRIENDLY + SPELLPOWER)
+    powered_up = AttrValue(GameTag.CURRENT_SPELLPOWER)(CONTROLLER) > 0
     play = powered_up & Draw(CONTROLLER)
 
 

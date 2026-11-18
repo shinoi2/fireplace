@@ -15,7 +15,7 @@ class SCH_230:
     """Onyx Magescribe"""
 
     # <b>Spellburst:</b> Add 2 random spells from your class to_your hand.
-    play = Give(CONTROLLER, RandomSpell(card_class=FRIENDLY_CLASS)) * 2
+    spellburst = Give(CONTROLLER, RandomSpell(card_class=FRIENDLY_CLASS)) * 2
 
 
 class SCH_231:
@@ -51,7 +51,11 @@ class SCH_248:
 
     # <b>Battlecry:</b> Deal 1 damage. <b>Spellburst:</b> Return this to_your
     # hand.
-    play = Hit(SELF, 1)
+    requirements = {
+        PlayReq.REQ_MINION_TARGET: 0,
+        PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
+    }
+    play = Hit(TARGET, 1)
     spellburst = Bounce(SELF)
 
 
@@ -93,7 +97,7 @@ class SCH_530:
     """Sorcerous Substitute"""
 
     # <b>Battlecry:</b> If you have <b>Spell Damage</b>, summon a copy of this.
-    powered_up = powered_up = Find(FRIENDLY + SPELLPOWER)
+    powered_up = AttrValue(GameTag.CURRENT_SPELLPOWER)(CONTROLLER) > 0
     play = powered_up & Summon(CONTROLLER, ExactCopy(SELF))
 
 

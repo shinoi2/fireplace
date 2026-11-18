@@ -35,8 +35,13 @@ class UNG_034:
 class UNG_035:
     """Curious Glimmerroot"""
 
-    class GlimmerrootAction(TargetedAction):
+    class GlimmerrootAction(Choice):
+        def get_target_args(self, source, target):
+            return []
+
         def do(self, source, player):
+            self._callback = self.callback
+            self.callback = []
             self.player = player
             self.source = source
             self.min_count = 1
@@ -88,7 +93,7 @@ class UNG_035:
                     )
                     self.source.game.queue_actions(card, [Reveal(self.starting_card)])
             self.player.choice = None
-            self.trigger_choice_callback()
+            self.trigger_choice_callback(card)
 
     requirements = {PlayReq.REQ_MINION_TARGET: 0}
     play = GlimmerrootAction(CONTROLLER)
@@ -118,9 +123,9 @@ class UNG_963:
 class UNG_029:
     """Shadow Visions"""
 
-    play = GenericChoice(
+    play = Choice(
         CONTROLLER, Copy(RANDOM(DeDuplicate(FRIENDLY_DECK + SPELL)) * 3)
-    )
+    ).then(Give(CONTROLLER, Choice.CARD))
 
 
 class UNG_030:

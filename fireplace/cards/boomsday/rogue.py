@@ -68,7 +68,7 @@ class BOT_084:
     """Violet Haze"""
 
     # Add 2 random <b>Deathrattle</b> cards to_your hand.
-    play = Give(CONTROLLER, RandomMinion(deathrattle=True)) * 2
+    play = Give(CONTROLLER, RandomCollectible(deathrattle=True)) * 2
 
 
 class BOT_087:

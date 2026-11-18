@@ -53,7 +53,7 @@ class ICC_235:
     requirements = {
         PlayReq.REQ_NUM_MINION_SLOTS: 1,
     }
-    play = Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION)).then(
+    play = Summon(CONTROLLER, Copy(RANDOM(FRIENDLY_DECK + MINION))).then(
         Buff(Summon.CARD, "ICC_235e")
     )
 

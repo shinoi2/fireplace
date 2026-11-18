@@ -22,7 +22,7 @@ class SCH_244:
     """Teacher's Pet"""
 
     # [x]<b>Taunt</b> <b>Deathrattle:</b> Summon a random 3-Cost Beast.
-    deathrattle = Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + BEAST + (COST == 3)))
+    deathrattle = Summon(CONTROLLER, RandomBeast(cost=3))
 
 
 class SCH_340:
@@ -36,7 +36,7 @@ class SCH_539:
     """Professor Slate"""
 
     # Your spells are <b>Poisonous</b>.
-    update = Refresh(FRIENDLY + SPELL, {GameTag.POISONOUS: True})
+    events = Damage(MINION, None, FRIENDLY + SPELL).on(Destroy(Damage.TARGET))
 
 
 class SCH_607:
@@ -86,7 +86,7 @@ class SCH_300:
 class SCH_300e:
     # Your next <b>Deathrattle</b> minion costs (1) less
     update = Refresh(FRIENDLY_HAND + MINION + DEATHRATTLE, buff="SCH_300e2")
-    events = Play(CONTROLLER, MINION + DEATHRATTLE).after(Destroy(SELF))
+    events = Play(CONTROLLER, MINION + DEATHRATTLE - CREATOR).after(Destroy(SELF))
 
 
 class SCH_300e2:

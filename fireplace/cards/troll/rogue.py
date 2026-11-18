@@ -8,7 +8,7 @@ class TRL_071:
     """Bloodsail Howler"""
 
     # [x]<b>Rush</b> <b>Battlecry:</b> Gain +1/+1 for each other Pirate you control.
-    play = Buff(SELF, "TRL_071e") * Count(FRIENDLY_MINIONS + PIRATE)
+    play = Buff(SELF, "TRL_071e") * Count(FRIENDLY_MINIONS + PIRATE - SELF)
 
 
 TRL_071e = buff(+1, +1)

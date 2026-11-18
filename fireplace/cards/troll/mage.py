@@ -17,8 +17,12 @@ class TRL_315:
     """Pyromaniac"""
 
     # Whenever your Hero Power_kills a minion, draw a card.
-    events = Activate(FRIENDLY_HERO_POWER).after(
-        Dead(Activate.TARGET) & Draw(CONTROLLER)
+    events = Death(MINION).on(
+        lambda self, minion: (
+            Draw(CONTROLLER)
+            if minion.destroyed_source is self.controller.hero.power
+            else None
+        )
     )
 
 
@@ -95,7 +99,10 @@ class TRL_313:
         PlayReq.REQ_TARGET_TO_PLAY: 0,
         PlayReq.REQ_MINION_TARGET: 0,
     }
-    cost_mod = ELEMENTAL_PLAYED_LAST_TURN & -1
+
+    class Hand:
+        update = ELEMENTAL_PLAYED_LAST_TURN & Refresh(SELF, {GameTag.COST: SET(1)})
+
     play = Hit(TARGET, 4)
 
 

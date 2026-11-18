@@ -9,7 +9,12 @@ class BAR_030:
 
     # <b>Battlecry:</b> <b>Discover</b> a Beast, <b>Secret</b>, or weapon.
     play = GenericChoice(
-        CONTROLLER, [RandomBeast(), RandomSpell(secret=True), RandomWeapon()]
+        CONTROLLER,
+        [
+            RandomBeast(card_class=[CardClass.HUNTER, CardClass.NEUTRAL]),
+            RandomSpell(secret=True, card_class=[CardClass.HUNTER, CardClass.NEUTRAL]),
+            RandomWeapon(card_class=[CardClass.HUNTER, CardClass.NEUTRAL]),
+        ],
     )
 
 
@@ -18,6 +23,8 @@ class BAR_031:
 
     # <b>Frenzy:</b> Shuffle a Sunscale Raptor into your deck with permanent
     # +2/+1.
+    tags = {GameTag.FRENZY: True}
+
     def frenzy(self, amount):
         def create_custom_card(self):
             card = self.controller.card("BAR_031")
@@ -45,7 +52,7 @@ class BAR_033:
     events = OWN_TURN_BEGIN.on(Buff(FRIENDLY_HAND + MINION, "BAR_033e"))
 
 
-BAR_031e = buff(+1, +1)
+BAR_033e = buff(+1, +1)
 
 
 class BAR_035:
@@ -60,9 +67,9 @@ class BAR_037:
 
     # [x]<b>Battlecry:</b> <b>Discover</b> a Beast from your deck. Give all
     # copies of it +2/+1 <i>(wherever_they_are)</i>.
-    play = GenericChoice(
-        CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK + BEAST)) * 3
-    ).then(Buff(SameId(GenericChoice.CARD), "BAR_037e"))
+    play = Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK + BEAST)) * 3).then(
+        Give(CONTROLLER, Choice.CARD), Buff(FRIENDLY + SameId(Choice.CARD), "BAR_037e")
+    )
 
 
 BAR_037e = buff(+2, +1)

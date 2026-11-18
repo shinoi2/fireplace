@@ -70,7 +70,7 @@ class BOT_544:
     """Loose Specimen"""
 
     # <b>Battlecry:</b> Deal 6 damage randomly split among other friendly minions.
-    play = Hit(RANDOM_FRIENDLY_MINION, 1) * 6
+    play = Hit(RANDOM(FRIENDLY_MINIONS - DEAD - SELF), 1) * 6
 
 
 class BOT_552:
@@ -88,5 +88,5 @@ class BOT_559:
 
     # Whenever you shuffle a card into a deck, shuffle in_an extra copy.
     events = Shuffle(source=FRIENDLY - ID("BOT_559")).after(
-        Shuffle(CONTROLLER, ExactCopy(Shuffle.CARD))
+        Shuffle(Shuffle.TARGET, ExactCopy(Shuffle.CARD))
     )

@@ -73,6 +73,6 @@ class GIL_819:
     """Witch's Cauldron"""
 
     # After a friendly minion dies, add a random Shaman spell to your hand.
-    events = Death(FRIENDLY_MINIONS).on(
+    events = Death(FRIENDLY + MINION).on(
         Give(CONTROLLER, RandomSpell(card_class=CardClass.SHAMAN))
     )

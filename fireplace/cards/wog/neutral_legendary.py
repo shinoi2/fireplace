@@ -66,7 +66,17 @@ OG_300e = buff(+2, +2)
 class OG_133:
     """N'Zoth, the Corruptor"""
 
-    play = Summon(CONTROLLER, Copy(FRIENDLY + KILLED + MINION + DEATHRATTLE))
+    def play(self):
+        minions = (FRIENDLY + KILLED + MINION + DEATHRATTLE).eval(self.game, self)
+        slots = self.controller.minion_slots
+        if len(minions) > slots:
+            minions = self.game.random.sample(minions, slots)
+        for minion in minions:
+            yield SummonRightOf(CONTROLLER, Copy(minion), SELF)
+
+
+class CastSpellWhateverBecomesOfTheCaster(CastSpell):
+    requires_active_source = False
 
 
 class OG_134:
@@ -76,10 +86,8 @@ class OG_134:
         times = TIMES_SPELL_PLAYED_THIS_GAME.evaluate(self)
         times = min(times, 30)
         for _ in range(times):
-            yield CastSpell(RandomSpell())
+            yield CastSpellWhateverBecomesOfTheCaster(RandomSpell())
             yield Deaths()
-            if self.dead or self.silenced or self.zone != Zone.PLAY:
-                break
 
 
 class OG_280:

@@ -69,6 +69,15 @@ class CardDB(dict[str, cardxml.CardXML]):
         self.initialized = False
         self.dbf = {}
 
+    def get_dbf_id(self, origin_id):
+        if self[origin_id].tags.get(GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID):
+            dbf_id = self[origin_id].tags.get(
+                GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID
+            )
+            if dbf_id in self.dbf:
+                return self.dbf[dbf_id]
+        return origin_id
+
     @staticmethod
     def merge(id, card, cardscript=None):
         """
@@ -172,6 +181,11 @@ class CardDB(dict[str, cardxml.CardXML]):
         else:
             card.corrupt_card = None
 
+        if hasattr(cardscript, "infuse_card"):
+            card.infuse_card = cardscript.infuse_card
+        else:
+            card.infuse_card = None
+
         if hasattr(cardscript, "tags"):
             for tag, value in cardscript.tags.items():
                 card.tags[tag] = value
@@ -250,10 +264,18 @@ class CardDB(dict[str, cardxml.CardXML]):
             cards = [
                 card
                 for card in cards
-                if not bool(card.tags.get(GameTag.DONT_PICK_FROM_SUBSETS))
+                if (
+                    not bool(card.tags.get(GameTag.DONT_PICK_FROM_SUBSETS))
+                    and not bool(
+                        card.tags.get(GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID)
+                    )
+                )
             ]
         else:
             kwargs.pop("can_pick_from_subsets")
+
+        if "colossal" not in kwargs:
+            kwargs["colossal"] = False
 
         # exclude default hero
         if "include_default_hero" not in kwargs:
@@ -273,7 +295,7 @@ class CardDB(dict[str, cardxml.CardXML]):
             kwargs["races"] = kwargs.pop("race")
 
         if "exclude" in kwargs:
-            exclude = [card.id for card in kwargs.pop("exclude")]
+            exclude = kwargs.pop("exclude")
             cards = [card for card in cards if card.id not in exclude]
 
         for attr, value in kwargs.items():

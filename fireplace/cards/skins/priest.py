@@ -112,6 +112,30 @@ class HERO_09dbp(HERO_09bp):
     pass
 
 
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Kyrian Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Banshee Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Love Guardian Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Appetizer Anduin)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -220,5 +244,29 @@ class HERO_09dbp2(HERO_09bp2):
 
 class HERO_09dbp2(HERO_09bp2):
     """Heal (Torchbearer Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Kyrian Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Banshee Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Love Guardian Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Appetizer Anduin)"""
 
     pass

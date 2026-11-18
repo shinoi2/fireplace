@@ -8,7 +8,7 @@ class AV_261:
     """Flag Runner"""
 
     # Whenever a friendly minion dies, gain +1 Attack.
-    events = Death(FRIENDLY_MINIONS).on(Buff(SELF, "AV_261e"))
+    events = Death(FRIENDLY + MINION).on(Buff(SELF, "AV_261e"))
 
 
 AV_261e = buff(atk=1)
@@ -36,13 +36,15 @@ class AV_265:
 class AV_267:
     """Caria Felsoul"""
 
-    # <b>Battlecry:</b> Transform into a 6/6 copy of a Demon in your deck.
-    play = Morph(SELF, RANDOM(FRIENDLY_DECK + DEMON)).then(Buff(SELF, "AV_267e2"))
+    # <b>Battlecry:</b> Transform into a 7/7 copy of a Demon in your deck.
+    play = Find(FRIENDLY_DECK + DEMON) & Morph(
+        SELF, RANDOM(FRIENDLY_DECK + DEMON)
+    ).then(Buff(Morph.CARD, "AV_267e2"))
 
 
 class AV_267e2:
-    atk = SET(6)
-    max_health = SET(6)
+    atk = SET(7)
+    max_health = SET(7)
 
 
 class ONY_036:
@@ -80,7 +82,8 @@ class AV_269:
 
 
 class AV_269e:
-    events = Death(OWNER).on(Summon(CONTROLLER, "AV_269t"))
+    tags = {GameTag.DEATHRATTLE: True}
+    deathrattle = Summon(CONTROLLER, "AV_269t")
 
 
 class ONY_014:
@@ -170,7 +173,7 @@ class AV_204p:
     # <b>Hero Power</b> +2 Attack this turn. After a friendly minion attacks,
     # refresh this.
     activate = Buff(FRIENDLY_HERO, "AV_204e")
-    events = Death(FRIENDLY_MINIONS).on(RefreshHeroPower(SELF))
+    events = Attack(FRIENDLY + MINION).after(RefreshHeroPower(SELF))
 
 
 AV_204e = buff(atk=2)

@@ -8,7 +8,7 @@ class BT_187:
     """Kayn Sunfury"""
 
     # <b>Charge</b> All friendly attacks ignore_<b>Taunt</b>.
-    update = Refresh(FRIENDLY_MINIONS, {GameTag.IGNORE_TAUNT: True})
+    update = Refresh(FRIENDLY_MINIONS | FRIENDLY_HERO, {GameTag.IGNORE_TAUNT: True})
 
 
 class BT_321:

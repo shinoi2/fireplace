@@ -31,7 +31,9 @@ class DAL_434:
     """Arcane Watcher"""
 
     # Can't attack unless you have <b>Spell Damage</b>.
-    update = Find(FRIENDLY + SPELLPOWER) | Refresh(SELF, {GameTag.CANT_ATTACK: True})
+    update = (AttrValue(GameTag.CURRENT_SPELLPOWER)(CONTROLLER) > 0) | Refresh(
+        SELF, {GameTag.CANT_ATTACK: True}
+    )
 
 
 class DAL_539:

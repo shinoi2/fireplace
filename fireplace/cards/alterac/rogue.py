@@ -19,7 +19,7 @@ class AV_711:
 
     # [x]<b>Battlecry:</b> If you're holding a card from another class, _summon
     # a copy of this.
-    powered_up = Find(FRIENDLY_HAND + ANOTHER_CLASS)
+    powered_up = Find(FRIENDLY_HAND + ANOTHER_CLASS_CARD)
     play = powered_up & Summon(CONTROLLER, ExactCopy(SELF))
 
 
@@ -28,7 +28,7 @@ class AV_298:
 
     # [x]<b>Rush</b> Costs (1) less for each card you've added to your hand
     # _from another class.
-    cost_mod = -Count(CARDS_PLAYED_THIS_GAME + ANOTHER_CLASS)
+    cost_mod = -Count(FRIENDLY + ANOTHER_CLASS_CARD)
 
 
 class AV_403:
@@ -38,7 +38,10 @@ class AV_403:
     # other classes. They cost (2) less.
     play = Morph(
         (FRIENDLY_HAND | FRIENDLY_DECK) + MINION, RandomMinion(card_class=ANOTHER_CLASS)
-    )
+    ).then(Buff(Morph.CARD, "AV_403e2"))
+
+
+AV_403e2 = cost_buff(-2)
 
 
 class ONY_030:
@@ -47,7 +50,8 @@ class ONY_030:
     # [x]<b>Battlecry:</b> Summon a random @-Cost minion. <i>(Upgraded for each
     # other SI:7 card you _have played this game.)</i>
     play = Summon(
-        CONTROLLER, RandomMinion(cost=Min(Count(CARDS_PLAYED_THIS_GAME + SI_7) + 1, 10))
+        CONTROLLER,
+        RandomMinion(cost=Min(Count(CARDS_PLAYED_THIS_GAME + SI_7 - SELF) + 1, 10)),
     )
 
 
@@ -56,12 +60,13 @@ class AV_601:
 
     # <b><b>Stealth</b>.</b> After you play a <b>Deathrattle</b> minion, become
     # a 2/2 copy of it with <b>Rush</b>.
-    events = Play(FRIENDLY + MINION + DEATHRATTLE).after(
+    events = Play(CONTROLLER, MINION + DEATHRATTLE).after(
         Morph(SELF, ExactCopy(Play.CARD)).then(Buff(Morph.CARD, "AV_601e"))
     )
 
 
 class AV_601e:
+    tags = {GameTag.RUSH: True}
     atk = SET(2)
     max_health = SET(2)
 
@@ -75,9 +80,9 @@ class AV_710:
 
     # <b>Discover</b> a <b>Deathrattle</b> minion from another class. It costs
     # (2) less.
-    play = Discover(CONTROLLER, RandomMinion(card_class=ANOTHER_CLASS)).then(
-        Give(CONTROLLER, Discover.CARD), Buff(Discover.CARD, "AV_710e")
-    )
+    play = Discover(
+        CONTROLLER, RandomMinion(deathrattle=True, card_class=ANOTHER_CLASS)
+    ).then(Give(CONTROLLER, Discover.CARD), Buff(Discover.CARD, "AV_710e"))
 
 
 class AV_710e:
@@ -96,7 +101,7 @@ class AV_405:
     """Contraband Stash"""
 
     # Replay 5 cards from other classes you've played this game.
-    play = Replay(RANDOM(CARDS_PLAYED_THIS_GAME + ANOTHER_CLASS, 5))
+    play = Replay(RANDOM(CARDS_PLAYED_THIS_GAME + ANOTHER_CLASS_CARD, 5))
 
 
 class ONY_032:

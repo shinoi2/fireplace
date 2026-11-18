@@ -30,6 +30,7 @@ class BAR_430:
 
     # <b>Battlecry:</b> Copy your opponent's <b>Secrets</b> and put them into
     # play.
+    tags = {GameTag.BATTLECRY: True}
     play = Summon(CONTROLLER, Copy(ENEMY_SECRETS))
 
 

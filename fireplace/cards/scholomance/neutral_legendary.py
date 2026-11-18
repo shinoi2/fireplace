@@ -14,7 +14,7 @@ class SCH_162:
             CopyDeathrattleBuff(
                 RANDOM(FRIENDLY + KILLED + MINION + DEATHRATTLE),
                 "SCH_162e",
-                source=Summon.CARD,
+                Summon.CARD,
             )
         )
         * 2
@@ -26,8 +26,10 @@ class SCH_224:
 
     # <b>Spellburst:</b> If the spell destroys any minions, summon them.
 
-    # TODO: need to be tested
-    spellburst = Summon(CONTROLLER, Copy(ALL_MINIONS + DEAD))
+    def spellburst(self, spell):
+        minions = DestroyedBy(Spellburst.SPELL).eval(self.game, self)
+        for minion in sorted(minions, key=lambda card: card.play_counter):
+            yield SummonRightOf(CONTROLLER, Copy(minion), None)
 
 
 class SCH_428:
@@ -36,7 +38,7 @@ class SCH_428:
     # [x]<b>Battlecry:</b> Reorder your deck from the highest Cost card to the
     # lowest Cost card.
     def play(self):
-        self.controller.deck.sort(key=lambda x: x.cost, reverse=True)
+        self.controller.deck.sort(key=lambda x: x.cost)
 
 
 class SCH_717:

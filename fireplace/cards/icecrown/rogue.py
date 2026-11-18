@@ -62,7 +62,20 @@ class ICC_221:
     requirements = {
         PlayReq.REQ_WEAPON_EQUIPPED: 0,
     }
-    play = GiveLifesteal(FRIENDLY_WEAPON)
+    play = Buff(FRIENDLY_WEAPON, "ICC_221e")
+
+
+ICC_221e = buff(lifesteal=True)
+ICC_221e.tags[GameTag.TAG_ONE_TURN_EFFECT] = True
+
+
+class DoomerangHit(TargetedAction):
+    TARGET = ActionArg()
+
+    def do(self, source, target):
+        weapon = source.controller.weapon
+        if weapon:
+            source.game.queue_actions(weapon, [Hit(target, weapon.atk)])
 
 
 class ICC_233:
@@ -73,7 +86,7 @@ class ICC_233:
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_WEAPON_EQUIPPED: 0,
     }
-    play = Hit(TARGET, ATK(FRIENDLY_WEAPON)), Bounce(FRIENDLY_WEAPON)
+    play = DoomerangHit(TARGET), Bounce(FRIENDLY_WEAPON)
 
 
 ##
@@ -124,7 +137,7 @@ class ICC_827t:
             ),
             OWN_TURN_END.on(Destroy(SELF)),
         )
-        update = Find(FRIENDLY_HERO_POWER - EXHAUSTED + ID("ICC_827p")) | Destroy(SELF)
+        update = Find(FRIENDLY_HERO_POWER + ID("ICC_827p")) | Destroy(SELF)
 
 
 class ICC_827e:
@@ -133,8 +146,8 @@ class ICC_827e:
             Play(CONTROLLER).on(
                 Morph(OWNER, ExactCopy(Play.CARD)).then(Buff(Morph.CARD, "ICC_827e"))
             ),
-            OWN_TURN_END.on(Destroy(SELF)),
+            OWN_TURN_END.on(Destroy(OWNER)),
         )
-        update = Find(FRIENDLY_HERO_POWER - EXHAUSTED + ID("ICC_827p")) | Destroy(SELF)
+        update = Find(FRIENDLY_HERO_POWER + ID("ICC_827p")) | Destroy(OWNER)
 
     events = REMOVED_IN_PLAY

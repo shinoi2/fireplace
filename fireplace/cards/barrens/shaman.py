@@ -8,6 +8,7 @@ class BAR_040:
     """South Coast Chieftain"""
 
     # <b>Battlecry:</b> If you control another Murloc, deal 2_damage.
+    tags = {GameTag.BATTLECRY: True}
     requirements = {
         PlayReq.REQ_TARGET_IF_AVAILABLE_AND_CONTROLLER_OTHER_WITH_RACE: Race.MURLOC
     }
@@ -18,7 +19,7 @@ class BAR_043:
     """Tinyfin's Caravan"""
 
     # At the start of your turn, draw a Murloc.
-    events = OWN_TURN_BEGIN.on(ForceDraw(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION)))
+    events = OWN_TURN_BEGIN.on(FORCE_DRAW(MURLOC))
 
 
 class BAR_045:
@@ -27,6 +28,14 @@ class BAR_045:
     # <b>Battlecry:</b> If you played an Elemental last turn, gain <b>Rush</b>
     # and <b>Windfury</b>.
     play = ELEMENTAL_PLAYED_LAST_TURN & (GiveRush(SELF), GiveWindfury(SELF))
+
+
+class BAR_048:
+    """Bru'kan"""
+
+    # <b>Nature Spell Damage +3</b>
+    # CardDefs.xml says SPELLPOWER_NATURE 1, the text +3 (WP-196)
+    tags = {GameTag.SPELLPOWER_NATURE: 3}
 
 
 class BAR_750:
@@ -68,9 +77,8 @@ class WC_005:
 
     # [x]<b>Battlecry:</b> Draw a spell. If it's a Nature spell, also draw an
     # Elemental.
-    play = ForceDraw(CONTROLLER, RANDOM(FRIENDLY_DECK + SPELL)).then(
-        Find(ForceDraw.TARGET + NATURE)
-        & (ForceDraw(CONTROLLER, RANDOM(FRIENDLY_DECK + ELEMENTAL)))
+    play = FORCE_DRAW(SPELL).then(
+        Find(ForceDraw.TARGET + NATURE) & (FORCE_DRAW(ELEMENTAL))
     )
 
 

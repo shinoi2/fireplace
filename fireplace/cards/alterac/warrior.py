@@ -47,6 +47,7 @@ class AV_565:
     """Axe Berserker"""
 
     # <b>Rush</b>. <b>Honorable Kill:</b> Draw a weapon.
+    tags = {GameTag.HONORABLE_KILL: True}
     honorable_kill = FORCE_DRAW(WEAPON)
 
 
@@ -70,7 +71,7 @@ class AV_109:
 
 
 class AV_109e:
-    events = OWN_TURN_BEGIN.on(GainArmor(FRIENDLY_HERO, -5), Destroy(SELF))
+    events = OWN_TURN_BEGIN.on(LoseArmor(FRIENDLY_HERO, 5), Destroy(SELF))
 
 
 class AV_322:
@@ -89,8 +90,14 @@ class AV_119:
     """To the Front!"""
 
     # Your minions cost (2) less this turn <i>(but not less than 1)</i>.
+    play = Buff(CONTROLLER, "AV_119e")
+
+
+class AV_119e:
+    # A card that costs 1 or less keeps its cost; the others, 2 less but 1 at least.
     update = Refresh(
-        FRIENDLY_HAND + MINION, {GameTag.COST: lambda self, i: max(i - 1, 1)}
+        FRIENDLY_HAND + MINION,
+        {GameTag.COST: lambda self, i: i if i <= 1 else max(i - 2, 1)},
     )
 
 
@@ -138,6 +145,7 @@ class AV_202p:
     """Grand Slam"""
 
     # [x]<b>Hero Power</b> Deal $2 damage. <b>Honorable Kill:</b> Gain 4 Armor.
+    tags = {GameTag.HONORABLE_KILL: True}
     requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0}
     activate = Hit(TARGET, 2)
     honorable_kill = GainArmor(FRIENDLY_HERO, 4)

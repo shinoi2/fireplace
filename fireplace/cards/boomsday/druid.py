@@ -54,26 +54,37 @@ class BOT_434:
     # While in your hand, this is a 3/4 copy of the last minion you played.
     class Hand:
         events = Play(CONTROLLER, MINION).after(
-            Morph(SELF, Copy(Play.CARD)).then(Buff(Morph.CARD, "BOT_434e"))
+            Morph(SELF, Copy(Play.CARD)).then(
+                MultiBuff(Morph.CARD, ["BOT_434e", "BOT_434e2"])
+            )
         )
 
 
 class BOT_434e:
+    cost = SET(4)
+    events = REMOVED_IN_PLAY
+
     class Hand:
-        events = Play(CONTROLLER).after(
-            Morph(OWNER, Copy(Play.CARD)).then(Buff(Morph.CARD, "BOT_434e"))
+        events = Play(CONTROLLER, MINION).after(
+            Morph(OWNER, Copy(Play.CARD)).then(
+                MultiBuff(Morph.CARD, ["BOT_434e", "BOT_434e2"])
+            )
         )
+
+
+class BOT_434e2:
+    atk = SET(3)
+    max_health = SET(4)
 
 
 class BOT_507:
     """Gloop Sprayer"""
 
     # <b>Battlecry:</b> Summon a copy of each adjacent minion.
-    requirements = {
-        PlayReq.REQ_FRIENDLY_TARGET: 0,
-        PlayReq.REQ_MINION_TARGET: 0,
-    }
-    play = Summon(CONTROLLER, ExactCopy(SELF_ADJACENT))
+    play = (
+        SummonRightOf(CONTROLLER, ExactCopy(LEFT_OF(SELF)), LEFT_OF(SELF)),
+        SummonRightOf(CONTROLLER, ExactCopy(RIGHT_OF(SELF)), RIGHT_OF(SELF)),
+    )
 
 
 class BOT_523:

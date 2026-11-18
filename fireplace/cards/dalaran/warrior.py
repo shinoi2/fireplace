@@ -16,7 +16,7 @@ class DAL_064:
     """Blastmaster Boom"""
 
     # [x]<b>Battlecry:</b> Summon two 1/1 Boom Bots for each Bomb in your opponent's deck.
-    play = Summon(CONTROLLER, "GVG_110t") * (Count(FRIENDLY_DECK + ID("BOT_511t")) * 2)
+    play = Summon(CONTROLLER, "GVG_110t") * (Count(ENEMY_DECK + ID("BOT_511t")) * 2)
 
 
 class DAL_070:

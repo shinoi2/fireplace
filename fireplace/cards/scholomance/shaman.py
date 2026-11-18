@@ -8,7 +8,13 @@ class SCH_236:
     """Diligent Notetaker"""
 
     # <b>Spellburst:</b> Return the spell to your hand.
-    spellburst = Give(CONTROLLER, SELF)
+    spellburst = Give(CONTROLLER, Spellburst.SPELL)
+
+
+FIREHEART_DISCOVER = Discover(CONTROLLER, RandomSpell(cost=range(1, 100))).then(
+    Give(CONTROLLER, Discover.CARD),
+    StoringBuff(CONTROLLER, "SCH_507e", Discover.CARD),
+)
 
 
 class SCH_507:
@@ -16,16 +22,13 @@ class SCH_507:
 
     # [x]<b>Battlecry:</b> <b>Discover</b> a spell that costs (1) or more. If
     # you play it this turn, repeat this effect.
-    play = Discover(CONTROLLER, RandomSpell(cost=range(1, 100))).then(
-        Give(CONTROLLER, Discover.CARD), Buff(Discover.CARD, "SCH_507e")
-    )
+    play = FIREHEART_DISCOVER
 
 
 class SCH_507e:
-    events = Play(CONTROLLER, OWNER).after(
-        Discover(CONTROLLER, RandomSpell(cost=range(1, 100))).then(
-            Give(CONTROLLER, Discover.CARD), Buff(Discover.CARD, "SCH_507e")
-        )
+    events = (
+        Play(CONTROLLER, STORE_CARD).after(Destroy(SELF), FIREHEART_DISCOVER),
+        OWN_TURN_END.on(Destroy(SELF)),
     )
 
 
@@ -40,6 +43,7 @@ class SCH_615:
     """Totem Goliath"""
 
     # <b>Deathrattle:</b> Summon all four basic Totems. <b>Overload: (1)</b>
+    tags = {GameTag.OVERLOAD: 1}
     deathrattle = Summon(CONTROLLER, BASIC_TOTEMS)
 
 
@@ -65,7 +69,7 @@ class SCH_270:
 
 class SCH_270e:
     update = Refresh(FRIENDLY_HAND + SPELLPOWER + MINION, buff="SCH_270e2")
-    events = Play(CONTROLLER, SPELLPOWER + MINION).after(Destroy(SELF))
+    events = Play(CONTROLLER, SPELLPOWER + MINION - CREATOR).after(Destroy(SELF))
 
 
 class SCH_270e2:
@@ -88,7 +92,7 @@ class SCH_273:
 
     # At the end of your turn, deal $1 damage to all enemies <i>(improved by
     # <b>Spell Damage</b>)</i>.
-    events = OWN_TURN_END.on(Hit(ENEMY_MINIONS, SPELL_DAMAGE(1)))
+    events = OWN_TURN_END.on(Hit(ENEMY_CHARACTERS, SPELL_DAMAGE(1)))
 
 
 class SCH_535:
@@ -106,8 +110,8 @@ class SCH_301:
     """Rune Dagger"""
 
     # After your hero attacks, gain <b>Spell Damage +1</b> this turn.
-    events = Attack(FRIENDLY_HERO).after(Buff(SELF, "SCH_301e"))
+    events = Attack(FRIENDLY_HERO).after(Buff(CONTROLLER, "SCH_301e"))
 
 
 class SCH_301e:
-    tags = {GameTag.SPELLPOWER: 1}
+    update = Refresh(CONTROLLER, {GameTag.SPELLPOWER: +1})

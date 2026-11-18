@@ -28,7 +28,7 @@ class DMF_202:
 
     # <b>Battlecry:</b> Summon a 1/1 Rider with <b>Rush</b> for each minion in
     # your hand.
-    play = Summon(CONTROLLER, "DMF_523t") * Count(FRIENDLY_HAND)
+    play = Summon(CONTROLLER, "DMF_523t") * Count(FRIENDLY_HAND + MINION)
 
 
 class YOP_032:

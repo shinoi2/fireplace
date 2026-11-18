@@ -37,7 +37,7 @@ class TRL_085:
 
     # [x]Whenever you target a minion with a spell, cast it again on its neighbors.
     events = Play(CONTROLLER, SPELL, MINION).on(
-        CastSpell(Play.CARD, ADJACENT(Play.TARGET))
+        CastSpell(Copy(Play.CARD), ADJACENT(Play.TARGET))
     )
 
 

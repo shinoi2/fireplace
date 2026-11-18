@@ -23,6 +23,10 @@ class DMF_065:
 
 
 class DMF_065t:
+    requirements = {
+        PlayReq.REQ_MINION_TARGET: 0,
+        PlayReq.REQ_TARGET_TO_PLAY: 0,
+    }
     play = Buff(TARGET, "DMF_065e")
 
 
@@ -94,12 +98,12 @@ class DMF_082:
     """Darkmoon Statue"""
 
     # Your other minions have +1 Attack. <b>Corrupt:</b> This gains +4 Attack.
-    update = Refresh(FRIENDLY_MINIONS, buff="DMF_082e")
+    update = Refresh(FRIENDLY_MINIONS - SELF, buff="DMF_082e")
     corrupt_card = "DMF_082t"
 
 
 class DMF_082t:
-    update = Refresh(FRIENDLY_MINIONS, buff="DMF_082e")
+    update = Refresh(FRIENDLY_MINIONS - SELF, buff="DMF_082e")
 
 
 DMF_082e = buff(atk=1)
@@ -159,13 +163,3 @@ class DMF_520:
 
 
 DMF_520e = buff(atk=2)
-
-
-class YOP_031:
-    """Crabrider"""
-
-    # [x]<b>Rush</b> <b>Battlecry:</b> Gain <b>Windfury</b> this turn only.
-    play = Buff(SELF, "YOP_031e")
-
-
-YOP_031e = buff(windfury=True)

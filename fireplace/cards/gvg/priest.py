@@ -61,7 +61,7 @@ class GVG_008:
     """Lightbomb"""
 
     def play(self):
-        for target in self.game.board:
+        for target in self.game.board.filter(type=CardType.MINION, dormant=False):
             yield Hit(target, target.atk)
 
 

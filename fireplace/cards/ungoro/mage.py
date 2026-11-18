@@ -13,7 +13,8 @@ class UNG_020:
 class UNG_021:
     """Steam Surger"""
 
-    play = ELEMENTAL_PLAYED_LAST_TURN & Give(CONTROLLER, "UNG_018")
+    powered_up = ELEMENTAL_PLAYED_LAST_TURN
+    play = powered_up & Give(CONTROLLER, "UNG_018")
 
 
 class UNG_027:

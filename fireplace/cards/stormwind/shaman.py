@@ -20,6 +20,18 @@ class SW_032:
     play = Buff((FRIENDLY_HAND | FRIENDLY_DECK) + ELEMENTAL, "SW_032e")
 
 
+class SW_033:
+    """Canal Slogger"""
+
+    # <b>Rush</b>, <b>Lifesteal</b> <b>Overload:</b> (1)
+    # WP-197: no script and no keyword in the data: a vanilla 6/4 for 4.
+    tags = {
+        GameTag.RUSH: True,
+        GameTag.LIFESTEAL: True,
+        GameTag.OVERLOAD: 1,
+    }
+
+
 class SW_032e:
     tags = {GameTag.COST: -1}
     events = REMOVED_IN_PLAY
@@ -52,7 +64,10 @@ class DED_511:
 
     # [x]At the end of your turn, transform your weapon into one that costs (1)
     # more.
-    events = OWN_TURN_END.on(Evolve(FRIENDLY_WEAPON, 1))
+    events = OWN_TURN_END.on(
+        Find(FRIENDLY_WEAPON)
+        & Morph(FRIENDLY_WEAPON, RandomWeapon(cost=COST(FRIENDLY_WEAPON) + 1))
+    )
 
 
 class DED_522:
@@ -83,6 +98,14 @@ class SW_031t:
     # Summon a 3/3 Elemental with <b>Taunt</b>.
     quest = Play(CONTROLLER, OVERLOAD).after(AddProgress(SELF, Play.CARD))
     reward = Summon(CONTROLLER, "SW_031t8"), Summon(CONTROLLER, "SW_031t2")
+
+
+class SW_031t8:
+    """Living Earth"""
+
+    # <b>Taunt</b>
+    # WP-197: the data forgot Taunt: Stir the Stones gave a vanilla 3/3.
+    tags = {GameTag.TAUNT: True}
 
 
 class SW_031t2(QuestRewardProtect):
@@ -124,8 +147,8 @@ class SW_035:
     # [x]<b>Discover</b> a @-Cost minion and summon it. <i>(Upgraded for each
     # <b>Overload</b> card you played this game!)</i>
     play = DISCOVER(
-        RandomCollectible(cost=(Count(CARDS_PLAYED_THIS_GAME + OVERLOAD) + 1))
-    )
+        RandomMinion(cost=(Count(CARDS_PLAYED_THIS_GAME + OVERLOAD) + 1))
+    ).then(Summon(CONTROLLER, Discover.CARD))
 
 
 class SW_114:

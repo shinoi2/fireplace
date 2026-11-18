@@ -9,25 +9,22 @@ class TRL_096:
 
     # [x]<b>Battlecry:</b> <b>Discover</b> two cards. Give one to your opponent at random.
     play = Discover(CONTROLLER, RandomCollectible()).then(
-        SetTags(SELF, {GameTag.TAG_SCRIPT_DATA_ENT_1: Discover.CARD}),
-        Discover(CONTROLLER, RandomCollectible()).then(
-            SetTags(SELF, {GameTag.TAG_SCRIPT_DATA_ENT_2: Discover.CARD}),
-            COINFLIP
-            & (
-                Give(CONTROLLER, GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_1)),
-                Give(OPPONENT, GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_2)),
+        lambda _, *args1: (
+            yield Discover(CONTROLLER, RandomCollectible()).then(
+                lambda _, *args2: (
+                    yield (
+                        COINFLIP
+                        & (
+                            Give(CONTROLLER, args1[Discover.CARD]),
+                            Give(OPPONENT, args2[Discover.CARD]),
+                        )
+                        | (
+                            Give(CONTROLLER, args2[Discover.CARD]),
+                            Give(OPPONENT, args1[Discover.CARD]),
+                        )
+                    )
+                )
             )
-            | (
-                Give(CONTROLLER, GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_2)),
-                Give(OPPONENT, GetTag(SELF, GameTag.TAG_SCRIPT_DATA_ENT_1)),
-            ),
-            UnsetTags(
-                SELF,
-                (
-                    GameTag.TAG_SCRIPT_DATA_ENT_1,
-                    GameTag.TAG_SCRIPT_DATA_ENT_2,
-                ),
-            ),
         ),
     )
 

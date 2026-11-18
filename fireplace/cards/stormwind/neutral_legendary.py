@@ -72,7 +72,10 @@ class SW_045:
     # [x]Whenever you <b>Trade</b>, <b>Discover</b> a card from your _deck to
     # draw instead.
     events = Trade(FRIENDLY).on(
-        Choice(RANDOM(FRIENDLY_DECK, 3)).then(PutOnTop(Choice.CARD))
+        Find(FRIENDLY_DECK)
+        & Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK), 3)).then(
+            PutOnTop(CONTROLLER, Choice.CARD)
+        )
     )
 
 

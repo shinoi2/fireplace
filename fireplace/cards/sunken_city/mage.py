@@ -167,7 +167,8 @@ class TSC_056:
 
 
 class TSC_056e:
-    events = Death(OWNER).on(Hit(ALL_MINIONS - OWNER, 3))
+    tags = {GameTag.DEATHRATTLE: True}
+    deathrattle = Hit(ALL_MINIONS - SELF, 3)
 
 
 class TSC_948:

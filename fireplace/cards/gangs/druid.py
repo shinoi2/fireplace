@@ -31,7 +31,7 @@ class CFM_343(JadeGolemUtils):
 class CFM_617:
     """Celestial Dreamer"""
 
-    powered_up = Find(FRIENDLY_MINIONS - SELF + (ATK >= 5))
+    powered_up = Find(FRIENDLY_MINIONS + (ATK >= 5))
     play = powered_up & Buff(SELF, "CFM_617e")
 
 

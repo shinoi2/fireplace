@@ -45,7 +45,12 @@ class DMF_709:
 
     # At the end of your turn, give +1/+1 to all other Totems in your hand,
     # deck and battlefield.
-    events = OWN_TURN_END.on(Buff((FRIENDLY_HAND | FRIENDLY_DECK) + TOTEM, "DMF_709e"))
+    events = OWN_TURN_END.on(
+        Buff(
+            (FRIENDLY_HAND | FRIENDLY_DECK | FRIENDLY_MINIONS) - SELF + TOTEM,
+            "DMF_709e",
+        )
+    )
 
 
 DMF_709e = buff(+1, +1)
@@ -61,6 +66,9 @@ class YOP_022:
         PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
     }
     play = Buff(TARGET, "YOP_022e")
+
+
+YOP_022e = buff(+3, +3)
 
 
 ##
@@ -98,6 +106,7 @@ class DMF_702:
     # Deal $3 damage to a minion. Give your hero +3 Attack this turn.
     requirements = {
         PlayReq.REQ_MINION_TARGET: 0,
+        PlayReq.REQ_TARGET_TO_PLAY: 0,
     }
     play = Hit(TARGET, 3), Buff(FRIENDLY_HERO, "DMF_702e")
 

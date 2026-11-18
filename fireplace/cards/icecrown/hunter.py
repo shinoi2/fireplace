@@ -35,15 +35,15 @@ class ICC_243:
 class ICC_415:
     """Stitched Tracker"""
 
-    play = GenericChoice(
+    play = Choice(
         CONTROLLER, Copy(RANDOM(DeDuplicate(FRIENDLY_DECK + MINION)) * 3)
-    )
+    ).then(Give(CONTROLLER, Choice.CARD))
 
 
 class ICC_825:
     """Abominable Bowman"""
 
-    deathrattle = Summon(CONTROLLER, Copy(FRIENDLY + KILLED + BEAST))
+    deathrattle = Summon(CONTROLLER, Copy(RANDOM(FRIENDLY + KILLED + BEAST)))
 
 
 ##
@@ -97,7 +97,9 @@ class ICC_828p:
 
         def do(self, source, player):
             beast_ids = RandomBeast(
-                card_class=[CardClass.HUNTER, CardClass.NEUTRAL], cost=range(0, 6)
+                card_class=[CardClass.HUNTER, CardClass.NEUTRAL],
+                cost=range(0, 6),
+                is_standard=None,
             ).find_cards(source)
             self.first_ids = []
             self.second_ids = []
@@ -159,7 +161,7 @@ class ICC_828p:
                 elif len(self.choosed_cards) == 2:
                     self.player.choice = None
                     self.done()
-                    self.trigger_choice_callback()
+                    self.trigger_choice_callback(self.choosed_cards)
 
     requirements = {
         PlayReq.REQ_HAND_NOT_FULL: 0,

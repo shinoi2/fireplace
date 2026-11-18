@@ -141,11 +141,11 @@ CFM_621e2 = buff(health=4)
 class CFM_621t25:
     """Heart of Fire"""
 
-    # 10 Cost: Deal 10
+    # 10 Cost: Deal 8
     requirements = {
         PlayReq.REQ_TARGET_TO_PLAY: 0,
     }
-    play = Hit(TARGET, 10)
+    play = Hit(TARGET, 8)
 
 
 class CFM_621t26:

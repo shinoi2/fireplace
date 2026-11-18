@@ -67,6 +67,8 @@ class RandomCardPicker(LazyValue):
                 new_filters[k] = v.evaluate(source)
             elif isinstance(v, Selector):
                 new_filters[k] = v.eval(source.game, source)
+            if k == "exclude":
+                new_filters[k] = [getattr(card, "id", card) for card in new_filters[k]]
 
         from .. import cards
 
@@ -82,7 +84,7 @@ class RandomCardPicker(LazyValue):
                     exclude = exclude.evaluate(source)
                 elif isinstance(exclude, Selector):
                     exclude = exclude.eval(source.game, source)
-                exclude = [card.id for card in exclude]
+                exclude = [getattr(card, "id", card) for card in exclude]
                 cards = [card for card in cards if card not in exclude]
             return [list(cards)]
         elif not self.weightedfilters:

@@ -41,9 +41,9 @@ class TRL_309:
             SummonCustomMinion(
                 CONTROLLER,
                 "TRL_309t",
-                Min(COST(Play.CARD), 10),
-                COST(Play.CARD),
-                COST(Play.CARD),
+                Min(Attr(Play.CARD, "cost_when_played"), 10),
+                Attr(Play.CARD, "cost_when_played"),
+                Attr(Play.CARD, "cost_when_played"),
             )
         ),
     )
@@ -57,7 +57,7 @@ class TRL_545(metaclass=ThresholdUtils):
     play = Buff(SELF, "TRL_545e")
 
 
-TRL_545e = buff(+4, +4)
+TRL_545e = buff(+4, +4, taunt=True)
 
 
 ##
@@ -71,7 +71,7 @@ class TRL_302:
     requirements = {
         PlayReq.REQ_MINION_TARGET: 0,
     }
-    play = Buff(SELF, "TRL_302e")
+    play = Buff(FRIENDLY_HERO, "TRL_302e")
 
 
 class TRL_302e:
@@ -117,7 +117,7 @@ class TRL_304:
     """Farraki Battleaxe"""
 
     # <b>Overkill:</b> Give a minion in your hand +2/+2.
-    overkill = Buff(FRIENDLY_HAND + MINION, "TRL_304e")
+    overkill = Buff(RANDOM(FRIENDLY_HAND + MINION), "TRL_304e")
 
 
 TRL_304e = buff(+2, +2)

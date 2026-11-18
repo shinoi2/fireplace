@@ -148,6 +148,24 @@ class HERO_02fbp(HERO_02bp):
     pass
 
 
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Baroness Vashj)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Morgl Holmes)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Mummy Morgl)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -292,5 +310,23 @@ class HERO_02bp2(HERO_02bp2):
 
 class HERO_02bp2(HERO_02bp2):
     """Totemic Slam (Juggler Morgl)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Baroness Vashj)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Morgl Holmes)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Mummy Morgl)"""
 
     pass

@@ -16,22 +16,22 @@ class ULD_178:
 
     # [x]<b>Battlecry:</b> Gain 2 of <b>Rush</b>, <b>Taunt</b>, <b>Divine Shield</b>, or
     # <b>Windfury</b> <i>(your choice).</i>
-    class SiamatAction(MultipleChoice):
-        PLAYER = ActionArg()
-        choose_times = 2
-        siamat_ids = ["ULD_178a", "ULD_178a2", "ULD_178a3", "ULD_178a4"]
-
-        def do_step1(self):
-            self.cards = [self.player.card(id) for id in self.siamat_ids]
-
-        def do_step2(self):
-            self.cards.remove(self.choosed_cards[0])
-
-        def done(self):
-            for card in self.choosed_cards:
-                self.source.game.queue_actions(card, [Battlecry(card, self.source)])
-
-    play = SiamatAction(CONTROLLER)
+    play = Choice(CONTROLLER, ["ULD_178a", "ULD_178a2", "ULD_178a3", "ULD_178a4"]).then(
+        Battlecry(Choice.CARD, SELF),
+        lambda _, *args: (
+            yield Choice(
+                CONTROLLER,
+                list(
+                    filter(
+                        lambda x: x != args[Discover.CARD],
+                        args[Discover.CARDS],
+                    )
+                ),
+            ).then(
+                Battlecry(Choice.CARD, SELF),
+            )
+        ),
+    )
 
 
 class ULD_178a:

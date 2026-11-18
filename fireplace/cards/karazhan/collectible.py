@@ -19,7 +19,7 @@ class KAR_006:
 class KAR_009:
     """Babbling Book"""
 
-    play = Give(CONTROLLER, RandomSpell())
+    play = Give(CONTROLLER, RandomSpell(card_class=CardClass.MAGE))
 
 
 class KAR_010:
@@ -70,7 +70,7 @@ class KAR_035:
 class KAR_036:
     """Arcane Anomaly"""
 
-    events = OWN_SPELL_PLAY.on(Buff(SELF, "KAR_036e"))
+    events = OWN_SPELL_PLAY.after(Buff(SELF, "KAR_036e"))
 
 
 KAR_036e = buff(health=1)
@@ -94,7 +94,12 @@ class KAR_041:
         PlayReq.REQ_MINION_TARGET: 0,
     }
     play = Destroy(TARGET)
-    deathrattle = HAS_TARGET & Summon(TARGET_PLAYER, Copy(TARGET))
+
+    def deathrattle(self):
+        if self.target:
+            yield Summon(
+                self.target.controller, Copy(self.target), source=TARGET_PLAYER
+            )
 
 
 class KAR_044:
@@ -107,7 +112,7 @@ class KAR_057:
     """Ivory Knight"""
 
     play = Discover(CONTROLLER, RandomSpell()).then(
-        Give(CONTROLLER, Discover.CARD), Heal(FRIENDLY_HERO, COST(Discover.CARD))
+        Give(CONTROLLER, Discover.CARD), Heal(FRIENDLY_HERO, ORIGIN_COST(Discover.CARD))
     )
 
 
@@ -144,7 +149,7 @@ class KAR_065:
 class KAR_069:
     """Swashburglar"""
 
-    play = Give(CONTROLLER, RandomCollectible(card_class=ENEMY_CLASS))
+    play = Give(CONTROLLER, RandomCollectible(card_class=ANOTHER_CLASS))
 
 
 class KAR_070:
@@ -207,17 +212,25 @@ class KAR_096:
     class Deck:
         events = GameStart().on(
             Shuffle(
-                CONTROLLER, RandomLegendaryMinion(exclude=DeDuplicate(STARTING_DECK))
+                CONTROLLER,
+                RandomLegendaryMinion(
+                    card_class=FRIENDLY_CLASS_OR_NEUTRAL,
+                    exclude=DeDuplicate(STARTING_DECK),
+                )
+                * 5,
             )
-            * 5
         )
 
     class Hand:
         events = GameStart().on(
             Shuffle(
-                CONTROLLER, RandomLegendaryMinion(exclude=DeDuplicate(STARTING_DECK))
+                CONTROLLER,
+                RandomLegendaryMinion(
+                    card_class=FRIENDLY_CLASS_OR_NEUTRAL,
+                    exclude=DeDuplicate(STARTING_DECK),
+                )
+                * 5,
             )
-            * 5
         )
 
 
@@ -228,16 +241,19 @@ class KAR_097:
 
 
 class KAR_097t:
-    events = OWN_SPELL_PLAY.on(
-        Summon(CONTROLLER, RandomMinion(cost=Attr(Play.CARD, GameTag.COST))),
-        Hit(SELF, 1),
+    events = OWN_SPELL_PLAY.after(
+        -FULL_BOARD
+        & (
+            Summon(CONTROLLER, RandomMinion(cost=Attr(Play.CARD, "cost_when_played"))),
+            Hit(SELF, 1),
+        )
     )
 
 
 class KAR_114:
     """Barnes"""
 
-    play = Summon(CONTROLLER, Copy(RANDOM(FRIENDLY_DECK + MINION))).then(
+    play = Summon(CONTROLLER, ExactCopy(RANDOM(FRIENDLY_DECK + MINION))).then(
         Buff(Summon.CARD, "KAR_114e")
     )
 
@@ -304,7 +320,9 @@ class KAR_712:
 class KAR_004:
     """Cat Trick"""
 
-    secret = Play(ENEMY, SPELL).after(Summon(CONTROLLER, "KAR_004a"))
+    secret = Play(ENEMY, SPELL).after(
+        -FULL_BOARD & (Reveal(SELF), Summon(CONTROLLER, "KAR_004a"))
+    )
 
 
 class KAR_013:
@@ -394,4 +412,6 @@ class KAR_028:
 class KAR_063:
     """Spirit Claws"""
 
-    update = Find(FRIENDLY_MINIONS + SPELLPOWER) & Refresh(SELF, {GameTag.ATK: +2})
+    update = (Attr(CONTROLLER, GameTag.CURRENT_SPELLPOWER) > 0) & Refresh(
+        SELF, {GameTag.ATK: +2}
+    )

@@ -12,7 +12,7 @@ def _side(left):
             return []
         i = field.index(source)
         side = field[:i] if left else field[i + 1 :]
-        return [m for m in side if not m.dormant]
+        return side.filter(dormant=False, type=CardType.MINION)
 
     return FuncSelector(select)
 

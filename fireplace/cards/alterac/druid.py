@@ -11,14 +11,14 @@ class AV_210:
     # One</b> spell you've cast. @<b>Battlecry:</b> {0}
     def play(self):
         if spell := self.controller.other_choice_from_the_last_choose_one_spell:
-            yield CastSpell(CONTROLLER, spell)
+            yield CastSpell(spell)
 
 
 class AV_211:
     """Dire Frostwolf"""
 
     # <b>Stealth</b> <b>Deathrattle:</b> Summon a 2/2 Wolf with <b>Stealth</b>.
-    deathrattle = Summon(CONTROLLER, "AV_211t") * 2
+    deathrattle = Summon(CONTROLLER, "AV_211t")
 
 
 class AV_291:
@@ -135,8 +135,8 @@ class AV_295:
     # card.
     choose = ("AV_295a", "AV_295b")
     play = ChooseBoth(CONTROLLER) & (
-        ForceDraw(CONTROLLER, RANDOM(LOWEST_COST(FRIENDLY_DECK))),
-        ForceDraw(CONTROLLER, RANDOM(HIGHEST_COST(FRIENDLY_DECK))),
+        ForceDraw(RANDOM(LOWEST_COST(FRIENDLY_DECK))),
+        ForceDraw(RANDOM(HIGHEST_COST(FRIENDLY_DECK))),
     )
 
 
@@ -144,14 +144,14 @@ class AV_295a:
     """More Resources"""
 
     # Draw your lowest Cost card.
-    play = ForceDraw(CONTROLLER, RANDOM(LOWEST_COST(FRIENDLY_DECK)))
+    play = ForceDraw(RANDOM(LOWEST_COST(FRIENDLY_DECK)))
 
 
 class AV_295b:
     """More Supplies"""
 
     # Draw your highest Cost card.
-    play = ForceDraw(CONTROLLER, RANDOM(HIGHEST_COST(FRIENDLY_DECK)))
+    play = ForceDraw(RANDOM(HIGHEST_COST(FRIENDLY_DECK)))
 
 
 class ONY_021:

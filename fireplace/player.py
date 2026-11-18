@@ -1,11 +1,32 @@
 from itertools import chain
 from typing import TYPE_CHECKING
 
-from hearthstone.enums import CardClass, CardType, GameTag, PlayState, SpellSchool, Zone
+from collections import defaultdict
+from hearthstone.enums import (
+    CardClass,
+    CardSet,
+    CardType,
+    GameTag,
+    PlayState,
+    Rarity,
+    SpellSchool,
+    Zone,
+)
 
-from .actions import Concede, Draw, Fatigue, Give, Hit, SpendMana, Steal, Summon
+from .actions import (
+    Concede,
+    Discard,
+    Draw,
+    Fatigue,
+    Give,
+    Hit,
+    SpendMana,
+    Steal,
+    Summon,
+)
 from .aura import TargetableByAuras
 from .card import Card
+from .cards import db
 from .deck import Deck
 from .entity import Entity, slot_property
 from .managers import PlayerManager
@@ -16,6 +37,7 @@ if TYPE_CHECKING:
         Character,
         Hero,
         Minion,
+        Location,
         PlayableCard,
         Spell,
         Quest,
@@ -54,8 +76,9 @@ class Player(Entity, TargetableByAuras):
     heropower_damage_adjustment = slot_property("heropower_damage", sum)
     spells_cost_health = slot_property("spells_cost_health")
     lifesteal_damages_opposing_hero = slot_property("lifesteal_damages_opposing_hero")
-    spells_cast_twice = slot_property("spells_cast_twice")
     cant_trigger_deathrattle = slot_property("cant_trigger_deathrattle")
+    infuse_in_deck = slot_property("infuse_in_deck")
+    cant_reveal_secrets = slot_property("cant_reveal_secrets")
     type = CardType.PLAYER
 
     def __init__(self, name, deck: list[str], hero: str, is_standard=True):
@@ -72,7 +95,7 @@ class Player(Entity, TargetableByAuras):
         super().__init__()
         self.deck = Deck()
         self.hand = CardList["PlayableCard"]()
-        self.field = CardList["Minion"]()
+        self.field = CardList["Minion | Location"]()
         self.graveyard = CardList["PlayableCard"]()
         self.secrets = CardList["Secret | Quest | SideQuest"]()
         self.removed = CardList()
@@ -110,6 +133,7 @@ class Player(Entity, TargetableByAuras):
         self.elemental_played_this_turn = 0
         self.elemental_played_last_turn = 0
         self.cards_drawn_this_turn = 0
+        self.damage_dealt_to_enemy_hero_this_turn = 0
         self.cards_played_this_turn = 0
         self.cards_played_this_game = CardList()
         self.hero_power_damage_this_game = 0
@@ -119,11 +143,72 @@ class Player(Entity, TargetableByAuras):
         self.armor_gained_this_game = 0
         self.healed_this_turn = 0
         self.hero_health_changed_this_turn = 0
+        self.hero_health_changed_on_own_turn = 0
         self.cthun = None
         self.invoke_counter = 0
         self.spells_played_this_game = 0
         self.holy_spells_spent_this_game = 0
         self.other_choice_from_the_last_choose_one_spell = None
+        self.relic_level = 1
+
+    def is_legal(self):
+        # The hero must be a collectible hero skin; its class determines deck rules.
+        hero_id = (
+            self.starting_hero
+            if isinstance(self.starting_hero, str)
+            else self.starting_hero.id
+        )
+        if hero_id not in db:
+            return False
+        heroxml = db[hero_id]
+        if not heroxml.collectible:
+            return False
+        if heroxml.card_set != CardSet.HERO_SKINS:
+            return False
+        hero_classes = heroxml.card_class
+
+        # Most decks contain 30 cards, but cards such as Prince Renathal can change this.
+        deck_size = 30
+        card_count = defaultdict(int)
+        for card in self.starting_deck:
+            card_id = card if isinstance(card, str) else card.id
+            if card_id not in db:
+                return False
+            cardxml = db[card_id]
+
+            # Some cards count as copies of another card for the copy limit.
+            if GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID in cardxml.tags:
+                dbf_id = cardxml.tags[GameTag.DECK_RULE_COUNT_AS_COPY_OF_CARD_ID]
+                if dbf_id < cardxml.dbf_id and dbf_id in db.dbf:
+                    card_id = db.dbf[dbf_id]
+            if not cardxml.collectible:
+                return False
+
+            # A normal card may appear twice; legendary cards may appear only once.
+            card_count[card_id] += 1
+            if card_count[card_id] > 2:
+                return False
+            if cardxml.rarity == Rarity.LEGENDARY and card_count[card_id] > 1:
+                return False
+            # Multi-class cards accept any one of their listed classes.
+            if cardxml.multiple_classes:
+                if hero_classes not in cardxml.classes:
+                    return False
+            else:
+                if cardxml.card_class not in [hero_classes, CardClass.NEUTRAL]:
+                    return False
+
+            # Only one card may change the deck size, and all such cards must agree.
+            if GameTag.DECK_RULE_MOD_DECK_SIZE in db[card_id].tags:
+                new_deck_size = cardxml.tags[GameTag.DECK_RULE_MOD_DECK_SIZE]
+                if deck_size != new_deck_size:
+                    if deck_size != 30:
+                        return False
+                    deck_size = new_deck_size
+        if len(self.starting_deck) != deck_size:
+            return False
+
+        return True
 
     def dump(self):
         data = super().dump()
@@ -210,7 +295,8 @@ class Player(Entity, TargetableByAuras):
     def heropower_damage(self):
         aura_power = self.controller.heropower_damage_adjustment
         minion_power = sum(
-            minion.heropower_damage for minion in self.field.filter(dormant=False)
+            minion.heropower_damage
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -218,7 +304,8 @@ class Player(Entity, TargetableByAuras):
     def spellpower_arcane(self):
         aura_power = self.controller.spellpower_arcane_adjustment
         minion_power = sum(
-            minion.spellpower_arcane for minion in self.field.filter(dormant=False)
+            minion.spellpower_arcane
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -226,7 +313,8 @@ class Player(Entity, TargetableByAuras):
     def spellpower_fire(self):
         aura_power = self.controller.spellpower_fire_adjustment
         minion_power = sum(
-            minion.spellpower_fire for minion in self.field.filter(dormant=False)
+            minion.spellpower_fire
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -234,7 +322,8 @@ class Player(Entity, TargetableByAuras):
     def spellpower_frost(self):
         aura_power = self.controller.spellpower_frost_adjustment
         minion_power = sum(
-            minion.spellpower_frost for minion in self.field.filter(dormant=False)
+            minion.spellpower_frost
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -242,7 +331,8 @@ class Player(Entity, TargetableByAuras):
     def spellpower_nature(self):
         aura_power = self.controller.spellpower_nature_adjustment
         minion_power = sum(
-            minion.spellpower_nature for minion in self.field.filter(dormant=False)
+            minion.spellpower_nature
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -250,7 +340,8 @@ class Player(Entity, TargetableByAuras):
     def spellpower_holy(self):
         aura_power = self.controller.spellpower_holy_adjustment
         minion_power = sum(
-            minion.spellpower_holy for minion in self.field.filter(dormant=False)
+            minion.spellpower_holy
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -258,7 +349,8 @@ class Player(Entity, TargetableByAuras):
     def spellpower_shadow(self):
         aura_power = self.controller.spellpower_shadow_adjustment
         minion_power = sum(
-            minion.spellpower_shadow for minion in self.field.filter(dormant=False)
+            minion.spellpower_shadow
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -266,7 +358,8 @@ class Player(Entity, TargetableByAuras):
     def spellpower_fel(self):
         aura_power = self.controller.spellpower_fel_adjustment
         minion_power = sum(
-            minion.spellpower_fel for minion in self.field.filter(dormant=False)
+            minion.spellpower_fel
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -274,7 +367,8 @@ class Player(Entity, TargetableByAuras):
     def spellpower_physical(self):
         aura_power = self.controller.spellpower_physic_adjustment
         minion_power = sum(
-            minion.spellpower_physic for minion in self.field.filter(dormant=False)
+            minion.spellpower_physic
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -282,7 +376,8 @@ class Player(Entity, TargetableByAuras):
     def spellpower(self):
         aura_power = self.controller.spellpower_adjustment
         minion_power = sum(
-            minion.spellpower for minion in self.field.filter(dormant=False)
+            minion.spellpower
+            for minion in self.field.filter(dormant=False, type=CardType.MINION)
         )
         return aura_power + minion_power
 
@@ -295,13 +390,19 @@ class Player(Entity, TargetableByAuras):
 
     @property
     def characters(self):
-        return CardList(chain([self.hero] if self.hero else [], self.field))
+        return CardList(
+            chain(
+                [self.hero] if self.hero else [],
+                self.field.filter(type=CardType.MINION),
+            )
+        )
 
     @property
     def entities(self):
         for entity in self.field:
             yield from entity.entities
-        yield from self.secrets
+        for secret in self.secrets:
+            yield from secret.entities
         yield from self.buffs
         if self.hero:
             yield from self.hero.entities
@@ -309,7 +410,7 @@ class Player(Entity, TargetableByAuras):
 
     @property
     def live_entities(self):
-        yield from self.field
+        yield from self.field.filter(dormant=False, type=CardType.MINION)
         if self.hero:
             yield self.hero
         if self.weapon:
@@ -318,6 +419,7 @@ class Player(Entity, TargetableByAuras):
     @property
     def actionable_entities(self):
         yield from self.characters
+        yield from self.field.filter(type=CardType.LOCATION)
         yield from self.hand
         if self.hero.power:
             yield self.hero.power
@@ -445,6 +547,7 @@ class Player(Entity, TargetableByAuras):
         self.log("%r discards their entire hand!", self)
         # iterate the list in reverse so we don't skip over cards in the process
         # yes it's stupid.
+        self.game.refresh_auras()
         for card in self.hand[::-1]:
             card.discard()
 
@@ -485,7 +588,7 @@ class Player(Entity, TargetableByAuras):
         """
 
         def key_func(card):
-            if card.tags.get(GameTag.QUEST):
+            if card.tags.get(GameTag.QUEST) or card.tags.get(GameTag.QUESTLINE):
                 return 1, self.game.random.random()
             if card.tags.get(GameTag.CANT_DRAW_DURING_MULLIGAN):
                 return -1, self.game.random.random()

@@ -25,7 +25,7 @@ class FP1_003:
 class FP1_004:
     """Mad Scientist"""
 
-    deathrattle = Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + SECRET))
+    deathrattle = Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + SECRET + IS_SUMMONABLE))
 
 
 class FP1_005:
@@ -46,7 +46,7 @@ class FP1_007:
 class FP1_009:
     """Deathlord"""
 
-    deathrattle = Summon(OPPONENT, RANDOM(ENEMY_DECK + MINION))
+    deathrattle = SummonRightOf(OPPONENT, RANDOM(ENEMY_DECK + MINION), None)
 
 
 class FP1_011:

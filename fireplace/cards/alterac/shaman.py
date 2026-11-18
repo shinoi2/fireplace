@@ -8,17 +8,19 @@ class AV_251:
     """Cheaty Snobold"""
 
     # After an enemy is <b>Frozen</b>, deal 3 damage to it.
-    events = SetTags(ENEMY_MINIONS, lambda tag: tag.get(GameTag.FROZEN, False)).after(
-        Hit(SetTags.TARGET, 3)
-    )
+    events = SetTags(
+        ENEMY_CHARACTERS, lambda tag: tag.get(GameTag.FROZEN, False)
+    ).after(Hit(SetTags.TARGET, 3))
 
 
 class AV_255:
     """Snowfall Guardian"""
 
-    # <b>Battlecry:</b> <b>Freeze</b> all other minions. Gain +1/+1 for each
-    # <b>Frozen</b> minion.
-    play = Freeze(ALL_MINIONS - SELF).then(Buff(ALL_MINIONS + FROZEN, "AV_255e"))
+    # <b>Battlecry:</b> <b>Freeze</b> all other minions
+    play = (
+        Freeze(ALL_MINIONS - SELF),
+        Buff(SELF, "AV_255e") * Count(ALL_MINIONS - SELF + FROZEN),
+    )
 
 
 AV_255e = buff(+1, +1)
@@ -59,16 +61,18 @@ class AV_250:
 
     # Deal $1 damage to a minion and <b>Freeze</b> it. If it survives, repeat
     # this on another minion!
-    requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0}
+    requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0, PlayReq.REQ_MINION_TARGET: 0}
 
     def play(self):
-        play_targets = self.play_targets
-        yield Hit(TARGET, 1), Freeze(TARGET)
-        play_targets.remove(self.target)
-        while not self.target.dead and play_targets:
-            self.target = self.game.random.choice(play_targets)
-            yield Hit(TARGET, 1), Freeze(TARGET)
-            play_targets.remove(self.target)
+        target = self.target
+        others = [m for m in ALL_MINIONS.eval(self.game, self) if m is not target]
+        while target is not None:
+            yield Hit(target, 1)
+            yield Freeze(target)
+            if target.dead or not others:
+                break
+            target = self.game.random.choice(others)
+            others.remove(target)
 
 
 class AV_259:
@@ -90,7 +94,7 @@ class AV_266:
     """Windchill"""
 
     # <b>Freeze</b> a minion. Draw a card.
-    requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0}
+    requirements = {PlayReq.REQ_TARGET_TO_PLAY: 0, PlayReq.REQ_MINION_TARGET: 0}
     play = Freeze(TARGET), Draw(CONTROLLER)
 
 
@@ -150,23 +154,26 @@ class AV_258:
     """Bru'kan of the Elements"""
 
     # [x]<b>Battlecry:</b> Call upon the power of two Elements!
-    class ElementalMasteryAction(MultipleChoice):
-        PLAYER = ActionArg()
-        choose_times = 2
-        elemental_ids = ["AV_258t", "AV_258t2", "AV_258t3", "AV_258t4"]
-
-        def do_step1(self):
-            self.cards = [self.player.card(id) for id in self.elemental_ids]
-
-        def do_step2(self):
-            self.cards.remove(self.choosed_cards[0])
-
-        def done(self):
-            for card in self.choosed_cards:
-                self.source.game.queue_actions(card, [Battlecry(card, self.source)])
-
     entourage = ["AV_258pt", "AV_258p2", "AV_258pt3", "AV_258pt4"]
-    play = ElementalMasteryAction(CONTROLLER), Summon(CONTROLLER, RandomEntourage())
+    play = (
+        Summon(CONTROLLER, RandomEntourage()),
+        Choice(CONTROLLER, ["AV_258t", "AV_258t2", "AV_258t3", "AV_258t4"]).then(
+            Battlecry(Choice.CARD, None),
+            lambda _, *args: (
+                yield Choice(
+                    CONTROLLER,
+                    list(
+                        filter(
+                            lambda x: x != args[Discover.CARD],
+                            args[Discover.CARDS],
+                        )
+                    ),
+                ).then(
+                    Battlecry(Choice.CARD, None),
+                )
+            ),
+        ),
+    )
 
 
 class AV_258t:

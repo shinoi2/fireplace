@@ -47,6 +47,7 @@ class BT_136t:
 
     # <b>Taunt</b> <b>Choose One -</b> Summon a 9/9 Fungal Giant with
     # <b>Taunt</b>; or <b>Rush</b>.
+    tags = {GameTag.TAUNT: True}
     choose = ("BT_136ta", "BT_136tb")
     play = ChooseBoth(CONTROLLER) & Summon(CONTROLLER, "BT_136tt3")
 
@@ -55,7 +56,7 @@ class BT_136ta:
     play = Summon(CONTROLLER, "BT_136tt")
 
 
-class BT_136ta:
+class BT_136tb:
     play = Summon(CONTROLLER, "BT_136tt2")
 
 

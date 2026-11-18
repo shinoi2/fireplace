@@ -9,7 +9,7 @@ class DRG_019:
 
     # <b>Rush</b>. <b>Battlecry:</b> If you've <b>Invoked</b> twice, summon 2_copies of
     # this.
-    play = INVOKED_TWICE & SummonBothSides(SELF, ExactCopy(SELF)) * 2
+    play = INVOKED_TWICE & SummonBothSides(CONTROLLER, ExactCopy(SELF)) * 2
 
 
 class DRG_020:
@@ -38,7 +38,7 @@ class DRG_026:
 
     # <b>Battlecry:</b> Attack ALL other minions.
     def play(self):
-        entities = (ALL_MINIONS - SELF - DEAD).eval(self.game.live_entities, self)
+        entities = (ALL_MINIONS - SELF - DEAD).eval(self.game, self)
         self.game.random.shuffle(entities)
         for entity in entities:
             if not self.dead and not entity.dead:

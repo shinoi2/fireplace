@@ -112,6 +112,18 @@ class HERO_10cbp(HERO_10bp):
     pass
 
 
+class HERO_10cbp(HERO_10bp):
+    """Demon Claws (Songstress Aranna)"""
+
+    pass
+
+
+class HERO_10cbp(HERO_10bp):
+    """Demon Claws (Apple Aranna)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -220,5 +232,17 @@ class HERO_10cbp2(HERO_10bp2):
 
 class HERO_10cbp2(HERO_10bp2):
     """Demon's Bite (Felfirework Aranna)"""
+
+    pass
+
+
+class HERO_10cbp2(HERO_10bp2):
+    """Demon's Bite (Songstress Aranna)"""
+
+    pass
+
+
+class HERO_10cbp2(HERO_10bp2):
+    """Demon's Bite (Apple Aranna)"""
 
     pass

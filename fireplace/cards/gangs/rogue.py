@@ -17,6 +17,7 @@ CFM_342e = buff(+4, +4)
 class CFM_634:
     """Lotus Assassin"""
 
+    tags = {GameTag.STEALTH: True}
     events = Attack(SELF, ALL_MINIONS).after(
         Dead(ALL_MINIONS + Attack.DEFENDER) & Stealth(SELF)
     )
@@ -36,7 +37,7 @@ class CFM_693:
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_TARGET_FOR_COMBO: 0,
     }
-    play = Bounce(TARGET)
+    combo = Bounce(TARGET)
 
 
 class CFM_694:

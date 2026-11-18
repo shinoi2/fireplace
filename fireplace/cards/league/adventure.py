@@ -187,7 +187,7 @@ class LOEA04_25h:
 class LOE_024t:
     """Rolling Boulder"""
 
-    events = OWN_TURN_END.on(Destroy(LEFT_OF(SELF)))
+    events = OWN_TURN_END.on(Destroy(LEFT_OF(SELF) + MINION))
 
 
 ##

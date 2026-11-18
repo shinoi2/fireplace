@@ -64,12 +64,9 @@ class GIL_800:
     """Duskfallen Aviana"""
 
     # On each player's turn, the first card played costs (0).
-    events = TURN_BEGIN.on(Buff(CURRENT_PLAYER, "GIL_800e2"))
-
-
-class GIL_800e2:
-    update = Refresh(FRIENDLY_HAND, {GameTag.COST: SET(0)})
-    events = Play(CONTROLLER).on(Destroy(SELF))
+    update = (Attr(CURRENT_PLAYER, GameTag.NUM_CARDS_PLAYED_THIS_TURN) == 0) & Refresh(
+        IN_HAND + CONTROLLED_BY(CURRENT_PLAYER), {GameTag.COST: SET(0)}
+    )
 
 
 class GIL_833:
@@ -115,4 +112,4 @@ class GIL_663:
     """Witchwood Apple"""
 
     # Add three 2/2 Treants to your hand.
-    play = Give(CONTROLLER, "GIL_663t") * 2
+    play = Give(CONTROLLER, "GIL_663t") * 3

@@ -9,7 +9,7 @@ class AV_100:
 
     # [x]<b>Battlecry</b>: If this costs more than every minion in your deck,
     # summon 2 of them.
-    powered_up = -Find(FRIENDLY_DECK + MINION + (COST <= COST(SELF)))
+    powered_up = -Find(FRIENDLY_DECK + MINION + (COST >= COST(SELF)))
     play = powered_up & Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION, 2))
 
 
@@ -18,7 +18,7 @@ class AV_223:
 
     # [x]<b>Battlecry</b>: If this costs less than every minion in your deck,
     # reduce their Cost by (3).
-    powered_up = -Find(FRIENDLY_DECK + MINION + (COST >= COST(SELF)))
+    powered_up = -Find(FRIENDLY_DECK + MINION + (COST <= COST(SELF)))
     play = powered_up & Buff(FRIENDLY_DECK + MINION, "AV_223e")
 
 
@@ -32,7 +32,7 @@ class AV_141t:
 
     # <b>Rush</b>, <b>Windfury</b> Costs (5) less if you have 15 Health or
     # less.
-    cost_mod = (CURRENT_HEALTH(FRIENDLY_HERO) <= 15) & -3
+    cost_mod = (CURRENT_HEALTH(FRIENDLY_HERO) <= 15) & -5
 
 
 class AV_142t:
@@ -71,7 +71,7 @@ class AV_143:
 
     # [x]<b>Deathrattle:</b> If this wasn't <b>Honorably Killed</b>, resummon
     # Korrak.
-    deathrattle = (CURRENT_HEALTH(SELF) < 0) & Summon(CONTROLLER, "AV_143")
+    deathrattle = (CURRENT_HEALTH(SELF) != 0) & Summon(CONTROLLER, "AV_143")
 
 
 class ONY_004:
@@ -143,8 +143,8 @@ class ONY_005ta1:
 
     # Destroy a minion.
     requirements = {
-        PlayReq.REQ_TARGET_TO_PLAY,
-        PlayReq.REQ_MINION_TARGET,
+        PlayReq.REQ_TARGET_TO_PLAY: 0,
+        PlayReq.REQ_MINION_TARGET: 0,
     }
     play = Destroy(TARGET)
 
@@ -154,8 +154,8 @@ class ONY_005ta2:
 
     # Give a minion +4/+4 and <b>Taunt</b>.
     requirements = {
-        PlayReq.REQ_TARGET_TO_PLAY,
-        PlayReq.REQ_MINION_TARGET,
+        PlayReq.REQ_TARGET_TO_PLAY: 0,
+        PlayReq.REQ_MINION_TARGET: 0,
     }
     play = Buff(TARGET, "ONY_005ta2e")
 
@@ -183,8 +183,8 @@ class ONY_005ta5:
     # [x]<b>Battlecry</b>: Summon six 1/1 Bloodhounds with <b>Rush</b> to
     # attack an enemy minion.
     requirements = {
-        PlayReq.REQ_TARGET_IF_AVAILABLE,
-        PlayReq.REQ_MINION_TARGET,
+        PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
+        PlayReq.REQ_MINION_TARGET: 0,
     }
     play = (
         SummonBothSides(CONTROLLER, "ONY_005ta5t").then(
@@ -199,8 +199,8 @@ class ONY_005ta6:
 
     # <b>Silence</b> and destroy a minion. Summon a 10/10 copy of it.
     requirements = {
-        PlayReq.REQ_TARGET_TO_PLAY,
-        PlayReq.REQ_MINION_TARGET,
+        PlayReq.REQ_TARGET_TO_PLAY: 0,
+        PlayReq.REQ_MINION_TARGET: 0,
     }
     play = (
         Silence(TARGET),
@@ -224,8 +224,8 @@ class ONY_005ta7:
 
     # [x]<b>Battlecry:</b> Destroy a minion. Gain its Attack and Health.
     requirements = {
-        PlayReq.REQ_TARGET_IF_AVAILABLE,
-        PlayReq.REQ_MINION_TARGET,
+        PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
+        PlayReq.REQ_MINION_TARGET: 0,
     }
     play = (
         Buff(SELF, "ONY_005ta7e", atk=ATK(TARGET), max_health=CURRENT_HEALTH(TARGET)),
@@ -510,8 +510,8 @@ class ONY_005tc6:
 
     # Give a minion +3/+3.
     requirements = {
-        PlayReq.REQ_TARGET_TO_PLAY,
-        PlayReq.REQ_MINION_TARGET,
+        PlayReq.REQ_TARGET_TO_PLAY: 0,
+        PlayReq.REQ_MINION_TARGET: 0,
     }
     play = Buff(TARGET, "ONY_005tc6e")
 

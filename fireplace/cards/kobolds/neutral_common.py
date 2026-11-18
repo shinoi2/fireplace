@@ -122,7 +122,7 @@ class LOOT_347:
     """Kobold Apprentice"""
 
     # <b>Battlecry:</b> Deal 3 damage randomly split among all_enemies.
-    play = Hit(RANDOM_ENEMY_MINION, 1) * 3
+    play = Hit(RANDOM_ENEMY_CHARACTER, 1) * 3
 
 
 class LOOT_375:

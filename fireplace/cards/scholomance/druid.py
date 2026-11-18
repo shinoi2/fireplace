@@ -60,7 +60,7 @@ class SCH_333:
 
 class SCH_333e:
     update = Refresh(FRIENDLY_HAND + SPELL, buff="SCH_333e2")
-    events = Play(CONTROLLER, SPELL).after(Destroy(SELF))
+    events = Play(CONTROLLER, SPELL - CREATOR).after(Destroy(SELF))
 
 
 class SCH_333e2:

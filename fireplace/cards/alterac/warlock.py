@@ -27,14 +27,14 @@ class AV_313:
     play = Hit(ENEMY_MINIONS, 1)
 
     def honorable_kill(self, target):
-        yield Buff(SELF, "AV_313e", atk=ATK(target))
+        yield Buff(SELF, "AV_313e", atk=target.atk)
 
 
 class AV_308:
     """Grave Defiler"""
 
     # <b>Battlecry:</b> Copy a Fel spell in your hand.
-    play = Give(CONTROLLER, RANDOM(FRIENDLY_HAND + FEL))
+    play = Give(CONTROLLER, Copy(RANDOM(FRIENDLY_HAND + FEL)))
 
 
 class AV_286:
@@ -73,10 +73,10 @@ class AV_317:
     requirements = {
         PlayReq.REQ_FRIENDLY_DEATHRATTLE_MINION_DIED_THIS_GAME: 0,
     }
-    play = GenericChoice(
+    play = Choice(
         CONTROLLER,
         Copy(RANDOM(DeDuplicate(FRIENDLY + KILLED + DEATHRATTLE + MINION)) * 3),
-    ).then(CopyDeathrattleBuff(FRIENDLY_MINIONS, "AV_317e", GenericChoice.CARD))
+    ).then(CopyDeathrattleBuff(Choice.CARD, "AV_317e", FRIENDLY_MINIONS))
 
 
 class AV_277:

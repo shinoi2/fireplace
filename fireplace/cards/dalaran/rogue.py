@@ -33,7 +33,7 @@ class DAL_714:
 
     # [x]<b>Battlecry:</b> If you're holding a card from another class, _gain +1/+1 and
     # <b><b>Rush</b>.</b>
-    powered_up = Find(FRIENDLY_HAND + ANOTHER_CLASS)
+    powered_up = Find(FRIENDLY_HAND + ANOTHER_CLASS_CARD)
     play = powered_up & Buff(SELF, "DAL_714e")
 
 
@@ -75,7 +75,9 @@ class DAL_366:
     }
     entourage = ["DAL_366t1", "DAL_366t2", "DAL_366t3", "DAL_366t4"]
     play = Destroy(TARGET)
-    draw = Morph(SELF, RandomEntourage())
+
+    class Hand:
+        update = Morph(SELF, RandomEntourage())
 
 
 class DAL_366t1:
@@ -133,7 +135,7 @@ class DAL_716:
     play = Hit(TARGET, 4)
 
     class Hand:
-        update = Find(FRIENDLY_HAND + ANOTHER_CLASS) & Refresh(
+        update = Find(FRIENDLY_HAND + ANOTHER_CLASS_CARD) & Refresh(
             SELF, {GameTag.COST: SET(0)}
         )
 

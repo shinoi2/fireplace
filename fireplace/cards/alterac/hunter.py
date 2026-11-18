@@ -41,7 +41,8 @@ class AV_336:
 class AV_336e:
     tags = {GameTag.RUSH: True}
     events = Attack(OWNER, ALL_MINIONS).after(
-        Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + BEAST)).then(
+        Dead(Attack.DEFENDER)
+        & Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + BEAST)).then(
             Buff(Summon.CARD, "AV_336e")
         )
     )
@@ -71,6 +72,8 @@ class AV_224:
 
     # Deal $3 damage to a minion and cast a <b>Secret</b> from your deck.
     # <b>Honorable Kill:</b> Cast 2.
+    # The data lists HONORABLEKILL as a referenced tag only: the card has it.
+    tags = {GameTag.HONORABLE_KILL: True}
     requirements = {
         PlayReq.REQ_TARGET_TO_PLAY: 0,
         PlayReq.REQ_MINION_TARGET: 0,
@@ -84,7 +87,7 @@ class AV_226:
 
     # <b>Secret:</b> When your opponent casts a spell, return it to their hand
     # instead. It costs (1) more.
-    secret = Play(OPPONENT, SPELL).on(
+    secret = Play(OPPONENT, SPELL).before(
         Reveal(SELF),
         Counter(Play.CARD),
         Give(OPPONENT, Copy(Play.CARD)).then(Buff(Give.CARD, "AV_226e")),
@@ -100,9 +103,9 @@ class AV_333:
     """Revive Pet"""
 
     # <b>Discover</b> a friendly Beast that died this game. Summon it.
-    play = GenericChoice(
+    play = Choice(
         CONTROLLER, Copy(RANDOM(DeDuplicate(FRIENDLY + KILLED + MINION + BEAST)) * 3)
-    ).then(Summon(GenericChoice.CARD))
+    ).then(Summon(CONTROLLER, Choice.CARD))
 
 
 class ONY_008:
@@ -162,13 +165,21 @@ AV_244e = buff(+1, +1)
 # Heros
 
 
+def _beaststalker_tavish_effect(source, *args):
+    for e in source.entourage:
+        if e == args[Choice.CARD]:
+            source.entourage.remove(e)
+            break
+    yield Summon(CONTROLLER, Choice.CARD)
+
+
 class AV_113:
     """Beaststalker Tavish"""
 
     # [x]<b>Battlecry:</b> <b>Discover</b> and cast 2 Improved <b>Secrets</b>.
     entourage = ["AV_113t1", "AV_113t2", "AV_113t3", "AV_113t7", "AV_113t8", "AV_113t9"]
-    play = GenericChoice(CONTROLLER, RandomEntourage() * 3).then(
-        Summon(GenericChoice.CARD)
+    play = (
+        Choice(CONTROLLER, RandomEntourage() * 3).then(_beaststalker_tavish_effect) * 2
     )
 
 
@@ -239,8 +250,9 @@ class AV_113t8:
     # [x]<b>Secret:</b> When your turn starts, if you control two minions,
     # summon two Animal Companions.
     entourage = ["NEW1_032", "NEW1_033", "NEW1_034"]
-    secret = OWN_TURN_BEGIN.on(
-        FULL_BOARD | (Reveal(SELF), Summon(CONTROLLER, RandomEntourage() * 2))
+    events = OWN_TURN_BEGIN.on(
+        (Count(FRIENDLY_MINIONS) >= 2)
+        & (FULL_BOARD | (Reveal(SELF), Summon(CONTROLLER, RandomEntourage() * 2)))
     )
 
 
@@ -249,7 +261,7 @@ class AV_113t9:
 
     # <b>Secret:</b> When your opponent casts a spell, return it to their hand
     # instead. It costs (2) more.
-    secret = Play(OPPONENT, SPELL).on(
+    secret = Play(OPPONENT, SPELL).before(
         Reveal(SELF),
         Counter(Play.CARD),
         Give(OPPONENT, Copy(Play.CARD)).then(Buff(Give.CARD, "AV_113t9e")),

@@ -43,12 +43,22 @@ class OG_291:
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
     }
-    play = Give(CONTROLLER, Buff(Copy(TARGET), "OG_291e"))
+    play = Give(CONTROLLER, MultiBuff(Copy(TARGET), ["OG_291e", "OG_291e2"]))
 
 
 class OG_291e:
     atk = SET(1)
     max_health = SET(1)
+
+
+@custom_card
+class OG_291e2:
+    tags = {
+        GameTag.CARDNAME: "Shadowcaster Buff",
+        GameTag.CARDTYPE: CardType.ENCHANTMENT,
+    }
+    cost = SET(1)
+    events = REMOVED_IN_PLAY
 
 
 class OG_282:

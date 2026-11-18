@@ -118,6 +118,24 @@ class HERO_05dbp(HERO_05bp):
     pass
 
 
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Sanguine Sylvanas)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Lor'themar)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Bakin' Brann)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -232,5 +250,23 @@ class HERO_05dbp2(HERO_05bp2):
 
 class HERO_05dbp2(HERO_05bp2):
     """Ballista Shot (Flameshot Sylvanas)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Sanguine Sylvanas)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Lor'themar)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Bakin' Brann)"""
 
     pass

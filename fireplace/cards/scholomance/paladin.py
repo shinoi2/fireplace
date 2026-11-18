@@ -38,7 +38,16 @@ class SCH_149:
 
     # <b>Battlecry:</b> Gain Attack and Health to match the highest in the
     # battlefield.
-    play = Buff(SELF, "SCH_149e")
+    def play(self):
+        minions = ALL_MINIONS.eval(self.game, self)
+        highest_atk = max(m.atk for m in minions)
+        highest_health = max(m.health for m in minions)
+        yield Buff(
+            SELF,
+            "SCH_149e",
+            atk=highest_atk - self.atk,
+            max_health=highest_health - self.health,
+        )
 
 
 def SCH_149e():
@@ -87,15 +96,14 @@ class SCH_138:
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_TARGET_TO_PLAY: 0,
     }
-    play = Buff(TARGET, "SCH_138e")
+    play = Buff(TARGET, "SCH_138e"), Buff(TARGET, "SCH_138e2")
 
 
-class SCH_138e:
-    tags = {
-        GameTag.ATK: 8,
-        GameTag.HEALTH: 8,
-        GameTag.CANNOT_ATTACK_HEROES: True,
-    }
+SCH_138e = buff(+8, +8)
+
+
+class SCH_138e2:
+    tags = {GameTag.CANNOT_ATTACK_HEROES: True}
 
 
 class SCH_247:
@@ -170,5 +178,15 @@ class SCH_523:
     # <b>Spellburst</b>: Summon a Student with <b>Taunt</b> and stats equal to
     # the spell's Cost.
     spellburst = SummonCustomMinion(
-        CONTROLLER, "SCH_523t", Min(COST(SELF), 10), COST(SELF), COST(SELF)
+        CONTROLLER,
+        "SCH_523t",
+        Min(COST(Spellburst.SPELL), 10),
+        COST(Spellburst.SPELL),
+        COST(Spellburst.SPELL),
     )
+
+
+class SCH_523t:
+    """Honor Student"""
+
+    tags = {GameTag.TAUNT: True}

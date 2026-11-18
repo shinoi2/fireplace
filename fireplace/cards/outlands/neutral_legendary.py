@@ -27,14 +27,14 @@ BT_126e2 = buff(+1, +1)
 class BT_255:
     """Kael'thas Sunstrider"""
 
-    # Every third spell you cast each turn costs (0).
+    # Every third spell you cast each turn costs (1).
     update = (Count(CARDS_PLAYED_THIS_TURN + SPELL) % 3 == 2) & (
         Refresh(FRIENDLY_HAND + SPELL, buff="BT_255e")
     )
 
 
 class BT_255e:
-    cost = SET(0)
+    cost = SET(1)
 
 
 class BT_735:
@@ -57,7 +57,7 @@ class BT_737:
 
     # <b>Battlecry:</b> Choose a minion. It goes <b>Dormant</b> for 2 turns.
     requirements = {
-        PlayReq.REQ_TARGET_TO_PLAY: 0,
+        PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
         PlayReq.REQ_MINION_TARGET: 0,
     }
     play = Dormant(TARGET, 2)
@@ -71,8 +71,6 @@ class BT_850:
     tags = {GameTag.DORMANT: True}
     progress_total = 3
     play = Summon(OPPONENT, "BT_850t") * 3
-    dormant_events = Death(ENEMY_MINIONS + ID("BT_850t")).on(
-        AddProgress(SELF, Death.ENTITY)
-    )
+    dormant_events = Death(ENEMY + ID("BT_850t")).on(AddProgress(SELF, Death.ENTITY))
     reward = Awaken(SELF)
     awaken = Destroy(ALL_MINIONS - SELF)

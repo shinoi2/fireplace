@@ -22,7 +22,7 @@ from .entity import BaseEntity, Entity, boolean_property, int_property, slot_pro
 from .enums import PlayReq
 from .exceptions import InvalidAction
 from .managers import CardManager
-from .targeting import TARGETING_PREREQUISITES, is_valid_target
+from .targeting import SOUL_FRAGMENT, TARGETING_PREREQUISITES, is_valid_target
 from .utils import CardList
 
 if TYPE_CHECKING:
@@ -42,6 +42,7 @@ def Card(id):
         CardType.ENCHANTMENT: Enchantment,
         CardType.WEAPON: Weapon,
         CardType.HERO_POWER: HeroPower,
+        CardType.LOCATION: Location,
     }[data.type]
     if subclass is Spell:
         if data.secret:
@@ -75,6 +76,7 @@ class BaseCard(BaseEntity):
         self.aura = False
         self.heropower_damage = 0
         self._zone = Zone.INVALID
+        self._summon_index = None
         self._progress: int = 0
         self.progress_total: int = data.scripts.progress_total
         self.card_class = CardClass.INVALID
@@ -115,7 +117,9 @@ class BaseCard(BaseEntity):
         if isinstance(other, BaseCard):
             return self.entity_id.__eq__(other.entity_id)
         elif isinstance(other, str):
-            return self.id.__eq__(other)
+            id = cards.db.get_dbf_id(self.id)
+            other = cards.db.get_dbf_id(other)
+            return id.__eq__(other)
         return super().__eq__(other)
 
     @property
@@ -237,6 +241,7 @@ class BaseCard(BaseEntity):
         if caches.get(value) is not None:
             if hasattr(self, "_summon_index") and self._summon_index is not None:
                 caches[value].insert(self._summon_index, self)
+                self._summon_index = None
             else:
                 caches[value].append(self)
         self._zone = value
@@ -302,6 +307,8 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
     windfury = boolean_property("windfury")
     mega_windfury = boolean_property("mega_windfury")
     has_choose_one = boolean_property("has_choose_one")
+    has_infuse = boolean_property("has_infuse")
+    cant_play = boolean_property("cant_play")
     playable_zone = Zone.HAND
     lifesteal = boolean_property("lifesteal")
     keep_buff = boolean_property("keep_buff")
@@ -319,6 +326,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
 
     def __init__(self, data):
         self.cant_play = False
+        self.has_spellburst = False
         self.has_battlecry = False
         self.has_combo = False
         self.has_outcast = False
@@ -327,6 +335,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         self.choose_cards = CardList()
         self.morphed = None
         self.corrupt_card = data.corrupt_card
+        self.infuse_card = data.infuse_card
         self.turn_drawn = -1
         self.turn_played = -1
         self.cast_on_friendly_characters = False
@@ -337,6 +346,9 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         self.temporary = False
         self.cards_played_when_holding = CardList()
         self.immolatestage = 0
+        self.infuse = 0
+        self.tradeable = False
+        self.questline = False
         super().__init__(data)
 
     def dump(self):
@@ -444,6 +456,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
                 self.choose_cards.append(card)
             # Clean up cards_played_when_holding
             self.cards_played_when_holding = CardList()
+            self.turn_drawn = -1
 
     def destroy(self):
         return self.game.cheat_action(self, [actions.Destroy(self), actions.Deaths()])
@@ -506,11 +519,21 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
                 return False
 
         min_enemy_minions = self.requirements.get(PlayReq.REQ_MINIMUM_ENEMY_MINIONS, 0)
-        if len(self.controller.opponent.field) < min_enemy_minions:
+        if (
+            len(
+                self.controller.opponent.field.filter(
+                    dormant=False, type=CardType.MINION
+                )
+            )
+            < min_enemy_minions
+        ):
             return False
 
         min_total_minions = self.requirements.get(PlayReq.REQ_MINIMUM_TOTAL_MINIONS, 0)
-        if len(self.controller.game.board) < min_total_minions:
+        if (
+            len(self.controller.game.board.filter(dormant=False, type=CardType.MINION))
+            < min_total_minions
+        ):
             return False
 
         if PlayReq.REQ_ENTIRE_ENTOURAGE_NOT_IN_PLAY in self.requirements:
@@ -626,13 +649,13 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         if self.zone != Zone.HAND:
             return False
 
-        if not self.controller.mana < 1:
+        if self.controller.mana < 1:
             return False
 
         if len(self.controller.deck) == 0:
             return False
 
-        return True
+        return self.tradeable
 
     def trade(self):
         if not self.is_tradeable():
@@ -675,6 +698,11 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
 
         for req in TARGETING_PREREQUISITES:
             if req in self.requirements:
+                if (
+                    req == PlayReq.REQ_TARGET_IF_AVAILABLE_AND_NOT_DRAWN_THIS_TURN
+                    and self.drawn_this_turn
+                ):
+                    continue
                 return True
         return False
 
@@ -687,6 +715,18 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
                 return bool(self.play_targets)
         if PlayReq.REQ_TARGET_IF_AVAILABLE in self.requirements:
             return bool(self.play_targets)
+        if (
+            PlayReq.REQ_TARGET_IF_AVAILABLE_AND_PLAYER_HEALTH_CHANGED_THIS_TURN
+            in self.requirements
+            and self.controller.hero_health_changed_this_turn
+        ):
+            return bool(self.play_targets)
+        if (
+            PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SOUL_FRAGMENT_IN_DECK
+            in self.requirements
+            and self.controller.deck.contains(SOUL_FRAGMENT)
+        ):
+            return bool(self.play_targets)
         if PlayReq.REQ_TARGET_IF_AVAILABLE_AND_DRAGON_IN_HAND in self.requirements:
             if self.controller.hand.filter(races=Race.DRAGON).exclude(self):
                 return bool(self.play_targets)
@@ -694,7 +734,10 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_MINIMUM_FRIENDLY_MINIONS
         )
         if req is not None:
-            if len(self.controller.field) >= req:
+            if (
+                len(self.controller.field.filter(dormant=False, type=CardType.MINION))
+                >= req
+            ):
                 return bool(self.play_targets)
         req = self.requirements.get(
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_MINIMUM_FRIENDLY_SECRETS
@@ -769,7 +812,10 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_COST_5_OR_MORE_SPELL_IN_HAND
         )
         if req is not None:
-            if self.controller.hand.filter(cost=range(5, 100)):
+            if any(
+                card.cost >= 5 and card.type == CardType.SPELL
+                for card in self.controller.hand
+            ):
                 return bool(self.play_targets)
         req = self.requirements.get(
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_MIN_MANA_CRYSTAL
@@ -779,7 +825,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
                 return bool(self.play_targets)
         req = self.requirements.get(PlayReq.REQ_TARGET_IF_AVAILABLE_AND_FRIENDLY_LACKEY)
         if req is not None:
-            if self.controller.field.filter(mark_of_evil=True):
+            if self.controller.field.filter(type=CardType.MINION, mark_of_evil=True):
                 return bool(self.play_targets)
         req = self.requirements.get(PlayReq.REQ_STEADY_SHOT)
         if req is not None:
@@ -795,7 +841,9 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_CONTROLLER_OTHER_WITH_RACE
         )
         if req is not None:
-            if self.controller.field.filter(races=req).exclude(self):
+            if self.controller.field.filter(type=CardType.MINION, races=req).exclude(
+                self
+            ):
                 return bool(self.play_targets)
         req = self.requirements.get(PlayReq.REQ_TARGET_IF_AVAILABLE_AND_WEAPON_EQUIPPED)
         if req is not None:
@@ -803,7 +851,9 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
                 return bool(self.play_targets)
         req = self.requirements.get(PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SHADOW_IN_HAND)
         if req is not None:
-            if self.controller.hand.filter(spell_scholl=SpellSchool.SHADOW):
+            if self.controller.hand.filter(
+                type=CardType.SPELL, spell_school=SpellSchool.SHADOW
+            ):
                 return bool(self.play_targets)
         req = self.requirements.get(
             PlayReq.REQ_TARGET_IF_AVAILABLE_AND_HERO_DAMAGED_THIS_TURN
@@ -821,7 +871,15 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
 
     @property
     def play_targets(self):
-        return [card for card in self.game.characters if is_valid_target(self, card)]
+        candidates = list(self.game.characters)
+        if PlayReq.REQ_LOCATION_TARGET in self.requirements:
+            candidates = [
+                card
+                for player in self.game.players
+                for card in player.field
+                if card.type == CardType.LOCATION
+            ]
+        return [card for card in candidates if is_valid_target(self, card)]
 
     @property
     def targets(self):
@@ -846,6 +904,8 @@ class LiveEntity(PlayableCard, Entity):
     def __init__(self, data):
         super().__init__(data)
         self._to_be_destroyed = False
+        self.destroyed_source = None
+        self.damaged_source = None
         self.damage = 0
         self.forgetful = False
         self.predamage = 0
@@ -934,6 +994,9 @@ class Character(LiveEntity):
     cant_attack = boolean_property("cant_attack")
     cant_be_frozen = boolean_property("cant_be_frozen")
     cant_be_targeted_by_opponents = boolean_property("cant_be_targeted_by_opponents")
+    cant_be_targeted_by_opponent_abilities = boolean_property(
+        "cant_be_targeted_by_opponent_abilities"
+    )
     cant_be_targeted_by_abilities = boolean_property("cant_be_targeted_by_abilities")
     cant_be_targeted_by_hero_powers = boolean_property(
         "cant_be_targeted_by_hero_powers"
@@ -969,7 +1032,7 @@ class Character(LiveEntity):
 
     @property
     def attackable(self):
-        return not self.immune
+        return not self.immune and not self.stealthed
 
     @property
     def attacking(self):
@@ -979,15 +1042,21 @@ class Character(LiveEntity):
     def attack_targets(self):
         targets = self.controller.opponent.characters
         if self.cannot_attack_heroes:
-            targets = self.controller.opponent.field
+            targets = self.controller.opponent.field.filter(
+                dormant=False, type=CardType.MINION
+            )
         if self.rush and not self.turns_in_play:
-            targets = self.controller.opponent.field
+            targets = self.controller.opponent.field.filter(
+                dormant=False, type=CardType.MINION
+            )
         if (
             self.additional_attacks_only_minion > 0
             and self.max_attacks - self.additional_attacks_only_minion
             <= self.num_attacks - self.num_attacks_only_minion
         ):
-            targets = self.controller.opponent.field
+            targets = self.controller.opponent.field.filter(
+                dormant=False, type=CardType.MINION
+            )
         targets = targets.filter(dormant=False)
 
         taunts = []
@@ -1000,7 +1069,7 @@ class Character(LiveEntity):
     def frozen(self):
         if self.cant_be_frozen:
             self._frozen = False
-        return self._frozen
+        return self._getattr("frozen", False)
 
     @frozen.setter
     def frozen(self, value):
@@ -1075,7 +1144,7 @@ class Character(LiveEntity):
         self.game.attack(self, target)
 
     def _set_zone(self, zone):
-        if self.zone == Zone.PLAY and zone != Zone.PLAY:
+        if self.zone == Zone.PLAY and zone != Zone.PLAY and zone != Zone.GRAVEYARD:
             self.damage = 0
         return super()._set_zone(zone)
 
@@ -1118,9 +1187,9 @@ class Hero(Character):
         yield self
         if self.zone == Zone.PLAY:
             if self.controller.hero_power:
-                yield self.controller.hero_power
+                yield from self.controller.hero_power.entities
             if self.controller.weapon:
-                yield self.controller.weapon
+                yield from self.controller.weapon.entities
         yield from self.buffs
 
     @property
@@ -1244,16 +1313,17 @@ class Minion(Character):
 
     def __init__(self, data):
         self.always_wins_brawls = False
+        self._needs_card_reset = False
         self.divine_shield = False
         self.enrage = False
         self.silenced = False
-        self._summon_index = None
         self.dormant = False
         self.dormant_turns = data.scripts.dormant_turns
         self.reborn = False
         self.has_spellburst = False
         self.has_frenzy = False
         self.has_colossal = False
+        self.si_7 = False
         super().__init__(data)
 
     def dump(self):
@@ -1276,7 +1346,7 @@ class Minion(Character):
         assert self.zone is Zone.PLAY, self.zone
         ret = CardList()
         index = self.zone_position - 1
-        left = self.controller.field[:index].filter(dormant=False)
+        left = self.controller.field[:index].filter(dormant=False, type=CardType.MINION)
         if left:
             ret.append(left[-1])
         return ret
@@ -1286,7 +1356,9 @@ class Minion(Character):
         assert self.zone is Zone.PLAY, self.zone
         ret = CardList()
         index = self.zone_position - 1
-        right = self.controller.field[index + 1 :].filter(dormant=False)
+        right = self.controller.field[index + 1 :].filter(
+            dormant=False, type=CardType.MINION
+        )
         if right:
             ret.append(right[0])
         return ret
@@ -1313,7 +1385,7 @@ class Minion(Character):
 
     @property
     def events(self):
-        if self.dormant:
+        if self.dormant and self.zone == Zone.PLAY:
             return self.data.scripts.dormant_events
         return super().events
 
@@ -1345,6 +1417,41 @@ class Minion(Character):
             return self.controller.field.index(self) + 1
         return super().zone_position
 
+    def _reset_card_state(self):
+        """Reset a former minion when it becomes a hand or deck card again."""
+        if not self.keep_buff:
+            self.clear_buffs()
+            self.additional_deathrattles = []
+        for attr in self.silenceable_attributes:
+            setattr(self, attr, False)
+        self.tags.update(
+            {
+                tag: value
+                for tag, value in self.data.tags.items()
+                if self.tags.map.get(tag) in self.silenceable_attributes
+            }
+        )
+        self.silenced = False
+        self._events = self.data.scripts.events[:]
+        self.damage = 0
+        self.predamage = 0
+        self.damaged_source = None
+        self.destroyed_source = None
+        self.turns_in_play = 0
+        self.turn_killed = -1
+        self.num_attacks = 0
+        self.num_attacks_only_minion = 0
+        self.additional_attacks = 0
+        self.additional_attacks_only_minion = 0
+        self.attack_target = None
+        self.damaged_this_turn = 0
+        self.damaged_on_opponent_turn = 0
+        self.healed_this_turn = 0
+        self.turn_played = -1
+        self.turn_drawn = -1
+        self.dormant = bool(self.data.tags.get(GameTag.DORMANT, False))
+        self.dormant_turns = self.data.scripts.dormant_turns
+
     def _set_zone(self, value):
         if self.zone == value:
             return
@@ -1360,25 +1467,19 @@ class Minion(Character):
         if self.zone == Zone.PLAY:
             self.log("%r is removed from the field", self)
             self.controller.field.remove(self)
-            if value not in (Zone.GRAVEYARD, Zone.SETASIDE):
-                # Back in the hand or the deck, the minion is its card again:
-                # its keywords come back and the silence is gone.
-                for attr in self.silenceable_attributes:
-                    setattr(self, attr, False)
-                self.tags.update(
-                    {
-                        tag: tag_value
-                        for tag, tag_value in self.data.tags.items()
-                        if self.tags.map.get(tag) in self.silenceable_attributes
-                    }
-                )
-                if self.silenced:
-                    self.silenced = False
-                    self._events = self.data.scripts.events[:]
+            self._needs_card_reset = True
             if self.data.tags.get(GameTag.DORMANT, False):
                 self.dormant = True
             if getattr(self.data.scripts, "dormant_turns"):
                 self.dormant_turns = getattr(self.data.scripts, "dormant_turns")
+        if value in (Zone.HAND, Zone.DECK) and (
+            self._needs_card_reset or self.zone == Zone.GRAVEYARD
+        ):
+            self._reset_card_state()
+            self._needs_card_reset = False
+        elif value == Zone.PLAY:
+            # Control changes also pass through SETASIDE, keeping board effects.
+            self._needs_card_reset = False
         super()._set_zone(value)
         if self.zone == Zone.PLAY and self.has_colossal:
             self.game.cheat_action(self, self.get_actions("colossal"))
@@ -1489,8 +1590,14 @@ class Secret(Spell):
 
     @property
     def events(self):
+        if self.zone == Zone.SECRET and self.controller.cant_reveal_secrets:
+            return []
         ret = super().events
-        if self.zone == Zone.SECRET and not self.exhausted:
+        if (
+            self.zone == Zone.SECRET
+            and not self.exhausted
+            and not self.controller.cant_reveal_secrets
+        ):
             ret += self.data.scripts.secret
         return ret
 
@@ -1642,6 +1749,7 @@ class Enchantment(BaseCard):
     def __init__(self, data):
         self.one_turn_effect = False
         self.additional_deathrattles = []
+        self.store_card = []
         super().__init__(data)
 
     @property
@@ -1720,8 +1828,7 @@ class Weapon(rules.WeaponRules, LiveEntity):
 
     @property
     def max_durability(self):
-        ret = self._max_durability
-        ret += self._getattr("max_health", 0)
+        ret = self._getattr("max_health", self._max_durability)
         return max(0, ret)
 
     @max_durability.setter
@@ -1889,3 +1996,70 @@ class HeroPower(PlayableCard):
         if self.passive_hero_power:
             return False
         return super().is_playable()
+
+
+class Location(PlayableCard):
+    health_attribute = "durability"
+
+    def __init__(self, data):
+        self.durability = 0
+        self.cooldown = 0
+        super().__init__(data)
+        self.durability = data.tags.get(GameTag.HEALTH, 0)
+
+    @property
+    def exhausted(self):
+        return self.cooldown > 0
+
+    @property
+    def requirements(self):
+        if self.zone == Zone.PLAY:
+            return self._requirements
+        return {}
+
+    @requirements.setter
+    def requirements(self, value):
+        self._requirements = value
+
+    def is_summonable(self):
+        summonable = super().is_summonable()
+        if len(self.controller.field) >= self.game.MAX_MINIONS_ON_FIELD:
+            return False
+        return summonable
+
+    def is_usable(self):
+        if (
+            self.zone != Zone.PLAY
+            or self.exhausted
+            or not self.controller.current_player
+            or self.controller.choice
+        ):
+            return False
+        return not self.requires_target() or bool(self.play_targets)
+
+    def _set_zone(self, value):
+        if self.zone == value:
+            return
+        if value == Zone.PLAY:
+            if self._summon_index is not None:
+                self.controller.field.insert(self._summon_index, self)
+            else:
+                self.controller.field.append(self)
+        if self.zone == Zone.PLAY:
+            self.log("%r is removed from the field", self)
+            self.controller.field.remove(self)
+        super()._set_zone(value)
+
+    def activate(self, target=None):
+        if not self.is_usable():
+            raise InvalidAction("%r can't be used." % self)
+        if self.requires_target() and target not in self.play_targets:
+            raise InvalidAction("%r is not a valid target for %r." % (target, self))
+        return self.game.queue_actions(
+            self.controller, [actions.ActivateLocation(self, target)]
+        )
+
+    def use(self, target=None):
+        if not self.is_usable():
+            raise InvalidAction("%r can't be used." % (self))
+        return self.activate(target)

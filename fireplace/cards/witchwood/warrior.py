@@ -91,7 +91,7 @@ class GIL_653:
     """Woodcutter's Axe"""
 
     # <b>Deathrattle:</b> Give +2/+1 to a random friendly <b>Rush</b> minion.
-    deathrattle = Buff(RANDOM_FRIENDLY_MINION, "GIL_653e")
+    deathrattle = Buff(RANDOM(FRIENDLY_MINIONS + RUSH), "GIL_653e")
 
 
-GIL_653e = buff(+2, +1, rush=True)
+GIL_653e = buff(+2, +1)

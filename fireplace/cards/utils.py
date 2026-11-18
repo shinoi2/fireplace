@@ -16,6 +16,19 @@ from ..dsl import *
 from ..enums import PlayReq, BoardEnum
 from ..events import *
 
+MINION_TARGET = {PlayReq.REQ_TARGET_TO_PLAY: 0, PlayReq.REQ_MINION_TARGET: 0}
+FRIENDLY_MINION_TARGET = {
+    PlayReq.REQ_TARGET_TO_PLAY: 0,
+    PlayReq.REQ_MINION_TARGET: 0,
+    PlayReq.REQ_FRIENDLY_TARGET: 0,
+}
+ENEMY_MINION_BATTLECRY = {
+    PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
+    PlayReq.REQ_MINION_TARGET: 0,
+    PlayReq.REQ_ENEMY_TARGET: 0,
+}
+
+
 # For buffs which are removed when the card is moved to play (eg. cost buffs)
 # This needs to be Summon, because of Summon from the hand
 REMOVED_IN_PLAY = Summon(ALL_PLAYERS, OWNER).after(Destroy(SELF))
@@ -41,11 +54,11 @@ GiveReborn = lambda target: SetTag(target, GameTag.REBORN)
 GiveTemporary = lambda target: SetTag(target, enums.TEMPORARY)
 
 
-CLEAVE = Hit(TARGET_ADJACENT, ATK(SELF))
+CLEAVE = Hit(ADJACENT(Attack.DEFENDER), ATK(SELF))
 COINFLIP = RandomNumber(0, 1) == 1
-EMPTY_BOARD = Count(FRIENDLY_MINIONS) == 0
+EMPTY_BOARD = Count(FRIENDLY + ALL_FIELDS) == 0
 EMPTY_HAND = Count(FRIENDLY_HAND) == 0
-FULL_BOARD = Count(FRIENDLY_MINIONS) == 7
+FULL_BOARD = Count(FRIENDLY + ALL_FIELDS) == 7
 FULL_HAND = Count(FRIENDLY_HAND) == Attr(CONTROLLER, GameTag.MAXHANDSIZE)
 HOLDING_DRAGON = Find(FRIENDLY_HAND + DRAGON - SELF)
 ELEMENTAL_PLAYED_LAST_TURN = Attr(CONTROLLER, enums.ELEMENTAL_PLAYED_LAST_TURN) > 0
@@ -55,7 +68,7 @@ TIMES_SECRETS_PLAYED_THIS_GAME = Count(CARDS_PLAYED_THIS_GAME + SECRET)
 DISCOVER = lambda *args: Discover(CONTROLLER, *args).then(
     Give(CONTROLLER, Discover.CARD)
 )
-FORCE_DRAW = lambda args: ForceDraw(CONTROLLER, RANDOM(FRIENDLY_DECK + args))
+FORCE_DRAW = lambda args: ForceDraw(RANDOM(FRIENDLY_DECK + args))
 
 BASIC_HERO_POWERS = [
     "HERO_01bp",
@@ -71,15 +84,15 @@ BASIC_HERO_POWERS = [
 ]
 
 UPGRADED_HERO_POWERS = [
-    "HERO_01bp",
-    "HERO_02bp",
-    "HERO_03bp",
-    "HERO_04bp",
-    "HERO_05bp",
-    "HERO_06bp",
-    "HERO_07bp",
-    "HERO_08bp",
-    "HERO_09bp",
+    "HERO_01bp2",
+    "HERO_02bp2",
+    "HERO_03bp2",
+    "HERO_04bp2",
+    "HERO_05bp2",
+    "HERO_06bp2",
+    "HERO_07bp2",
+    "HERO_08bp2",
+    "HERO_09bp2",
     "HERO_10bp2",
 ]
 
@@ -153,6 +166,12 @@ SOUL_FRAGMENT = "SCH_307t"
 
 SPY_GIZMO = ["SW_052t4", "SW_052t5", "SW_052t6", "SW_052t7", "SW_052t8_t"]
 
+RELICS = ["REV_943", "REV_508", "REV_834"]
+
+GARGON_COMPANION = ["REV_353t3", "REV_353t4", "REV_353t5"]
+
+WILDSEED = ["REV_360t", "REV_360t1", "REV_360t2"]
+
 RandomBasicTotem = lambda *args, **kw: RandomID(*BASIC_TOTEMS, **kw)
 RandomBasicHeroPower = lambda *args, **kw: RandomID(*BASIC_HERO_POWERS, **kw)
 RandomUpgradedHeroPower = lambda *args, **kw: RandomID(*UPGRADED_HERO_POWERS, **kw)
@@ -166,7 +185,7 @@ FORGETFUL = Attack(SELF).on(
 )
 
 AT_MAX_MANA = lambda s: MANA(s) == MAX_MANA(s)
-OVERLOADED = lambda s: (OVERLOAD_LOCKED(s) > 0) or (OVERLOAD_OWED(s) > 0)
+OVERLOADED = lambda s: OVERLOAD_LOCKED(s) + OVERLOAD_OWED(s) > 0
 CHECK_CTHUN = ATK(HIGHEST_ATK(CTHUN)) >= 10
 INVOKED_TWICE = Attr(CONTROLLER, GameTag.INVOKE_COUNTER) >= 2
 
@@ -373,8 +392,10 @@ JOUST = JoustHelper(RANDOM(FRIENDLY_DECK + MINION), RANDOM(ENEMY_DECK + MINION))
 
 JOUST_SPELL = JoustHelper(RANDOM(FRIENDLY_DECK + SPELL), RANDOM(ENEMY_DECK + SPELL))
 
-RECRUIT = Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION))
-Recruit = lambda selector: Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION + selector))
+RECRUIT = SummonRightOf(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION), None)
+Recruit = lambda selector: SummonRightOf(
+    CONTROLLER, RANDOM(FRIENDLY_DECK + MINION + selector), None
+)
 
 MAGNETIC = lambda buff: Find(RIGHT_OF(SELF) + MECH) & (
     Buff(RIGHT_OF(SELF), buff, atk=ATK(SELF), max_health=CURRENT_HEALTH(SELF)),
@@ -412,6 +433,30 @@ def buff(atk=0, health=0, **kwargs):
         tags = buff_tags
 
     return Buff
+
+
+class FixedStats:
+    atk = lambda self, i: self._xatk
+    max_health = lambda self, i: self._xhealth
+
+
+def suspicious_discover(picker):
+    return Discover(CONTROLLER, picker).then(
+        Give(CONTROLLER, Copy(Discover.CARD)),
+        lambda source, player, cards, correct: (
+            yield Choice(OPPONENT, cards).then(
+                lambda source, player, cards, chosen: (
+                    [Give(OPPONENT, Copy(chosen))] if chosen.id == correct.id else []
+                )
+            )
+        ),
+    )
+
+
+def gain_keywords(source, count, keywords):
+    available = [tag for tag in keywords if not source.tags[tag]]
+    for tag in source.game.random.sample(available, min(count, len(available))):
+        yield SetTag(SELF, tag)
 
 
 def cost_buff(cost=0, **kwargs):
@@ -513,7 +558,7 @@ class SchemeUtils:
     }
 
     class Hand:
-        events = OWN_TURN_BEGIN.on(AddProgress(SELF, SELF))
+        events = OWN_TURN_END.on(AddProgress(SELF, SELF))
 
 
 class GalakrondUtils:
@@ -563,9 +608,10 @@ class ThresholdUtils(type):
             return splited[0] + splited[1]
 
         def cardtext_entity_0(self):
-            return self.player_tag_threshold_value - getattr(
-                self.controller, self.map[self.player_tag_threshold_tag_id], 0
+            left = player_tag_threshold_value - (
+                Attr(CONTROLLER, player_tag_threshold_tag_id).evaluate(self)
             )
+            return max(left, 0)
 
         tags = {
             enums.CUSTOM_CARDTEXT: custom_cardtext,

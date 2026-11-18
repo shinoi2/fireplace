@@ -43,7 +43,7 @@ class TSC_216t:
     # [x]At the end of your turn, force a random enemy minion to attack the
     # __Blackwater Behemoth.
     events = OWN_TURN_END.on(
-        Find(FRIENDLY_MINIONS + CREATOR) & Attack(RANDOM(ENEMY_MINIONS), CREATOR)
+        Find(FRIENDLY_MINIONS + CREATOR) & Attack(RANDOM_ENEMY_MINION, CREATOR)
     )
 
 

@@ -22,11 +22,11 @@ class TSC_032e3:
     # opponent plays.@Okani will <b>Secretly</b> counter the next spell your
     # opponent plays.
     events = (
-        Play(OPPONENT, MINION).on(
+        Play(OPPONENT, MINION).before(
             FindId(STORE_CARD, "TSC_032t") & (Counter(Play.CARD), Destroy(SELF))
         ),
-        Play(OPPONENT, SPELL).on(
-            FindId(STORE_CARD, "TSC_032t") & (Counter(Play.CARD), Destroy(SELF))
+        Play(OPPONENT, SPELL).before(
+            FindId(STORE_CARD, "TSC_032t2") & (Counter(Play.CARD), Destroy(SELF))
         ),
     )
 

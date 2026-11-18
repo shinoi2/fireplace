@@ -71,12 +71,9 @@ class LOOT_187:
     requirements = {
         PlayReq.REQ_FRIENDLY_MINION_DIED_THIS_GAME: 0,
     }
-    play = (
-        Summon(CONTROLLER, Copy(RANDOM(FRIENDLY + KILLED + MINION + DEATHRATTLE))).then(
-            Buff(Summon.CARD, "LOOT_187e")
-        )
-        * 2
-    )
+    play = Summon(
+        CONTROLLER, Copy(RANDOM(FRIENDLY + KILLED + MINION + DEATHRATTLE) * 2)
+    ).then(Buff(Summon.CARD, "LOOT_187e"))
 
 
 class LOOT_187e:
@@ -94,7 +91,9 @@ class LOOT_278:
     }
     play = Buff(TARGET, "LOOT_278e")
     entourage = ["LOOT_278t1", "LOOT_278t2", "LOOT_278t3", "LOOT_278t4"]
-    draw = Morph(SELF, RandomEntourage())
+
+    class Hand:
+        update = Morph(SELF, RandomEntourage())
 
 
 LOOT_278e = buff(+2, +2)
@@ -145,7 +144,9 @@ class LOOT_278t3:
     }
     play = (
         Buff(TARGET, "LOOT_278t3e"),
-        Summon(CONTROLLER, ExactCopy(TARGET)).then(Buff(Summon.CARD, "LOOT_278t3e2")),
+        SummonRightOf(CONTROLLER, ExactCopy(TARGET), TARGET).then(
+            Buff(Summon.CARD, "LOOT_278t3e2")
+        ),
     )
 
 
@@ -174,7 +175,7 @@ class LOOT_278t4e:
         GameTag.ATK: 2,
         GameTag.HEALTH: 2,
     }
-    deathrattle = Summon(CONTROLLER, Copy(OWNER))
+    deathrattle = Give(CONTROLLER, Copy(OWNER))
 
 
 class LOOT_353:

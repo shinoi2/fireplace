@@ -37,7 +37,7 @@ class DRG_231:
     # your hand.
     powered_up = -Find(FRIENDLY_DECK + NEUTRAL)
     play = powered_up & Give(
-        CONTROLLER, RandomCollectible(card_class=CardClass.PALADIN)
+        CONTROLLER, RandomCollectible(card_class=CardClass.PALADIN) * 5
     )
 
 

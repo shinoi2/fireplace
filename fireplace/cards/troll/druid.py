@@ -41,7 +41,7 @@ class TRL_241:
 
     # After your hero attacks and_kills a minion, it may_attack again.
     events = Attack(FRIENDLY_HERO, ALL_MINIONS).after(
-        Dead(ALL_MINIONS + Attack.DEFENDER) & ExtraAttack(SELF)
+        Dead(ALL_MINIONS + Attack.DEFENDER) & ExtraAttack(FRIENDLY_HERO)
     )
 
 

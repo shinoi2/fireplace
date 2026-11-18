@@ -9,7 +9,7 @@ class DAL_546:
 
     # <b>Battlecry:</b> Add a copy of each of your other <b>Battlecry</b>
     # minions_to_your_hand.
-    play = Give(CONTROLLER, Copy(FRIENDLY_HAND + BATTLECRY + MINION))
+    play = Give(CONTROLLER, Copy(FRIENDLY_MINIONS - SELF + BATTLECRY))
 
 
 class DAL_554:

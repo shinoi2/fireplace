@@ -8,6 +8,7 @@ class DMF_064:
     """Carousel Gryphon"""
 
     # <b>Divine Shield</b> <b>Corrupt:</b> Gain +3/+3 and_<b>Taunt</b>.
+    tags = {GameTag.DIVINE_SHIELD: True}
     corrupt_card = "DMF_064t"
 
 
@@ -40,7 +41,7 @@ class DMF_237:
     )
 
 
-DMF_237e = buff(+2, +2)
+DMF_237e = buff(+1, +2)
 
 
 class DMF_240:
@@ -102,8 +103,10 @@ class DMF_236:
 
     # [x]<b>Secret:</b> When your opponent casts a spell, they instead cast a
     # random one of the same Cost.
-    secret = Play(OPPONENT, SPELL).on(
-        Reveal(SELF), CastSpell(RandomSpell(cost=COST(Play.CARD)))
+    secret = Play(OPPONENT, SPELL).before(
+        Reveal(SELF),
+        Counter(Play.CARD),
+        CastSpell(Steal(RandomSpell(cost=COST(Play.CARD)), OPPONENT)),
     )
 
 

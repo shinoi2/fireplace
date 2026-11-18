@@ -32,6 +32,7 @@ class LazyNum(LazyValue):
         return func
 
     __eq__ = _cmp("eq")
+    __ne__ = _cmp("ne")
     __ge__ = _cmp("ge")
     __gt__ = _cmp("gt")
     __le__ = _cmp("le")
@@ -54,9 +55,7 @@ class LazyNum(LazyValue):
         return ret
 
     def __floordiv__(self, other):
-        ret = copy.copy(self)
-        ret.base //= other
-        return ret
+        return BinOpAttr(self, other, operator.floordiv)
 
     def __mod__(self, other):
         return BinOpAttr(self, other, operator.mod)
@@ -109,6 +108,30 @@ class Count(LazyNum):
 
     def evaluate(self, source):
         return self.num(len(self.get_entities(source)))
+
+
+class SpellDamage(LazyNum):
+    def __init__(self, amount):
+        super().__init__()
+        self.amount = amount
+
+    def evaluate(self, source):
+        amount = self.amount
+        if isinstance(amount, LazyValue):
+            amount = amount.evaluate(source)
+        return self.num(source.controller.get_spell_damage(source, amount))
+
+
+class SpellHeal(LazyNum):
+    def __init__(self, amount):
+        super().__init__()
+        self.amount = amount
+
+    def evaluate(self, source):
+        amount = self.amount
+        if isinstance(amount, LazyValue):
+            amount = amount.evaluate(source)
+        return self.num(source.controller.get_spell_heal(source, amount))
 
 
 class Max(LazyNum):

@@ -27,6 +27,7 @@ class OG_121:
 
 
 class OG_121e:
+    tags = {GameTag.TAG_ONE_TURN_EFFECT: True}
     events = OWN_SPELL_PLAY.on(Destroy(SELF))
     update = Refresh(CONTROLLER, {GameTag.SPELLS_COST_HEALTH: True})
 
@@ -40,7 +41,7 @@ class OG_241:
 class OG_302:
     """Usher of Souls"""
 
-    events = Death(FRIENDLY_MINIONS).on(Buff(CTHUN, "OG_281e", atk=1, max_health=1))
+    events = Death(FRIENDLY + MINION).on(Buff(CTHUN, "OG_281e", atk=1, max_health=1))
 
 
 ##
@@ -50,7 +51,7 @@ class OG_302:
 class OG_116:
     """Spreading Madness"""
 
-    play = Hit(RANDOM_CHARACTER, 1) * 9
+    play = Hit(RANDOM_CHARACTER, 1) * SPELL_DAMAGE(9)
 
 
 class OG_118:

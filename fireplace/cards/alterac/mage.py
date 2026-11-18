@@ -89,7 +89,7 @@ class ONY_007:
     """Haleh, Matron Protectorate"""
 
     # After you cast a spell, deal 4 damage randomly split among all enemies.
-    events = OWN_SPELL_PLAY.after(Hit(RANDOM_ENEMY_MINION, 1) * 4)
+    events = OWN_SPELL_PLAY.after(Hit(RANDOM_ENEMY_CHARACTER, 1) * 4)
 
 
 ##
@@ -108,9 +108,7 @@ class AV_212:
     honorable_kill = Buff(FRIENDLY_HAND + SPELL, "AV_212e")
 
 
-class AV_212e:
-    cost = SET(1)
-    events = REMOVED_IN_PLAY
+AV_212e = cost_buff(-1)
 
 
 class AV_218:

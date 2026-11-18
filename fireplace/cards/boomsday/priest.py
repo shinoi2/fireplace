@@ -29,7 +29,7 @@ class BOT_509:
     """Dead Ringer"""
 
     # <b>Deathrattle:</b> Draw a <b>Deathrattle</b> minion from your deck.
-    deathrattle = ForceDraw(RANDOM(FRIENDLY_DECK + DEATHRATTLE))
+    deathrattle = FORCE_DRAW(DEATHRATTLE + MINION)
 
 
 class BOT_558:
@@ -116,7 +116,7 @@ class BOT_529:
         PlayReq.REQ_FRIENDLY_TARGET: 0,
         PlayReq.REQ_NUM_MINION_SLOTS: 1,
     }
-    play = Summon(CONTROLLER, Buff(ExactCopy(TARGET), "BOT_529e"))
+    play = SummonRightOf(CONTROLLER, Buff(ExactCopy(TARGET), "BOT_529e"), TARGET)
 
 
 class BOT_529e:

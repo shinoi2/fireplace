@@ -375,3 +375,313 @@ def test_wrathion_empty():
     game.player1.give("NEW1_023").put_on_top()
     game.player1.give("CFM_806").play()
     assert game.player1.hero.health == 30 - 1
+
+
+# WP-182 (Hearthstone, vague 23) : les cartes qui jouaient autrement que leur texte
+# (patch 21.8) ou, le texte se taisant, que hearthstone.wiki.gg.
+
+
+def _to_deck(player, card_id):
+    card = player.card(card_id)
+    card.zone = Zone.DECK
+    return card
+
+
+def test_rat_pack_summons_rats():
+    """« Summon a number of 1/1 Rats equal to this minion's Attack » : des Rats, pas des Rat Packs."""
+    game = prepare_empty_game()
+    rat_pack = game.player1.give("CFM_316").play()
+    game.player1.give("CS2_092").play(target=rat_pack)  # Blessing of Kings, 6/6
+    rat_pack.destroy()
+    assert [m.id for m in game.player1.field] == ["CFM_316t"] * 6
+    assert all(m.atk == m.health == 1 for m in game.player1.field)
+
+
+def test_sergeant_sally_hits_enemy_minions_only():
+    game = prepare_empty_game()
+    sally = game.player1.give("CFM_341").play()
+    friendly = game.player1.summon("CS2_182")
+    enemy = game.player2.summon("CS2_182")
+    game.player1.give("CS2_092").play(target=sally)  # 5/5
+    sally.destroy()
+    assert not friendly.dead and friendly.zone == Zone.PLAY
+    assert friendly.health == 5
+    assert enemy.dead
+
+
+def test_piranha_launcher_after_attacking_the_hero():
+    game = prepare_empty_game()
+    game.player1.give("CFM_337").play()
+    game.player1.hero.attack(game.player2.hero)
+    assert [m.id for m in game.player1.field] == ["CFM_337t"]
+    game.end_turn()
+    game.end_turn()
+    wisp = game.player2.summon(WISP)
+    game.player1.hero.attack(wisp)
+    assert [m.id for m in game.player1.field] == ["CFM_337t", "CFM_337t"]
+
+
+def test_cryomancer_gains_stats_if_an_enemy_is_frozen():
+    game = prepare_empty_game()
+    yeti = game.player2.summon("CS2_182")
+    cryo1 = game.player1.give("CFM_671").play()
+    assert (cryo1.atk, cryo1.health) == (5, 5)
+    game.player1.give("CS2_024").play(target=yeti)  # Frostbolt
+    game.player1.used_mana = 0
+    cryo2 = game.player1.give("CFM_671").play()
+    assert (cryo2.atk, cryo2.health) == (7, 7)
+
+
+def test_raza_needs_a_deck_without_duplicates():
+    game = prepare_empty_game()
+    _to_deck(game.player1, WISP)
+    _to_deck(game.player1, WISP)
+    game.player1.give("CFM_020").play()
+    assert game.player1.hero.power.cost == 2
+    game.end_turn()
+    _to_deck(game.player2, WISP)
+    _to_deck(game.player2, "CS2_182")
+    game.player2.give("CFM_020").play()
+    assert game.player2.hero.power.cost == 0
+
+
+def test_kazakus_superior_heart_of_fire_deals_eight():
+    """Le texte de 21.8 : « Deal $8 damage » (CFM_621t25), pas 10."""
+    game = prepare_empty_game()
+    game.player1.give("CFM_621t25").play(target=game.player2.hero)
+    assert game.player2.hero.health == 30 - 8
+
+
+def test_gadgetzan_ferryman_combo_returns_a_friendly_minion():
+    game = prepare_empty_game()
+    swarmer = game.player1.summon("CFM_691")
+    ferryman = game.player1.give("CFM_693")
+    assert not ferryman.requires_target()
+    ferryman.play()
+    assert swarmer.zone == Zone.PLAY
+    game.player1.give(THE_COIN).play()
+    ferryman2 = game.player1.give("CFM_693")
+    assert ferryman2.requires_target()
+    ferryman2.play(target=swarmer)
+    assert [c.id for c in game.player1.hand] == ["CFM_691"]
+
+
+def test_blubber_baron_grows_on_summoned_battlecry_minions():
+    """« Whenever you summon a Battlecry minion » : les deux copies de Doppelgangster comptent (wiki)."""
+    game = prepare_empty_game()
+    baron = game.player1.give("CFM_064")
+    game.player1.give("CFM_668").play()
+    assert (baron.atk, baron.health) == (1 + 3, 1 + 3)
+    game.player1.summon("CS2_189")  # Elven Archer, invoquée
+    assert (baron.atk, baron.health) == (5, 5)
+    game.player1.summon(WISP)
+    assert (baron.atk, baron.health) == (5, 5)
+
+
+def test_hidden_cache_needs_a_minion_in_hand():
+    """Le wiki : Hidden Cache ne se déclenche pas sans serviteur en main."""
+    game = prepare_empty_game()
+    game.player1.give("CFM_026").play()
+    game.end_turn()
+    game.player2.give(WISP).play()
+    assert [s.id for s in game.player1.secrets] == ["CFM_026"]
+    game.end_turn()
+    yeti = game.player1.give("CS2_182")
+    game.end_turn()
+    game.player2.give(WISP).play()
+    assert not game.player1.secrets
+    assert (yeti.atk, yeti.health) == (6, 7)
+
+
+def test_celestial_dreamer_counts_itself():
+    """Le wiki : « If the Celestial Dreamer has 5 or more Attack when played, it will satisfy its own condition »."""
+    game = prepare_empty_game()
+    dreamer = game.player1.give("CFM_617")
+    dreamer.buff(dreamer, "CFM_342e")  # +4/+4 en main, 7/7
+    dreamer.play()
+    assert (dreamer.atk, dreamer.health) == (9, 9)
+    dreamer2 = game.player1.give("CFM_617").play()
+    assert (dreamer2.atk, dreamer2.health) == (5, 5)
+
+
+def test_wrathion_stops_on_overdraw_only():
+    """Le wiki : Wrathion s'arrête quand une carte piochée brûle, dragon ou non ; une main
+    qui vient de se remplir ne l'arrête pas."""
+    game = prepare_empty_game()
+    player = game.player1
+    wisp = _to_deck(player, WISP)
+    _to_deck(player, "NEW1_023")
+    _to_deck(player, "NEW1_023")
+    for _ in range(8):
+        player.give("CS2_182")
+    player.give("CFM_806").play()
+    assert len(player.hand) == 10
+    assert not player.deck
+    assert wisp.zone not in (Zone.HAND, Zone.DECK)  # brûlée
+
+
+def test_grimscale_chum_buffs_one_random_murloc():
+    """« Give a random Murloc in your hand +1/+1 » : un seul."""
+    game = prepare_empty_game()
+    murlocs = [game.player1.give("CS2_168") for _ in range(3)]  # Murloc Raider 2/1
+    game.player1.give("CFM_650").play()
+    assert sorted((m.atk, m.health) for m in murlocs) == [(2, 1), (2, 1), (3, 2)]
+
+
+def test_finders_keepers_can_offer_itself():
+    game = prepare_empty_game()
+    game.player1.is_standard = False
+    spell = game.player1.give("CFM_313")
+    pool = RandomCollectible(card_class=CardClass.SHAMAN, overload=True).find_cards(
+        spell
+    )
+    assert "CFM_313" in pool
+    offers = [game.player1.card(id) for id in ("CFM_313", "EX1_238", "EX1_241")]
+    with mock(RandomCollectible, offers):
+        spell.play()
+    cards = game.player1.choice.cards
+    assert "CFM_313" in [c.id for c in cards]
+    assert all(c.overload for c in cards)
+    game.player1.choice.choose(offers[0])
+    assert game.player1.hand == [offers[0]]
+
+
+def test_getaway_kodo_after_the_deathrattle():
+    """Le wiki : « When Getaway Kodo triggers on a Deathrattle minion, the Deathrattle effect
+    occurs first » : Loot Hoarder pioche, puis revient en main ; main à 9, la pioche la remplit
+    et Loot Hoarder ne revient pas."""
+    game = prepare_empty_game()
+    _to_deck(game.player1, WISP)
+    game.player1.give("CFM_800").play()
+    hoarder = game.player1.summon("EX1_096")
+    game.end_turn()
+    game.player2.give(MOONFIRE).play(target=hoarder)
+    assert [c.id for c in game.player1.hand] == [WISP, "EX1_096"]
+    assert not game.player1.secrets
+
+    game = prepare_empty_game()
+    yeti = _to_deck(game.player1, "CS2_182")
+    game.player1.give("CFM_800").play()
+    hoarder = game.player1.summon("EX1_096")
+    for _ in range(9):
+        game.player1.give(WISP)
+    game.end_turn()
+    game.player2.give(MOONFIRE).play(target=hoarder)
+    assert yeti.zone == Zone.HAND
+    assert "EX1_096" not in [c.id for c in game.player1.hand]
+
+
+def test_doppelgangster_first_copy_on_the_right():
+    """The first copy goes right; with two slots the second goes left."""
+    game = prepare_empty_game()
+    for _ in range(5):
+        game.player1.summon(WISP)
+    doppel = game.player1.give("CFM_668")
+    doppel.play(index=0)
+    assert len(game.player1.field) == 7
+    assert game.player1.field[0] is doppel
+    assert game.player1.field[1].id == "CFM_668"
+
+    game2 = prepare_empty_game()
+    left = game2.player1.summon(WISP)
+    right = game2.player1.summon(WISP)
+    doppel2 = game2.player1.give("CFM_668")
+    doppel2.play(index=1)
+    field = game2.player1.field
+    assert [m.id for m in field] == [WISP, "CFM_668", "CFM_668", "CFM_668", WISP]
+    assert field[2] is doppel2
+
+
+def test_doppelgangster_copies_are_summons():
+    """Le cœur : un SummonBothSides est une invocation ; « after you summon a minion »
+    (Unlicensed Apothecary, Knife Juggler) l'entend, comme le wiki le dit d'Apothecary.
+    """
+    game = prepare_empty_game()
+    game.player1.summon("NEW1_019")  # Knife Juggler, plateau adverse vide
+    game.player1.summon("CFM_900")  # Unlicensed Apothecary : un couteau
+    assert game.player2.hero.health == 30 - 1
+    game.player1.give("CFM_668").play()
+    assert game.player1.hero.health == 30 - 3 * 5
+    assert game.player2.hero.health == 30 - 1 - 3
+
+
+def test_devolve_zero_cost_minion_becomes_a_zero_cost_minion():
+    """Le wiki : « 0-mana minions will transform into other 0-mana minions, which can include itself »."""
+    game = prepare_empty_game()
+    wisp = game.player2.summon(WISP)
+    game.player1.give("CFM_696").play()
+    assert wisp.zone != Zone.PLAY
+    assert len(game.player2.field) == 1
+    assert game.player2.field[0].cost == 0
+
+
+def test_mayor_noggenfogger_redirects_the_hero_attack():
+    """A66 (WP-182c, l'utilisateur) : le Mayor détourne aussi l'attaque du héros, à pile ou face."""
+    game = prepare_empty_game()
+    game.player1.summon("CFM_670")
+    game.player1.summon("CS2_106")  # Fiery War Axe : le héros peut attaquer
+    game.end_turn()
+    wisp = game.player2.summon(WISP)
+    game.end_turn()
+    hero = game.player1.hero
+    with mock(RandomNumber, 1):  # pile : l'attaque est détournée
+        with mock(RANDOM, wisp):
+            hero.attack(game.player2.hero)
+    assert wisp.dead
+    assert game.player2.hero.damage == 0
+    game.end_turn()
+    game.end_turn()
+    wisp2 = game.player2.summon(WISP)
+    with mock(RandomNumber, 0):  # face : l'attaque va où on l'a portée
+        hero.attack(game.player2.hero)
+    assert not wisp2.dead
+    assert game.player2.hero.damage == 3
+
+
+def test_lotus_assassin_has_stealth():
+    # WP-189c, the sweep of Skyvateer's defect: CardDefs.xml only carries a
+    # ReferencedTag STEALTH for Lotus Assassin, so the script gives the tag.
+    game = prepare_empty_game()
+    assassin = game.player1.give("CFM_634").play()
+    assert assassin.stealthed
+    game.end_turn()
+    game.end_turn()
+    wisp = game.player2.summon(WISP)
+    assassin.attack(wisp)
+    assert wisp.dead
+    assert assassin.stealthed
+
+
+def test_powered_up_reads_the_negation_of_its_condition():
+    # WP-214 : "if your deck has no duplicates" glows when it has none (check() alone
+    # answered the bare condition, so it glowed the wrong way round).
+    game = prepare_empty_game()
+    kazakus = game.player1.give("CFM_621")
+    assert kazakus.powered_up
+    _to_deck(game.player1, WISP)
+    assert kazakus.powered_up
+    _to_deck(game.player1, WISP)
+    assert not kazakus.powered_up
+
+
+def test_powered_up_gangs_conditions():
+    # WP-214 : the Battlecry conditions that glow in the hand.
+    game = prepare_empty_game(CardClass.MAGE, CardClass.WARRIOR)
+    game.player2.discard_hand()
+    cryo = game.player1.give("CFM_671")
+    promoter = game.player1.give("CFM_328")
+    chopper = game.player1.give("CFM_809")
+    hogleader = game.player1.give("CFM_810")
+    assert not cryo.powered_up
+    assert not promoter.powered_up
+    assert not hogleader.powered_up
+    assert chopper.powered_up  # the opponent's hand is empty
+    game.player2.give(WISP)
+    assert not chopper.powered_up
+    for _ in range(5):
+        game.player2.give(WISP)
+    assert hogleader.powered_up
+    game.player1.summon("CS2_186")  # War Golem, 7 Health
+    assert promoter.powered_up
+    game.player2.summon(WISP).frozen = True
+    assert cryo.powered_up

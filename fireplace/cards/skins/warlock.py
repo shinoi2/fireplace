@@ -118,6 +118,30 @@ class HERO_07ebp(HERO_07bp):
     pass
 
 
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Scullery Nemsy)"""
+
+    pass
+
+
+class HERO_07ybp(HERO_07bp):
+    """Life Tap (Jaraxxustein)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Sparkle Guardian Nemsy)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Noodle Nemsy)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -232,5 +256,29 @@ class HERO_07ebp2(HERO_07bp2):
 
 class HERO_07ebp2(HERO_07bp2):
     """Soul Tap (Sparkspinner Nemsy)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Scullery Nemsy)"""
+
+    pass
+
+
+class HERO_07ybp2(HERO_07bp2):
+    """Soul Tap (Jaraxxustein)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Sparkle Guardian Nemsy)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Noodle Nemsy)"""
 
     pass

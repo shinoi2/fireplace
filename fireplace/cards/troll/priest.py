@@ -41,7 +41,8 @@ class TRL_501:
     play = Buff(CONTROLLER, "TRL_501e")
 
 
-TRL_501e = buff(embrace_the_shadow=True)
+class TRL_501e:
+    update = Refresh(CONTROLLER, {GameTag.EMBRACE_THE_SHADOW: True})
 
 
 class TRL_502:
@@ -51,7 +52,7 @@ class TRL_502:
     # it into your deck.
     events = (
         OWN_TURN_BEGIN.on(Unstealth(SELF)),
-        Death(FRIENDLY_MINIONS).on(
+        Death(FRIENDLY + MINION).on(
             Shuffle(CONTROLLER, Buff(Copy(Death.ENTITY), "TRL_502e"))
         ),
     )

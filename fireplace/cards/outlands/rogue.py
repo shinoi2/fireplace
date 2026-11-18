@@ -10,7 +10,19 @@ class BT_188:
     # [x]After you play a <b>Secret</b>, <b>Discover</b> a <b>Secret</b> from a
     # different class.
     events = Play(CONTROLLER, SECRET).after(
-        DISCOVER(RandomSpell(card_class=ANOTHER_CLASS, secret=True))
+        DISCOVER(
+            RandomSpell(
+                card_class=FuncSelector(
+                    lambda entities, source: [
+                        card_class
+                        for card_class in CardClass
+                        if card_class not in (CardClass.INVALID, CardClass.NEUTRAL)
+                        and card_class not in Play.CARD.evaluate(source).classes
+                    ]
+                ),
+                secret=True,
+            )
+        )
     )
 
 
@@ -27,7 +39,7 @@ class BT_702:
     play = Buff(TARGET, "BT_702e")
 
 
-BT_702e = buff(atk=3, immune=True)
+BT_702e = buff(atk=3, immune=True, tag_one_turn_effect=True)
 
 
 class BT_703:

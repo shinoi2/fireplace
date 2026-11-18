@@ -2,7 +2,9 @@
 Targeting logic
 """
 
-from hearthstone.enums import CardType, Rarity, Race
+from hearthstone.enums import CardType, GameTag, Rarity, Race
+
+from . import enums
 
 from .enums import PlayReq
 
@@ -48,21 +50,32 @@ def is_valid_target(self, target, requirements=None):
         # Battlecries can never target themselves
         return False
 
-    if target.type == CardType.MINION:
-        if target.dormant:
-            return False
+    if target.type in (CardType.MINION, CardType.HERO):
         if target.dead:
             return False
         if target.stealthed and self.controller != target.controller:
             return False
         if target.immune and self.controller != target.controller:
             return False
+        if (
+            target.cant_be_targeted_by_opponent_abilities
+            and self.controller != target.controller
+            and self.type in (CardType.SPELL, CardType.HERO_POWER)
+        ):
+            return False
         if self.type == CardType.SPELL and target.cant_be_targeted_by_abilities:
             return False
         if self.type == CardType.HERO_POWER and target.cant_be_targeted_by_hero_powers:
             return False
 
-    if target.cant_be_targeted_by_opponents and self.controller != target.controller:
+    if target.type == CardType.MINION:
+        if target.dormant:
+            return False
+
+    if (
+        getattr(target, "cant_be_targeted_by_opponents", False)
+        and self.controller != target.controller
+    ):
         return False
 
     if requirements is None:
@@ -79,7 +92,16 @@ def is_valid_target(self, target, requirements=None):
         return False
 
     for req, param in requirements.items():
-        if req == PlayReq.REQ_MINION_TARGET:
+        if req == enums.REQ_TARGET_IMP:
+            if not target.data.tags.get(GameTag.IMP):
+                return False
+        elif req == PlayReq.REQ_TARGET_SILVER_HAND_RECRUIT:
+            if target.id != "CS2_101t":
+                return False
+        elif req == PlayReq.REQ_LOCATION_TARGET:
+            if target.type != CardType.LOCATION:
+                return False
+        elif req == PlayReq.REQ_MINION_TARGET:
             if target.type != CardType.MINION:
                 return False
         elif req == PlayReq.REQ_FRIENDLY_TARGET:
@@ -143,10 +165,10 @@ def is_valid_target(self, target, requirements=None):
             ):
                 return False
         elif req == PlayReq.REQ_TARGET_IF_AVAILABLE_AND_PLAYER_HEALTH_CHANGED_THIS_TURN:
-            if not target.hero_health_changed_this_turn:
+            if not self.controller.hero_health_changed_this_turn:
                 return False
         elif req == PlayReq.REQ_TARGET_IF_AVAILABLE_AND_SOUL_FRAGMENT_IN_DECK:
-            if SOUL_FRAGMENT not in target.controller.deck:
+            if not self.controller.deck.contains(SOUL_FRAGMENT):
                 return False
         elif req == PlayReq.REQ_DAMAGED_TARGET_UNLESS_COMBO:
             if not target.damage and not self.controller.combo:

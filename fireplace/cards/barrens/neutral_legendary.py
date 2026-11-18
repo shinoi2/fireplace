@@ -13,9 +13,16 @@ class BAR_080:
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
     }
-    play = Find(TARGET + FRIENDLY) & Swap(
-        TARGET, RANDOM(FRIENDLY_HAND + MINION)
-    ) | Swap(TARGET, RANDOM(ENEMY_HAND + MINION))
+
+    def play(self):
+        target = self.target
+        if target is None:
+            return
+        hand = [c for c in target.controller.hand if c.type == CardType.MINION]
+        if hand:
+            yield Swap(target, self.game.random.choice(hand))
+        else:
+            yield Bounce(target)
 
 
 class BAR_077:
@@ -129,9 +136,10 @@ class BAR_079:
                     golem.spellpower = 2
                 elif card2 == "BAR_079t14c":
                     golem.spellpower = 4
-                else:
-                    golem.data.scripts.play = card2.data.scripts.play
 
+                golem.entity_1 = card1
+                golem.entity_2 = card2
+                golem.has_battlecry = True
                 golem.tags[GameTag.CARDTEXT_ENTITY_0] = card1.description
                 golem.tags[GameTag.CARDTEXT_ENTITY_1] = card2.description
 
@@ -141,6 +149,20 @@ class BAR_079:
 
     powered_up = -Find(FRIENDLY_DECK + (COST == 4))
     play = powered_up & KazakusAction(CONTROLLER)
+
+
+class BAR_079_m1:
+    def play(self):
+        if self.entity_2:
+            yield CastSpell(self.entity_2)
+
+
+class BAR_079_m2(BAR_079_m1):
+    pass
+
+
+class BAR_079_m3(BAR_079_m1):
+    pass
 
 
 class BAR_721:
@@ -175,6 +197,7 @@ class WC_035:
 
     # [x]<b>Dormant</b> for 2 turns. While <b>Dormant</b>, add a Dream card to
     # your hand __at the end of your turn.
+    tags = {GameTag.DORMANT: True}
     dormant_turns = 2
     dormant_events = OWN_TURN_END.on(
         Give(CONTROLLER, RandomCard(card_class=CardClass.DREAM))

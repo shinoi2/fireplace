@@ -8,6 +8,7 @@ class SW_021:
     """Cowardly Grunt"""
 
     # <b>Deathrattle:</b> Summon a minion from your deck.
+    tags = {GameTag.DEATHRATTLE: True}
     deathrattle = Summon(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION))
 
 
@@ -18,7 +19,7 @@ class SW_024:
     # +3/+3.
     events = OWN_TURN_END.on(
         Find(ENEMY_MINIONS)
-        & Attack(SELF, RANDOM(ENEMY_MINIONS)).then(
+        & Attack(SELF, RANDOM_ENEMY_MINION).then(
             Dead(Attack.DEFENDER) & Buff(SELF, "SW_024e")
         )
     )
@@ -31,6 +32,7 @@ class SW_029:
     """Harbor Scamp"""
 
     # <b>Battlecry:</b> Draw a Pirate.
+    tags = {GameTag.BATTLECRY: True}
     play = ForceDraw(RANDOM(FRIENDLY_DECK + PIRATE + MINION))
 
 
@@ -45,6 +47,7 @@ class SW_093:
     """Stormwind Freebooter"""
 
     # <b>Battlecry:</b> Give your hero +2 Attack this turn.
+    tags = {GameTag.BATTLECRY: True}
     play = Buff(FRIENDLY_HERO, "SW_093e")
 
 
@@ -166,6 +169,7 @@ class SW_094:
     """Heavy Plate"""
 
     # <b>Tradeable</b> Gain 8 Armor.
+    tags = {GameTag.TRADEABLE: True}
     play = GainArmor(FRIENDLY_HERO, 8)
 
 
@@ -177,7 +181,7 @@ class DED_518:
         PlayReq.REQ_TARGET_TO_PLAY: 0,
         PlayReq.REQ_MINION_TARGET: 0,
     }
-    play = Hit(TARGET, 3), Hit(ENEMY_MINIONS - TARGET, 1)
+    play = Hit(TARGET, 3), Hit(ALL_MINIONS - TARGET, 1)
 
 
 ##

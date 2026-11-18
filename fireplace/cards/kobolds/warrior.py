@@ -15,7 +15,7 @@ class LOOT_365:
     """Gemstudded Golem"""
 
     # <b>Taunt</b> Can only attack if you have 5 or more Armor.
-    update = (ARMOR(FRIENDLY_HAND) >= 5) | Refresh(SELF, {GameTag.CANT_ATTACK: True})
+    update = (ARMOR(FRIENDLY_HERO) >= 5) | Refresh(SELF, {GameTag.CANT_ATTACK: True})
 
 
 class LOOT_367:
@@ -72,7 +72,9 @@ class LOOT_285:
     # Gain 5 Armor. Gains a bonus effect in_your hand.
     entourage = ["LOOT_285t", "LOOT_285t2", "LOOT_285t3", "LOOT_285t4"]
     play = GainArmor(FRIENDLY_HERO, 5)
-    draw = Morph(SELF, RandomEntourage())
+
+    class Hand:
+        update = Morph(SELF, RandomEntourage())
 
 
 class LOOT_285t:
@@ -110,8 +112,8 @@ class LOOT_364:
     """Reckless Flurry"""
 
     # Spend all your Armor. Deal that much damage to all minions.
-    play = GainArmor(FRIENDLY_HERO, -ARMOR(FRIENDLY_HERO)).then(
-        Hit(ALL_MINIONS, -GainArmor.AMOUNT)
+    play = LoseArmor(FRIENDLY_HERO, ARMOR(FRIENDLY_HERO)).then(
+        Hit(ALL_MINIONS, LoseArmor.AMOUNT)
     )
 
 

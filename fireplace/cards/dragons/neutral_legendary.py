@@ -34,11 +34,15 @@ class DRG_099:
 
     # [x]<b>Battlecry:</b> Draw Galakrond. If you're already Galakrond, unleash a
     # Devastation.
-    play = Find(GALAKROND + FRIENDLY_HERO) & (
-        Choice(CONTROLLER, ["DRG_099t1", "DRG_099t2", "DRG_099t3", "DRG_099t4"]).then(
-            Battlecry(Choice.CARD, None)
-        )
-    ) | (Find(GALAKROND + FRIENDLY_DECK) & ForceDraw(GALAKROND))
+    play = (
+        Find(GALAKROND + FRIENDLY_HERO)
+        & (
+            Choice(
+                CONTROLLER, ["DRG_099t1", "DRG_099t2", "DRG_099t3", "DRG_099t4"]
+            ).then(Battlecry(Choice.CARD, None))
+        ),
+        Find(GALAKROND + FRIENDLY_DECK) & FORCE_DRAW(GALAKROND),
+    )
 
 
 class DRG_099t1:

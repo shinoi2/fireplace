@@ -1,3 +1,5 @@
+import pytest
+
 from utils import *
 
 
@@ -90,6 +92,90 @@ def test_counterspell_wild_pyromancer():
     moonfire = game.player2.give(MOONFIRE)
     moonfire.play(target=game.player1.hero)
     assert pyromancer.health == 2
+
+
+def test_counterspell_beats_whenever_you_cast_a_spell():
+    # Patch 11.2: "Counterspell beats 'whenever' and 'after' triggers". A
+    # countered spell is not cast: none of these minions reacts to it, whether
+    # they came into play before the Counterspell or after (WP-129d, A58).
+    reactions = {
+        "NEW1_012": lambda game, minion: minion.atk,  # Mana Wyrm
+        "NEW1_026": lambda game, minion: len(game.player1.field),  # Violet Teacher
+        "EX1_095": lambda game, minion: len(game.player1.deck),  # Gadgetzan Auctioneer
+        "LOE_086": lambda game, minion: len(game.player1.field),  # Summoning Stone
+        "KAR_021": lambda game, minion: len(game.player1.field),  # Wicked Witchdoctor
+        "KAR_035": lambda game, minion: game.player1.hero.damage,  # Priest of the Feast
+    }
+    for card_id, measure in reactions.items():
+        for countered in (False, True):
+            game = prepare_game()
+            minion = game.player1.give(card_id).play()
+            game.player1.hero.damage = 5
+            game.end_turn()
+            if countered:
+                game.player2.give("EX1_287").play()
+            game.end_turn()
+            before = measure(game, minion)
+            game.player1.give(MOONFIRE).play(target=game.player2.hero)
+            after = measure(game, minion)
+            if countered:
+                assert game.player2.hero.health == 30, card_id
+                assert not game.player2.secrets, card_id
+                assert after == before, card_id
+            else:
+                assert game.player2.hero.health == 29, card_id
+                assert after != before, card_id
+
+
+@pytest.mark.parametrize("secret_id", ["EX1_287", "DMF_236", "AV_226", "AV_113t9"])
+def test_spell_interception_prevents_cast_triggers(secret_id):
+    game = prepare_empty_game()
+    wyrm = game.player1.give("NEW1_012").play()
+    game.end_turn()
+    secret = game.player2.give(secret_id).play()
+    game.end_turn()
+    spell = game.player1.give(MOONFIRE)
+    with mock(RandomCardPicker, [THE_COIN]):
+        spell.play(target=game.player2.hero)
+    assert spell.cant_play
+    assert secret.zone == Zone.GRAVEYARD
+    assert wyrm.atk == 1
+    assert game.player2.hero.health == 30
+
+
+@pytest.mark.parametrize(
+    "secret_ids",
+    [
+        ("EX1_287", "AV_226"),
+        ("AV_226", "EX1_287"),
+        ("EX1_287", "DMF_236"),
+        ("DMF_236", "EX1_287"),
+    ],
+)
+def test_only_the_first_interception_is_consumed(secret_ids):
+    game = prepare_empty_game()
+    secrets = [game.player1.give(card_id).play() for card_id in secret_ids]
+    game.end_turn()
+    for index in range(2):
+        spell = game.player2.give(MOONFIRE)
+        with mock(RandomCardPicker, [THE_COIN]):
+            spell.play(target=game.player1.hero)
+        assert spell.cant_play
+        assert secrets[index].zone == Zone.GRAVEYARD
+        if index == 0:
+            assert secrets[1].zone == Zone.SECRET
+
+
+def test_objection_prevents_minion_play_triggers():
+    game = prepare_empty_game()
+    adventurer = game.player1.give("EX1_044").play()
+    game.end_turn()
+    game.player2.give("MAW_006").play()
+    game.end_turn()
+    archer = game.player1.give("CS2_189").play(target=game.player2.hero)
+    assert archer.cant_play
+    assert adventurer.atk == 2
+    assert game.player2.hero.health == 30
 
 
 def test_dart_trap():
@@ -704,7 +790,8 @@ def test_snake_trap():
     assert len(game.player2.field) == 0
     assert game.player1.field.contains("EX1_554t")
     assert len(game.player1.field) == 3
-    assert stonetusk.health == 1
+    assert stonetusk.dead
+    assert stonetusk.damage == 1
     assert wisp.dead
 
 

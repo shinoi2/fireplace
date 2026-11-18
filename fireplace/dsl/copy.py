@@ -1,6 +1,7 @@
 from hearthstone.enums import CardType, GameTag
 
 from ..logging import log
+from ..dsl.selector import Selector
 from .lazynum import LazyValue
 
 
@@ -21,6 +22,12 @@ class Copy(LazyValue):
         """
         log.info("Creating a copy of %r", entity)
         new_entity = source.controller.card(entity.id, source)
+        new_entity.copied_from = entity
+        new_entity.copied_from_controller = entity.controller
+        new_entity.data_num_1 = entity.data_num_1
+        new_entity.data_num_2 = entity.data_num_2
+        if hasattr(entity, "infuse"):
+            new_entity.infuse = entity.infuse
         if entity.custom_card:
             new_entity.custom_card = True
             new_entity.create_custom_card = entity.create_custom_card
@@ -31,8 +38,12 @@ class Copy(LazyValue):
         if isinstance(self.selector, LazyValue):
             entity = self.selector.evaluate(source)
             entities = [entity] if entity else []
-        else:
+        elif isinstance(self.selector, Selector):
             entities = self.selector.eval(source.game, source)
+        elif isinstance(self.selector, list):
+            entities = self.selector
+        else:
+            entities = [self.selector]
 
         return [self.copy(source, e) for e in entities]
 
@@ -94,7 +105,6 @@ class Teach(Copy):
         def create_custom_card(student):
             student.entity_1 = entity
             student.tags[GameTag.CARDTEXT_ENTITY_0] = entity.data.name
-            student.tags[GameTag.OVERLOAD] = entity.tags[GameTag.OVERLOAD]
             student.requirements = entity.requirements
 
         student.create_custom_card = create_custom_card

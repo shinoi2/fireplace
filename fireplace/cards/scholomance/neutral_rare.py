@@ -15,7 +15,13 @@ class SCH_146:
     """Robes of Protection"""
 
     # Your minions have "Can't be targeted by spells or Hero Powers."
-    update = Refresh(FRIENDLY_MINIONS, {GameTag.CANT_BE_TARGETED_BY_SPELLS: True})
+    update = Refresh(
+        FRIENDLY_MINIONS,
+        {
+            GameTag.CANT_BE_TARGETED_BY_SPELLS: True,
+            GameTag.CANT_BE_TARGETED_BY_HERO_POWERS: True,
+        },
+    )
 
 
 class SCH_713:

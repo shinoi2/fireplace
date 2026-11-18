@@ -20,7 +20,7 @@ class LOOT_118:
     """Ebon Dragonsmith"""
 
     # <b>Battlecry:</b> Reduce the Cost of a random weapon in your hand by (2).
-    play = Buff(RANDOM(FRIENDLY_HAND + MINION), "LOOT_118e")
+    play = Buff(RANDOM(FRIENDLY_HAND + WEAPON), "LOOT_118e")
 
 
 class LOOT_118e:
@@ -33,8 +33,9 @@ class LOOT_124:
 
     # <b>Battlecry:</b> If you control no other minions, gain <b>Taunt</b> and <b>Divine
     # Shield</b>.
-    play = Find(FRIENDLY_MINIONS - SELF) | Buff(SELF, "LOOT_124e"), GiveDivineShield(
-        SELF
+    play = Find(FRIENDLY_MINIONS - SELF) | (
+        Buff(SELF, "LOOT_124e"),
+        GiveDivineShield(SELF),
     )
 
 

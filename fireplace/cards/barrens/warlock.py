@@ -29,6 +29,7 @@ class BAR_916:
 
     # [x]<b>Lifesteal</b>. <b>Battlecry:</b> If your deck contains 10 or fewer
     # cards, deal 6 damage to a minion.
+    tags = {GameTag.BATTLECRY: True}
     requirements = {
         PlayReq.REQ_MINION_TARGET: 0,
         PlayReq.REQ_TARGET_IF_AVAILABLE_AND_DECK_LESS_OR_EQUAL: 10,
@@ -41,7 +42,7 @@ class BAR_917:
 
     # [x]<b>Taunt</b> Costs (1) while your deck has 10 or fewer cards.
     class Hand:
-        update = (Count(FRIENDLY_DECK) <= 10) & Refresh(SELF, {GameTag.COST: SET(0)})
+        update = (Count(FRIENDLY_DECK) <= 10) & Refresh(SELF, {GameTag.COST: SET(1)})
 
 
 class BAR_918:
@@ -64,11 +65,13 @@ class BAR_919:
 
     # <b>Battlecry:</b> If your deck is empty, open a portal that fills your
     # board with 3/2 Imps each turn.
+    tags = {GameTag.BATTLECRY: True}
     play = (Count(FRIENDLY_DECK) == 0) & Summon(CONTROLLER, "BAR_919t")
 
 
 class BAR_919t:
-    events = OWN_TURN_END.on(SummonBothSides(CONTROLLER, "BAR_914t3") * 7)
+    tags = {GameTag.DORMANT: True}
+    dormant_events = OWN_TURN_END.on(SummonBothSides(CONTROLLER, "BAR_914t3") * 7)
 
 
 class WC_023:
@@ -103,8 +106,9 @@ class BAR_911:
 
     # [x]Deal $5 damage to all minions. Destroy a card in your deck for each
     # killed.
-    play = Hit(ALL_MINIONS, 5).then(
-        Destroy(RANDOM(FRIENDLY_DECK)) * Count(ALL_MINIONS + DEAD)
+    play = (
+        Hit(ALL_MINIONS, 5),
+        Destroy(RANDOM(FRIENDLY_DECK)) * Count(ALL_MINIONS + DEAD),
     )
 
 
@@ -112,7 +116,7 @@ class BAR_913:
     """Altar of Fire"""
 
     # Destroy the top 3 cards of each deck.
-    play = Mill(CONTROLLER, 3), Mill(OPPONENT, 5)
+    play = Mill(ALL_PLAYERS) * 3
 
 
 class BAR_914:

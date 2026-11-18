@@ -16,7 +16,7 @@ class DAL_422:
 
     # <b><b>Taunt</b> Battlecry:</b> Replace your hand and deck with <b>Legendary</b>
     # minions.
-    play = Morph(FRIENDLY_HAND + FRIENDLY_DECK, RandomLegendaryMinion())
+    play = Morph(FRIENDLY_HAND | FRIENDLY_DECK, RandomLegendaryMinion())
 
 
 class DAL_561:

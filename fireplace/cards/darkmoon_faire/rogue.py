@@ -18,6 +18,7 @@ class DMF_071:
 
 
 class DMF_071e:
+    tags = {GameTag.TAG_ONE_TURN_EFFECT: True}
     cost = SET(1)
     events = REMOVED_IN_PLAY
 
@@ -56,8 +57,8 @@ class DMF_516:
 
     # <b>Battlecry:</b> <b>Discover</b> a card in your deck and draw all copies
     # of it.
-    play = Choice(CONTROLLER, RANDOM(FRIENDLY_DECK, 3)).then(
-        ForceDraw(CONTROLLER, FRIENDLY_DECK + SameId(Choice.CARD))
+    play = Choice(CONTROLLER, RANDOM(DeDuplicate(FRIENDLY_DECK), 3)).then(
+        ForceDraw(FRIENDLY_DECK + SameId(Choice.CARD))
     )
 
 
@@ -170,7 +171,7 @@ class YOP_017:
 
     # <b>Secret:</b> When your opponent draws their second card in a turn,
     # transform it into a Banana.
-    secret = Draw(OPPONENT).after(
+    secret = Draw(OPPONENT).on(
         (Attr(OPPONENT, GameTag.NUM_CARDS_DRAWN_THIS_TURN) == 2)
         & (Reveal(SELF), Morph(Draw.CARD, "EX1_014t"))
     )

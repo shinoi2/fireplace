@@ -57,7 +57,7 @@ class ULD_286:
         PlayReq.REQ_TARGET_TO_PLAY: 0,
         PlayReq.REQ_MINION_TARGET: 0,
     }
-    play = Shuffle(CONTROLLER, "ULD_286t")
+    play = Shuffle(CONTROLLER, "ULD_286t") * 3
 
 
 class ULD_286t:
@@ -70,7 +70,7 @@ class ULD_326:
     # [x]<b>Quest:</b> Add 4 cards from other classes to your hand. <b>Reward: </b>Ancient
     # Blades.
     progress_total = 4
-    quest = Give(CONTROLLER, ANOTHER_CLASS).after(AddProgress(SELF, Give.CARD))
+    quest = Give(CONTROLLER, ANOTHER_CLASS_CARD).after(AddProgress(SELF, Give.CARD))
     reward = Summon(CONTROLLER, "ULD_326p")
 
 
@@ -89,7 +89,7 @@ class ULD_328:
     """Clever Disguise"""
 
     # Add 2 random spells from another class to_your hand.
-    play = Give(CONTROLLER, RandomSpell(card_class=ANOTHER_CLASS))
+    play = Give(CONTROLLER, RandomSpell(card_class=ANOTHER_CLASS)) * 2
 
 
 class ULD_715:

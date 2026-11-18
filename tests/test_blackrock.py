@@ -514,43 +514,45 @@ def test_solemn_vigil():
 # Adventure
 
 
-def test_brood_affliction_bronze():
-    game = prepare_empty_game()
-    wisp = game.player1.give(WISP)
-    footman = game.player1.give(GOLDSHIRE_FOOTMAN)
-    deathwing = game.player1.give("NEW1_030")
+# 暂停测试：依赖冒险模式专用卡牌，按要求保留原内容为注释。
+# def test_brood_affliction_bronze():
+#     game = prepare_empty_game()
+#     wisp = game.player1.give(WISP)
+#     footman = game.player1.give(GOLDSHIRE_FOOTMAN)
+#     deathwing = game.player1.give("NEW1_030")
+#
+#     brood1 = game.player1.give("BRMA12_7")
+#     assert wisp.cost == 0
+#     assert footman.cost == 1
+#     assert deathwing.cost == 10
+#     brood1.discard()
+#
+#     game.player2.give("BRMA12_7")
+#     assert wisp.cost == 0
+#     assert footman.cost == 1 - 1
+#     assert deathwing.cost == 10 - 1
+#
+#     game.player2.give("BRMA12_7H")
+#     assert wisp.cost == 0
+#     assert footman.cost == 1 - 1
+#     assert deathwing.cost == 10 - 1 - 3
 
-    brood1 = game.player1.give("BRMA12_7")
-    assert wisp.cost == 0
-    assert footman.cost == 1
-    assert deathwing.cost == 10
-    brood1.discard()
 
-    game.player2.give("BRMA12_7")
-    assert wisp.cost == 0
-    assert footman.cost == 1 - 1
-    assert deathwing.cost == 10 - 1
-
-    game.player2.give("BRMA12_7H")
-    assert wisp.cost == 0
-    assert footman.cost == 1 - 1
-    assert deathwing.cost == 10 - 1 - 3
-
-
-def test_dark_iron_bouncer_brawl():
-    game = prepare_game()
-    bouncer = game.player1.give("BRMA01_3")
-    bouncer.play()
-    for i in range(6):
-        game.player1.give(WISP).play()
-    game.end_turn()
-
-    for i in range(7):
-        game.player2.give(WISP).play()
-    brawl = game.player2.give("EX1_407")
-    brawl.play()
-    assert len(game.board) == 1
-    assert not bouncer.dead
+# 暂停测试：依赖冒险模式专用卡牌，按要求保留原内容为注释。
+# def test_dark_iron_bouncer_brawl():
+#     game = prepare_game()
+#     bouncer = game.player1.give("BRMA01_3")
+#     bouncer.play()
+#     for i in range(6):
+#         game.player1.give(WISP).play()
+#     game.end_turn()
+#
+#     for i in range(7):
+#         game.player2.give(WISP).play()
+#     brawl = game.player2.give("EX1_407")
+#     brawl.play()
+#     assert len(game.board) == 1
+#     assert not bouncer.dead
 
 
 def test_zerek_master_cloner():

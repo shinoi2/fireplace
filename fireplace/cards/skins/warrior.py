@@ -124,6 +124,24 @@ class HERO_01vbp(HERO_01bp):
     pass
 
 
+class HERO_01wbp(HERO_01bp):
+    """Armor Up! (Prince Renathal)"""
+
+    pass
+
+
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Garrosh the Chained)"""
+
+    pass
+
+
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Goulash Garrosh)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -244,5 +262,23 @@ class HERO_01dbp2(HERO_01bp2):
 
 class HERO_01vbp2(HERO_01bp2):
     """Tank Up! (Sire Denathrius)"""
+
+    pass
+
+
+class HERO_01wbp2(HERO_01bp2):
+    """Tank Up! (Prince Renathal)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Garrosh the Chained)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Goulash Garrosh)"""
 
     pass

@@ -64,7 +64,7 @@ class EX1_573:
     choose = ("EX1_573a", "EX1_573b")
     play = ChooseBoth(CONTROLLER) & (
         Buff(FRIENDLY_MINIONS - SELF, "EX1_573ae"),
-        Summon(CONTROLLER, "EX1_573t") * 2,
+        SummonBothSides(CONTROLLER, "EX1_573t") * 2,
     )
 
 

@@ -9,6 +9,7 @@ class BAR_316:
 
     # [x]<b>Battlecry:</b> Deal 2 damage. If this entered your hand _this turn,
     # deal 4 instead.
+    requirements = {PlayReq.REQ_TARGET_IF_AVAILABLE: 0}
     play = Find(DRAWN_THIS_TURN + SELF) & Hit(TARGET, 4) | Hit(TARGET, 2)
 
 
@@ -49,14 +50,14 @@ class BAR_552:
 class BAR_552e:
     tags = {GameTag.TAG_ONE_TURN_EFFECT: True}
     update = Refresh(FRIENDLY_HAND, {GameTag.COST: -3})
-    events = Play(CONTROLLER, (BATTLECRY | COMBO)).after(
+    events = Play(CONTROLLER, -CREATOR).after(
         Destroy(SELF), Buff(CONTROLLER, "BAR_552o")
     )
 
 
 class BAR_552o:
     update = Refresh(FRIENDLY_HAND, {GameTag.COST: -3})
-    events = Play(CONTROLLER, (BATTLECRY | COMBO)).after(Destroy(SELF))
+    events = Play(CONTROLLER, -CREATOR).after(Destroy(SELF))
 
 
 class WC_015:
@@ -146,7 +147,7 @@ class BAR_323:
 class BAR_323e:
     cost = SET(0)
     events = Activate(FRIENDLY_HERO_POWER).after(
-        (Attr(FRIENDLY_HERO_POWER, "activations_this_game") >= 2)
+        (Attr(FRIENDLY_HERO_POWER, "activations_this_game") >= 1)
         & (Summon(CONTROLLER, ExactCopy(STORE_CARD)), Destroy(SELF))
     )
 
@@ -155,12 +156,7 @@ class WC_016:
     """Shroud of Concealment"""
 
     # Draw 2 minions. Any played this turn gain <b>Stealth</b> for 1 turn.
-    play = (
-        ForceDraw(CONTROLLER, RANDOM(FRIENDLY_DECK + MINION)).then(
-            Buff(ForceDraw.TARGET, "WC_016e")
-        )
-        * 2
-    )
+    play = FORCE_DRAW(MINION).then(Buff(ForceDraw.TARGET, "WC_016e")) * 2
 
 
 class WC_016e:

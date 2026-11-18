@@ -47,7 +47,7 @@ class LOOT_079:
 
     # <b>Secret:</b> When an enemy attacks your hero, summon a 3-Cost minion as the new
     # target.
-    secret = Attack(ENEMY_MINIONS, FRIENDLY_HERO).on(
+    secret = Attack(ENEMY_CHARACTERS, FRIENDLY_HERO).on(
         Reveal(SELF),
         Retarget(Attack.ATTACKER, Summon(CONTROLLER, RandomMinion(cost=3))),
     )
