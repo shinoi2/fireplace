@@ -143,9 +143,7 @@ class ICC_827t:
 class ICC_827e:
     class Hand:
         events = (
-            Play(CONTROLLER).on(
-                Morph(OWNER, ExactCopy(Play.CARD)).then(Buff(Morph.CARD, "ICC_827e"))
-            ),
+            Play(CONTROLLER).on(Morph(OWNER, ExactCopy(Play.CARD))),
             OWN_TURN_END.on(Destroy(OWNER)),
         )
         update = Find(FRIENDLY_HERO_POWER + ID("ICC_827p")) | Destroy(OWNER)

@@ -350,7 +350,14 @@ def test_headmaster_kelthuzad_summons_both_sides_dead():
 
 def test_jandice_barov_marks_one_of_the_two_minions_summoned():
     game = _game(CardClass.ROGUE)
-    game.player1.give("SCH_351").play()
+    picks = iter(("CS2_150", "CS2_187"))
+
+    def pick_minion(picker, source):
+        assert picker.filters["cost"] == 5
+        return [source.controller.card(next(picks), source=source)]
+
+    with mock(RandomMinion, pick_minion):
+        game.player1.give("SCH_351").play()
     summoned = game.player1.field[1:]
     assert len(summoned) == 2
     for minion in summoned:
@@ -444,7 +451,8 @@ def test_studies_reduce_the_discovered_card_and_the_next_one():
     )
     for card_id, card_class, sample in studies:
         game = _game(card_class)
-        game.player1.give(card_id).play()
+        with mock(RandomMinion, [sample]):
+            game.player1.give(card_id).play()
         game.player1.choice.choose(game.player1.choice.cards[0])
         discovered = game.player1.hand[0]
         first = game.player1.give(sample)

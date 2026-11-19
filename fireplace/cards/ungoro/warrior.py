@@ -91,8 +91,6 @@ class UNG_929:
 
 class UNG_929e:
     class Hand:
-        events = OWN_TURN_BEGIN.on(
-            Morph(OWNER, RandomWeapon()).then(Buff(Morph.CARD, "UNG_929e"))
-        )
+        events = OWN_TURN_BEGIN.on(Morph(OWNER, RandomWeapon()))
 
     events = REMOVED_IN_PLAY

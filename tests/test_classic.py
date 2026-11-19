@@ -1211,8 +1211,7 @@ def test_earth_shock():
 
 
 def test_elite_tauren_chieftain():
-    game = prepare_game()
-    game.player1.discard_hand()
+    game = prepare_empty_game()
     game.player2.discard_hand()
     assert len(game.player1.hand) == 0
     assert len(game.player2.hand) == 0
@@ -2331,8 +2330,7 @@ def test_mindgames():
 
 
 def test_mind_vision():
-    game = prepare_game()
-    game.player1.discard_hand()
+    game = prepare_empty_game()
     game.player2.discard_hand()
 
     # play mind vision, should give nothing
@@ -2342,6 +2340,7 @@ def test_mind_vision():
 
     # opponent draws a card, mind vision should get that one card
     assert len(game.player1.hand) == len(game.player2.hand) == 0
+    game.player2.give(WISP).shuffle_into_deck()
     card = game.player2.draw()
     assert len(game.player1.hand) == 0
     assert len(game.player2.hand) == 1

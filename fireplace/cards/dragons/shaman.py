@@ -19,11 +19,7 @@ class DRG_096:
 
 class DRG_096e:
     class Hand:
-        events = OWN_TURN_BEGIN.on(
-            Morph(OWNER, RandomLegendaryMinion()).then(
-                MultiBuff(Morph.CARD, ["DRG_096e", "DRG_096e2"])
-            )
-        )
+        events = OWN_TURN_BEGIN.on(Morph(OWNER, RandomLegendaryMinion()))
 
     events = REMOVED_IN_PLAY
 

@@ -1,6 +1,6 @@
 from fireplace.exceptions import GameOver
 from fireplace.managers import BaseObserver
-from fireplace.utils import play_turn, setup_game
+from fireplace.utils import play_turn
 from full_game import test_full_game
 from utils import *
 
@@ -251,7 +251,14 @@ def test_observer():
                 }
 
     try:
-        game = setup_game()
+        deck = [WISP, "CS2_182", FIREBALL] * 10
+        game = Game(
+            players=(
+                Player("Player1", deck[:], CardClass.MAGE.default_hero),
+                Player("Player2", deck[:], CardClass.MAGE.default_hero),
+            )
+        )
+        game.start()
         game.manager.register(Manager(game))
         for player in game.players:
             log.info("Can mulligan %r" % (player.choice.cards))

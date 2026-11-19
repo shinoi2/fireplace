@@ -1792,7 +1792,13 @@ class Morph(TargetedAction):
             card._summon_index = target.zone_position
             # In-place morph is OK, eg. in the case of Lord Jaraxxus
             card.zone = target_zone
-        target.clear_buffs()
+        if target_zone == Zone.HAND:
+            for buff in target.buffs:
+                buff.owner = card
+            card.buffs[:0] = target.buffs
+            target.buffs.clear()
+        else:
+            target.clear_buffs()
         target.zone = Zone.SETASIDE
         target.morphed = card
         card.cards_played_when_holding = target.cards_played_when_holding[:]
@@ -2725,7 +2731,6 @@ class Corrupt(TargetedAction):
         corrupt_card = self.get_corrupt_card(source, target)
         if not corrupt_card:
             return
-        copy_buffs(source, target, corrupt_card)
         source.game.queue_actions(source, [Morph(target, corrupt_card)])
         source.game.manager.targeted_action(self, source, target)
         return corrupt_card
@@ -2879,7 +2884,8 @@ class Infuse(TargetedAction):
         if not infuse_card:
             return
         log.info("Infusing target: %s morphing into: %s", target, infuse_card)
-        copy_buffs(source, target, infuse_card)
+        if target.zone != Zone.HAND:
+            copy_buffs(source, target, infuse_card)
         source.game.queue_actions(source, [Morph(target, infuse_card)])
         source.game.manager.targeted_action(self, source, target)
 

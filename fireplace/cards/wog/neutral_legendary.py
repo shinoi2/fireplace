@@ -45,9 +45,7 @@ class OG_123:
 
 class OG_123e:
     class Hand:
-        events = OWN_TURN_BEGIN.on(
-            Morph(OWNER, RandomMinion()).then(Buff(Morph.CARD, "OG_123e"))
-        )
+        events = OWN_TURN_BEGIN.on(Morph(OWNER, RandomMinion()))
 
     events = REMOVED_IN_PLAY
 

@@ -71,9 +71,7 @@ class TB_Noblegarden_003e:
 
     # Transforming into random dyes: the dye keeps shifting, each turn.
     class Hand:
-        events = OWN_TURN_BEGIN.on(
-            Morph(OWNER, RandomDye).then(Buff(Morph.CARD, "TB_Noblegarden_003e"))
-        )
+        events = OWN_TURN_BEGIN.on(Morph(OWNER, RandomDye))
 
     events = REMOVED_IN_PLAY
 

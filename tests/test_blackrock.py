@@ -2,8 +2,7 @@ from utils import *
 
 
 def test_blackwing_corruptor():
-    game = prepare_game()
-    game.player1.discard_hand()
+    game = prepare_empty_game()
     blackwing1 = game.player1.give("BRM_034")
     assert not blackwing1.powered_up
     blackwing1.play()
@@ -13,7 +12,6 @@ def test_blackwing_corruptor():
     assert len(game.player1.hand) == 0
     game.end_turn()
 
-    game.player2.discard_hand()
     game.player2.give(WHELP)
     blackwing2 = game.player2.give("BRM_034")
     assert blackwing2.powered_up
@@ -22,8 +20,7 @@ def test_blackwing_corruptor():
 
 
 def test_blackwing_technician():
-    game = prepare_game()
-    game.player1.discard_hand()
+    game = prepare_empty_game()
     blackwing1 = game.player1.give("BRM_033")
     assert not blackwing1.powered_up
     blackwing1.play()

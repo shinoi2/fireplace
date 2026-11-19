@@ -528,11 +528,22 @@ def test_gormok_the_impaler():
 
 
 def test_grand_crusader():
-    game = prepare_game()
-    game.player1.discard_hand()
+    game = prepare_empty_game()
     crusader = game.player1.give("AT_118")
     assert len(game.player1.hand) == 1
-    crusader.play()
+
+    def pick_card(picker, source):
+        pool = picker.find_cards(source)
+        assert "BT_009" in pool
+        assert all(
+            fireplace.cards.db[card_id].collectible
+            and CardClass.PALADIN in fireplace.cards.db[card_id].classes
+            for card_id in pool
+        )
+        return ["BT_009"]
+
+    with mock(RandomCollectible, pick_card):
+        crusader.play()
     assert len(game.player1.hand) == 1
     card = game.player1.hand[0]
     assert CardClass.PALADIN in card.classes

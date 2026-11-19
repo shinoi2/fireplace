@@ -1133,8 +1133,8 @@ def test_tinkers_sharpsword_oil():
 
 
 def test_tinkertown_technician():
-    game = prepare_game()
-    game.player1.discard_hand()
+    game = prepare_empty_game()
+    game.player1.is_standard = False
     game.player1.give(WISP).play()
     tech = game.player1.give("GVG_102")
     assert not tech.powered_up
@@ -1175,8 +1175,7 @@ def test_tree_of_life():
 
 
 def test_unstable_portal():
-    game = prepare_game()
-    game.player1.discard_hand()
+    game = prepare_empty_game()
     portal = game.player1.give("GVG_003")
     with mock(RandomMinion, WISP):
         portal.play()

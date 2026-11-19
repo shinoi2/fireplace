@@ -37,7 +37,11 @@ def test_flightmaster_dungar_3():
 
 
 def test_gain_momentum():
-    game = prepare_game()
+    game = prepare_empty_game()
+    held_card = game.player1.give(FIREBALL)
+    drawn_cards = [game.player1.give(FIREBALL) for _ in range(5)]
+    for card in drawn_cards:
+        card.shuffle_into_deck()
     quest = game.player1.give("SW_039")
     quest.play()
     assert quest.progress == 0
@@ -49,10 +53,9 @@ def test_gain_momentum():
     assert quest2.id == "SW_039t"
     assert quest2.progress == 0
     assert quest2.zone == Zone.SECRET
-    for hand in game.player1.hand[:-5]:
-        assert hand.cost == hand.data.cost
-    for hand in game.player1.hand[-5:]:
-        assert hand.cost == max(0, hand.data.cost - 1)
+    assert held_card.cost == 4
+    assert len(game.player1.hand) == 6
+    assert all(card in game.player1.hand and card.cost == 3 for card in drawn_cards)
 
 
 def test_wickerclaw():

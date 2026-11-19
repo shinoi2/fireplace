@@ -22,12 +22,7 @@ class GIL_142:
 class GIL_142e:
     class Hand:
         events = OWN_TURN_BEGIN.on(
-            Find(ENEMY_HAND)
-            & (
-                Morph(OWNER, ExactCopy(RANDOM(ENEMY_HAND))).then(
-                    Buff(Morph.CARD, "GIL_142e")
-                )
-            )
+            Find(ENEMY_HAND) & Morph(OWNER, ExactCopy(RANDOM(ENEMY_HAND)))
         )
 
     events = REMOVED_IN_PLAY

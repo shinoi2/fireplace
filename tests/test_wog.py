@@ -11,10 +11,10 @@ def test_a_light_in_the_darkness():
         assert card.card_class in (CardClass.NEUTRAL, CardClass.PALADIN)
     choice = random.choice(game.player1.choice.cards)
     game.player1.choice.choose(choice)
-    buffhp = choice.health
-    choice.clear_buffs()
-    basehp = choice.health
-    assert buffhp == basehp + 1
+    buffed_stats = (choice.atk, choice.health)
+    (discover_buff,) = [buff for buff in choice.buffs if buff.id == "OG_311e"]
+    discover_buff.remove()
+    assert buffed_stats == (choice.atk + 1, choice.health + 1)
 
 
 def test_addled_grizzly():
@@ -740,14 +740,18 @@ def test_klaxxi_amber_weaver_gains_five_health():
     assert klaxxi.health == 5 + 5
 
 
-def test_servant_of_yogg_saron_casts_a_random_spell_of_5_or_less():
-    cast, restore = _cast_spells_recorder()
-    try:
-        for _ in range(20):
-            game = prepare_game()
-            game.player1.give("OG_087").play()
-    finally:
-        restore()
+def test_servant_of_yogg_saron_casts_a_random_spell_of_5_or_less(monkeypatch):
+    from fireplace.actions import CastSpell
+
+    cast = []
+
+    def record_cast(self, source, card, targets):
+        cast.append(card.id)
+
+    monkeypatch.setattr(CastSpell, "do", record_cast)
+    for _ in range(20):
+        game = prepare_empty_game()
+        game.player1.give("OG_087").play()
     assert len(cast) == 20
     assert all(fireplace.cards.db[id].cost <= 5 for id in cast)
     assert all(fireplace.cards.db[id].type == CardType.SPELL for id in cast)
@@ -817,8 +821,12 @@ def test_yogg_saron_keeps_casting_when_destroyed(monkeypatch):
     assert cast == ["EX1_312"] * 8
 
 
-def test_yogg_saron_does_not_count_countered_spells():
-    game = prepare_game()
+def test_yogg_saron_does_not_count_countered_spells(monkeypatch):
+    from fireplace.cards.wog import neutral_legendary
+    from fireplace.dsl.random_picker import RandomID
+
+    monkeypatch.setattr(neutral_legendary, "RandomSpell", lambda: RandomID(THE_COIN))
+    game = prepare_empty_game()
     game.end_turn()
     game.player2.give("EX1_287").play()
     game.end_turn()
@@ -830,7 +838,7 @@ def test_yogg_saron_does_not_count_countered_spells():
         game.player1.give("OG_134").play()
     finally:
         restore()
-    assert len(cast) == 1
+    assert cast == [THE_COIN]
 
 
 def test_nzoth_picks_at_random_when_there_is_no_room():

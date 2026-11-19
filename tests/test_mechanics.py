@@ -681,6 +681,32 @@ def test_morph():
     assert len(game.current_player.opponent.hand) == 1
 
 
+def test_hand_morph_keeps_buffs():
+    game = prepare_empty_game()
+    player = game.player1
+    original = player.give(WISP)
+    buff = original.buff(original, "CS2_188o", atk=2, max_health=1, cost=-1)
+
+    original.morph("CS2_182")
+    transformed = original.morphed
+    assert transformed in player.hand
+    assert not original.buffs
+    assert buff.owner is transformed
+    assert (transformed.atk, transformed.health, transformed.cost) == (6, 6, 3)
+
+    transformed.morph("CS2_182")
+    transformed = transformed.morphed
+    assert transformed.buffs == [buff]
+    assert (transformed.atk, transformed.health, transformed.cost) == (6, 6, 3)
+
+    player.max_mana = 10
+    transformed.play()
+    assert transformed.buffs == [buff]
+    transformed.morph("CS2_tk1")
+    assert not transformed.morphed.buffs
+    assert buff.zone == Zone.REMOVEDFROMGAME
+
+
 def test_mulligan():
     # Create and start a game but do not perform the mulligan yet
     game = init_game(game_class=Game)

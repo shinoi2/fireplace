@@ -10,6 +10,9 @@ def test_duskhaven_hunter():
     game.skip_turn()
     assert game.player1.hand[0].atk == 10
     assert game.player1.hand[0].health == 4
+    game.skip_turn()
+    assert game.player1.hand[0].atk == 4
+    assert game.player1.hand[0].health == 10
 
 
 def test_echo():

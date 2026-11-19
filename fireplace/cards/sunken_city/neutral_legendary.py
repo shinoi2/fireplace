@@ -96,11 +96,7 @@ class TSC_641tae:
 
     # Transforming into your spells.
     class Hand:
-        events = Play(CONTROLLER).after(
-            Morph(OWNER, Copy(Play.CARD)).then(
-                Buff(Morph.CARD, "TSC_641tae"), Buff(Morph.CARD, "TSC_641tde")
-            )
-        )
+        events = Play(CONTROLLER).after(Morph(OWNER, Copy(Play.CARD)))
 
 
 class TSC_649:

@@ -420,7 +420,10 @@ def test_cerathine_fleetrunner_replaces_the_minions_with_ones_of_other_classes()
         assert any(
             cls not in (CardClass.ROGUE, CardClass.NEUTRAL) for cls in card.classes
         )
-        assert card.cost == max(0, card.data.cost - 2)
+        (discount,) = [buff for buff in card.buffs if buff.id == "AV_403e2"]
+        discounted_cost = card.cost
+        discount.remove()
+        assert discounted_cost == max(0, card.cost - 2)
 
 
 def test_reconnaissance_discovers_a_deathrattle_minion_of_another_class():
@@ -648,10 +651,19 @@ def test_tamsins_phylactery_gives_your_minions_the_deathrattle_of_a_dead_one():
 
 def test_si7_smuggler_summons_a_minion_that_costs_more_for_each_other_si7_card():
     game = prepare_empty_game(CardClass.ROGUE, CardClass.ROGUE)
-    game.player1.give("ONY_030").play()
-    assert len(game.player1.field) == 2
-    assert game.player1.field[1].data.cost == 1
-    game.player1.give("ONY_030").play()  # one other SI:7 card played: a 2-Cost
+    game.player1.is_standard = False
+    picks = iter((GOLDSHIRE_FOOTMAN, "CS2_120"))
+
+    def pick_minion(picker, source):
+        card_id = next(picks)
+        assert card_id in picker.find_cards(source)
+        return [card_id]
+
+    with mock(RandomMinion, pick_minion):
+        game.player1.give("ONY_030").play()
+        assert len(game.player1.field) == 2
+        assert game.player1.field[1].data.cost == 1
+        game.player1.give("ONY_030").play()
     assert len(game.player1.field) == 4
     assert game.player1.field[-1].data.cost == 2
 

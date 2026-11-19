@@ -413,7 +413,8 @@ def test_miniature_warfare():
                 assert "TB_Mini_1e" in [b.id for b in card.buffs]
             elif card.id == FIREBALL:
                 assert card.cost == 4
-    yeti = game.player1.hand.filter(id="CS2_182")[0]
+    yeti = game.player1.give("CS2_182")
+    assert _mini(yeti)
     yeti.play()
     assert _mini(yeti)
     tidehunter = game.player1.give("EX1_506")  # Battlecry: summon a 2/1 Murloc Scout
@@ -519,10 +520,18 @@ def test_wacky_waxy_large_waxy_gift():
     # Large Waxy Gift: "Deathrattle: Add a random Legendary minion to your
     # opponent's hand. It costs (3) less."
     game = prepare_empty_game()
+    game.player1.is_standard = False
     gift = game.player1.summon("TB_KoboldGiftMinion")
     assert (gift.atk, gift.health) == (0, 4)
     hand1, hand2 = len(game.player1.hand), len(game.player2.hand)
-    gift.destroy()
+
+    def pick_legendary(picker, source):
+        pool = picker.find_cards(source)
+        assert "EX1_016" in pool and WISP not in pool
+        return ["EX1_016"]
+
+    with mock(RandomLegendaryMinion, pick_legendary):
+        gift.destroy()
     assert len(game.player1.hand) == hand1
     assert len(game.player2.hand) == hand2 + 1
     legend = game.player2.hand[-1]

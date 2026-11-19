@@ -55,6 +55,7 @@ BLACKLIST = (
     "KAR_205",  # Silverware Golem
     "UNG_836",  # Clutchmother Zavas
     "TRL_252",  # High Priestess Jeklik
+    "CORE_TRL_252",
     "DRG_056",  # Parachute Brigand
     "DAL_185",  # Aranasi Broodmother
     "OG_123",  # Shifter Zerus
@@ -79,6 +80,18 @@ BLACKLIST = (
     "TSC_962",
     "TSC_660",
     "REV_018",  # Prince Renathal
+    "SW_448",
+    "SW_050",
+    "BAR_034",
+    "BAR_044",
+    "BAR_305",
+    "BAR_314",
+    "BAR_319",
+    "BAR_536",
+    "BAR_842",
+    "BAR_880",
+    "BAR_891",
+    "BAR_914",
 )
 
 _draftcache = {}

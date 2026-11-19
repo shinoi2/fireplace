@@ -36,7 +36,6 @@ class DMF_124t:
 
         card.create_custom_card = create_custom_card
         card.create_custom_card(card)
-        copy_buffs(self.controller, self, card)
         return card
 
 

@@ -66,9 +66,7 @@ class BOT_434e:
 
     class Hand:
         events = Play(CONTROLLER, MINION).after(
-            Morph(OWNER, Copy(Play.CARD)).then(
-                MultiBuff(Morph.CARD, ["BOT_434e", "BOT_434e2"])
-            )
+            Morph(OWNER, Copy(Play.CARD))
         )
 
 

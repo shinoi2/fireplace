@@ -734,11 +734,13 @@ def test_guidance_both_spells_with_overload():
 
 def test_guidance_one_spell_without_overload():
     game = prepare_empty_game(CardClass.DRUID, CardClass.DRUID)
+    game.player1.max_mana = 4
     game.player1.give("YOP_024").play()
     choice = game.player1.choice
     spell = choice.cards[0]
     choice.choose(spell)
     assert list(game.player1.hand) == [spell]
+    assert game.player1.overloaded == 0
 
 
 def test_guidance_spells_are_weighted_toward_the_hero_class():
@@ -1480,12 +1482,10 @@ def test_redscale_dragontamer_draws_a_dragon():
 def test_snack_run_heals_by_the_cost():
     game = prepare_empty_game()
     game.player1.hero.set_current_health(10)
-    game.player1.give("DMF_195").play()
-    # A ranked spell (Barrens) changes on reaching the hand: pick another.
+    with mock(RandomSpell, [game.player1.card("CS2_093")]):
+        game.player1.give("DMF_195").play()
     choice = game.player1.choice
-    picked = next(
-        (c for c in choice.cards if "Rank" not in c.data.name), choice.cards[0]
-    )
+    (picked,) = choice.cards
     cost = picked.cost
     choice.choose(picked)
     assert game.player1.hero.health == min(30, 10 + cost)

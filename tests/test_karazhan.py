@@ -490,16 +490,23 @@ def test_protect_the_king():
 
 
 def test_maelstrom_portal():
-    game = prepare_game()
+    game = prepare_empty_game()
+    game.player2.is_standard = False
     game.player1.give(WISP).play()
     game.end_turn()
     assert len(game.player1.field) == 1
     assert len(game.player2.field) == 0
 
-    game.player2.give("KAR_073").play()
+    def pick_minion(picker, source):
+        pool = picker.find_cards(source)
+        assert GOLDSHIRE_FOOTMAN in pool and WISP not in pool
+        return [GOLDSHIRE_FOOTMAN]
+
+    with mock(RandomMinion, pick_minion):
+        game.player2.give("KAR_073").play()
     assert len(game.player1.field) == 0
     assert len(game.player2.field) == 1
-    assert game.player2.field[0].cost == 1
+    assert game.player2.field[0].id == GOLDSHIRE_FOOTMAN
 
 
 def test_moonglade_portal():
@@ -671,8 +678,7 @@ def test_cat_trick_full_board():
 
 def test_babbling_book_mage_spell():
     for _ in range(20):
-        game = prepare_game(CardClass.WARRIOR, CardClass.WARRIOR)
-        game.player1.discard_hand()
+        game = prepare_empty_game(CardClass.WARRIOR, CardClass.WARRIOR)
         game.player1.give("KAR_009").play()
         spell = game.player1.hand[0]
         assert spell.type == CardType.SPELL
@@ -714,15 +720,23 @@ def test_atiesh_after_the_spell():
 
 def test_atiesh_final_cost():
     # The final Cost of the spell, Sorcerer's Apprentice included.
-    game = prepare_game()
+    game = prepare_empty_game()
+    game.player1.is_standard = False
     game.player1.give("KAR_097").play()
     game.end_turn()
     game.end_turn()
     game.player1.give("EX1_608").play()
     frostbolt = game.player1.give("CS2_024")
     assert frostbolt.cost == 1
-    frostbolt.play(target=game.player2.hero)
-    assert game.player1.field[-1].cost == 1
+
+    def pick_minion(picker, source):
+        pool = picker.find_cards(source)
+        assert GOLDSHIRE_FOOTMAN in pool and WISP not in pool
+        return [GOLDSHIRE_FOOTMAN]
+
+    with mock(RandomMinion, pick_minion):
+        frostbolt.play(target=game.player2.hero)
+    assert game.player1.field[-1].id == GOLDSHIRE_FOOTMAN
     assert game.player1.weapon.durability == 2
 
 
@@ -811,7 +825,8 @@ def test_ivory_knight_heals_the_base_cost():
     game.player2.give("FP1_030").play()  # Loatheb
     game.end_turn()
     game.player1.hero.set_current_health(1)
-    game.player1.give("KAR_057").play()
+    with mock(RandomSpell, [game.player1.card("CS2_093")]):
+        game.player1.give("KAR_057").play()
     choice = game.player1.choice.cards[0]
     base = fireplace.cards.db[choice.id].cost
     game.player1.choice.choose(choice)

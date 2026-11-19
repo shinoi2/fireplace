@@ -174,12 +174,15 @@ def test_tentacled_manace():
     game = prepare_empty_game()
     game.player1.give("DRG_084").play()
 
-    game = prepare_game()
-    card1_cost = game.player1.deck[-1].cost
-    card2_cost = game.player2.deck[-1].cost
+    card1 = game.player1.give("CS2_182")
+    card2 = game.player2.give("CS2_186")
+    card1.shuffle_into_deck()
+    card2.shuffle_into_deck()
+    card1_cost = card1.cost
+    card2_cost = card2.cost
     game.player1.give("DRG_084").play()
-    assert game.player1.hand[-1].cost == card2_cost
-    assert game.player2.hand[-1].cost == card1_cost
+    assert card1 in game.player1.hand and card1.cost == card2_cost
+    assert card2 in game.player2.hand and card2.cost == card1_cost
 
 
 def test_kronx_dragonhoof_draw_galakrond():
@@ -415,12 +418,14 @@ def test_blowtorch_saboteur_makes_the_next_hero_power_cost_three():
 
 
 def test_bandersmosh_becomes_a_5_5_each_turn():
-    game = prepare_empty_game(CardClass.SHAMAN, CardClass.MAGE)
+    game = prepare_empty_game(CardClass.SHAMAN, CardClass.SHAMAN)
     game.player1.give("DRG_096")
-    for _ in range(2):
-        game.skip_turn()
+    for legendary in ("EX1_572", "EX1_563"):
+        with mock(RandomLegendaryMinion, [legendary]):
+            game.skip_turn()
         card = game.player1.hand[0]
-        assert card.id != "DRG_096"
+        assert card.id == legendary
+        assert card.rarity == Rarity.LEGENDARY
         assert (card.atk, card.health) == (5, 5)
 
 
