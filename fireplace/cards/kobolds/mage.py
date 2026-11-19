@@ -117,9 +117,7 @@ class LOOT_104:
 
 class LOOT_104e:
     class Hand:
-        events = OWN_TURN_END.on(
-            Morph(OWNER, RandomSpell(card_class=CardClass.MAGE))
-        )
+        events = OWN_TURN_END.on(Morph(OWNER, RandomSpell(card_class=CardClass.MAGE)))
 
     events = REMOVED_IN_PLAY
 

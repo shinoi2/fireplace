@@ -13,7 +13,7 @@ def test_griftah():
     while card2.morphed is not None:
         card2 = card2.morphed
     (own_card,) = game.player1.hand
-    (coin, opponent_card) = game.player2.hand
+    coin, opponent_card = game.player2.hand
     assert coin.id == THE_COIN
     assert (own_card is card1 and opponent_card is card2) or (
         own_card is card2 and opponent_card is card1

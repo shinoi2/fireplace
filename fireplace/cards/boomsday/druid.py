@@ -65,9 +65,7 @@ class BOT_434e:
     events = REMOVED_IN_PLAY
 
     class Hand:
-        events = Play(CONTROLLER, MINION).after(
-            Morph(OWNER, Copy(Play.CARD))
-        )
+        events = Play(CONTROLLER, MINION).after(Morph(OWNER, Copy(Play.CARD)))
 
 
 class BOT_434e2:
