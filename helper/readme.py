@@ -4,10 +4,11 @@ from utils import *
 
 from fireplace import cards
 
-VERSION = "24.6.2.155409"
+VERSION = "25.6.2.170126"
 WIKI_HOST = "https://hearthstone.wiki.gg/wiki"
 
 CARD_SET_NAME = {
+    CardSet.INVALID: "Invalid",
     CardSet.BASIC: "Basic",
     CardSet.EXPERT1: "Classic",
     CardSet.CORE: "Core",
@@ -52,6 +53,8 @@ CARD_SET_NAME = {
     CardSet.TIME_TRAVEL: "Across the Timeways",
     CardSet.CORE_HIDDEN: "Core Hidden",
     CardSet.RETURN_OF_THE_LICH_KING: "March of the Lich King",
+    CardSet.BATTLE_OF_THE_BANDS: "Festival of Legends",
+    CardSet.PATH_OF_ARTHAS: "Path of Arthas",
 }
 
 

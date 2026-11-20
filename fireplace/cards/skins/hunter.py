@@ -124,7 +124,7 @@ class HERO_05dbp(HERO_05bp):
     pass
 
 
-class HERO_05dbp(HERO_05bp):
+class HERO_05ybp(HERO_05bp):
     """Steady Shot (Lor'themar)"""
 
     pass
@@ -132,6 +132,24 @@ class HERO_05dbp(HERO_05bp):
 
 class HERO_05dbp(HERO_05bp):
     """Steady Shot (Bakin' Brann)"""
+
+    pass
+
+
+class HERO_05zbp(HERO_05bp):
+    """Steady Shot (Sylvanas, Ranger General)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Deathkeeper Alleria)"""
+
+    pass
+
+
+class HERO_05dbp(HERO_05bp):
+    """Steady Shot (Huln Highmountain)"""
 
     pass
 
@@ -260,7 +278,7 @@ class HERO_05dbp2(HERO_05bp2):
     pass
 
 
-class HERO_05dbp2(HERO_05bp2):
+class HERO_05ybp2(HERO_05bp2):
     """Ballista Shot (Lor'themar)"""
 
     pass
@@ -268,5 +286,23 @@ class HERO_05dbp2(HERO_05bp2):
 
 class HERO_05dbp2(HERO_05bp2):
     """Ballista Shot (Bakin' Brann)"""
+
+    pass
+
+
+class HERO_05zbp2(HERO_05bp2):
+    """Ballista Shot (Sylvanas, Ranger General)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Deathkeeper Alleria)"""
+
+    pass
+
+
+class HERO_05dbp2(HERO_05bp2):
+    """Ballista Shot (Huln Highmountain)"""
 
     pass

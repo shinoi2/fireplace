@@ -124,6 +124,30 @@ class HERO_03dbp(HERO_03bp):
     pass
 
 
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Ebon Assassin Garona)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Edwin the Renegade)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Mighty Maiev)"""
+
+    pass
+
+
+class HERO_03dbp(HERO_03bp):
+    """Dagger Mastery (Center Stage Valeera)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -244,5 +268,29 @@ class HERO_03dbp2(HERO_03bp2):
 
 class HERO_03dbp2(HERO_03bp2):
     """Poisoned Daggers (Marshmallow Maiev)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Ebon Assassin Garona)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Edwin the Renegade)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Mighty Maiev)"""
+
+    pass
+
+
+class HERO_03dbp2(HERO_03bp2):
+    """Poisoned Daggers (Center Stage Valeera)"""
 
     pass

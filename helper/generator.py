@@ -46,14 +46,14 @@ def main():
         "--card_set",
         dest="card_set",
         type=int,
-        default=CardSet.RETURN_OF_THE_LICH_KING,
+        default=CardSet.BATTLE_OF_THE_BANDS,
         help="Generate cards of card set",
     )
     p.add_argument("--card_id", dest="card_id", help="Generate single card")
     p.add_argument(
         "--output_dir",
         dest="output_dir",
-        default="./fireplace/cards/lich_king",
+        default="./fireplace/cards/festival_of_legends",
         help="Generate code output dir",
     )
     args = p.parse_args(sys.argv[1:])
@@ -76,6 +76,7 @@ def main():
         out.write("from .shaman import *\n")
         out.write("from .warlock import *\n")
         out.write("from .warrior import *\n")
+        out.write("from .deathknight import *\n")
         out.write("from .neutral_common import *\n")
         out.write("from .neutral_rare import *\n")
         out.write("from .neutral_epic import *\n")
@@ -92,6 +93,7 @@ def main():
         {"card_class": CardClass.SHAMAN},
         {"card_class": CardClass.WARLOCK},
         {"card_class": CardClass.WARRIOR},
+        {"card_class": CardClass.DEATHKNIGHT},
         {"card_class": CardClass.NEUTRAL, "rarity": Rarity.COMMON},
         {"card_class": CardClass.NEUTRAL, "rarity": Rarity.RARE},
         {"card_class": CardClass.NEUTRAL, "rarity": Rarity.EPIC},

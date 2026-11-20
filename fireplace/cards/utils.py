@@ -1,4 +1,4 @@
-from hearthstone.deckstrings import Deck
+from hearthstone.deckstrings import Deck as Deckstring
 from hearthstone.enums import (
     CardClass,
     CardSet,
@@ -12,6 +12,7 @@ from hearthstone.enums import (
 from ..actions import *
 from ..aura import Refresh
 from ..cards import db
+from ..deck import Deck
 from ..dsl import *
 from ..enums import PlayReq, BoardEnum
 from ..events import *
@@ -512,7 +513,7 @@ def custom_card(cls):
 
 
 def decode_deckstring(deckstring: str):
-    deck = Deck.from_deckstring(deckstring)
+    deck = Deckstring.from_deckstring(deckstring)
     hero_id = deck.heroes[0]
     hero_id = db.dbf[hero_id]
     cards = []
@@ -520,6 +521,12 @@ def decode_deckstring(deckstring: str):
         card_id: str = db.dbf[card_id]
         card_id = card_id.removeprefix("CORE_")
         cards += [card_id] * num
+    if deck.sideboards:
+        sideboards = {}
+        for card_id, count, owner_id in deck.sideboards:
+            owner = db.dbf[owner_id].removeprefix("CORE_")
+            sideboards.setdefault(owner, []).extend([db.dbf[card_id]] * count)
+        cards = Deck(cards, sideboards=sideboards)
     return hero_id, cards
 
 
@@ -706,3 +713,35 @@ class QuestRewardProtect:
             and self.progress >= self.progress_total
             and len(self.controller.hand) < self.controller.max_hand_size
         )
+
+
+FRIENDLY_UNDEAD_BATTLECRY = {
+    PlayReq.REQ_TARGET_IF_AVAILABLE: 0,
+    PlayReq.REQ_MINION_TARGET: 0,
+    PlayReq.REQ_FRIENDLY_TARGET: 0,
+    PlayReq.REQ_TARGET_WITH_RACE: Race.UNDEAD,
+}
+CORPSES = Attr(CONTROLLER, GameTag.CORPSES)
+
+
+def _died_since_last_turn(card, source):
+    player = source.controller
+    last_turn = player.last_turn if player.current_player else player.turn
+    return getattr(card, "turn_killed", -1) > (last_turn or 0)
+
+
+RECENT_FRIENDLY_UNDEAD_DEATHS = (
+    FRIENDLY + DEAD_MINIONS + UNDEAD + FilterSelector(_died_since_last_turn)
+)
+FRIENDLY_UNDEAD_DIED = Find(RECENT_FRIENDLY_UNDEAD_DEATHS)
+
+
+def Manathirst(crystals):
+    return Attr(CONTROLLER, GameTag.RESOURCES) >= crystals
+
+
+def RaiseCorpses(player, amount, card_id):
+    count = Min(amount, Attr(player, "minion_slots"), Attr(player, GameTag.CORPSES))
+    return SpendCorpses(player, count).then(
+        Summon(player, card_id) * SpendCorpses.AMOUNT
+    )

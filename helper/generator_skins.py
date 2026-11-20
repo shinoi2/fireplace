@@ -53,6 +53,7 @@ def main():
         {"card_class": CardClass.SHAMAN},
         {"card_class": CardClass.WARLOCK},
         {"card_class": CardClass.WARRIOR},
+        {"card_class": CardClass.DEATHKNIGHT},
     ]
     for kw in kws:
         card_class = kw["card_class"]

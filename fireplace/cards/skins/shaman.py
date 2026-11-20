@@ -166,6 +166,24 @@ class HERO_02fbp(HERO_02bp):
     pass
 
 
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Scourgeslayer Vashj)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Spirit Bru'kan)"""
+
+    pass
+
+
+class HERO_02fbp(HERO_02bp):
+    """Totemic Call (Inzah)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -328,5 +346,23 @@ class HERO_02bp2(HERO_02bp2):
 
 class HERO_02bp2(HERO_02bp2):
     """Totemic Slam (Mummy Morgl)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Scourgeslayer Vashj)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Spirit Bru'kan)"""
+
+    pass
+
+
+class HERO_02bp2(HERO_02bp2):
+    """Totemic Slam (Inzah)"""
 
     pass

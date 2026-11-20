@@ -142,6 +142,24 @@ class HERO_07ebp(HERO_07bp):
     pass
 
 
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Mal'Ganis)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Dreadsteed Tamsin)"""
+
+    pass
+
+
+class HERO_07ebp(HERO_07bp):
+    """Life Tap (Mascot Nemsy)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -280,5 +298,23 @@ class HERO_07ebp2(HERO_07bp2):
 
 class HERO_07ebp2(HERO_07bp2):
     """Soul Tap (Noodle Nemsy)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Mal'Ganis)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Dreadsteed Tamsin)"""
+
+    pass
+
+
+class HERO_07ebp2(HERO_07bp2):
+    """Soul Tap (Mascot Nemsy)"""
 
     pass

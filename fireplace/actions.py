@@ -10,6 +10,7 @@ from hearthstone.enums import (
     Mulligan,
     PlayState,
     Race,
+    SpellSchool,
     Step,
     Zone,
 )
@@ -420,6 +421,8 @@ class Death(GameAction):
                 card.destroyed_source = card.damaged_source
             if card.zone == Zone.PLAY:
                 card._dead_position = card.zone_position - 1
+                if card.type == CardType.MINION and not card.leaves_no_corpse:
+                    card.controller.corpses += 1
             card.zone = Zone.GRAVEYARD
             source.game.check_for_end_game()
             source.game.refresh_auras()
@@ -1134,7 +1137,10 @@ class Damage(TargetedAction):
         if not amount:
             amount = target.predamage
         amount = target._hit(amount)
-        if source.type == CardType.ENCHANTMENT:
+        lifesteal_source = (
+            source if getattr(source, "lifesteal_damage", False) else None
+        )
+        if source.type == CardType.ENCHANTMENT and lifesteal_source is None:
             source = source.owner
         target.predamage = 0
         target.damaged_source = source
@@ -1147,18 +1153,20 @@ class Damage(TargetedAction):
         if amount:
             # check hasattr: some sources of damage are game or player (like fatigue)
             # weapon damage itself after hero attack, but does not trigger lifesteal
-            if (
-                hasattr(source, "lifesteal")
-                and source.lifesteal
-                and not (source.type == CardType.WEAPON and target is source)
+            if lifesteal_source is None and getattr(source, "lifesteal", False):
+                lifesteal_source = source
+            if lifesteal_source is not None and not (
+                source.type == CardType.WEAPON and target is source
             ):
-                if source.controller.lifesteal_damages_opposing_hero:
+                player = lifesteal_source.controller
+                if player.lifesteal_damages_opposing_hero:
                     source.game.queue_actions(
-                        source.controller,
-                        [Hit(source.controller.opponent.hero, amount)],
+                        player, [Hit(player.opponent.hero, amount)]
                     )
                 else:
-                    source.heal(source.controller.hero, amount)
+                    source.game.queue_actions(
+                        lifesteal_source, [Heal(player.hero, amount)]
+                    )
             self.broadcast(source, EventListener.ON, target, amount, source)
             # poisonous can not destroy hero
             if (
@@ -1230,15 +1238,15 @@ class Deathrattle(TargetedAction):
 
         for entity in target.entities:
             source.game.manager.targeted_action(self, source, target)
+            repeat = target.controller.extra_deathrattles or (
+                getattr(target, "extra_granted_deathrattles", False)
+                and entity is not target
+            )
             for deathrattle in entity.deathrattles:
-                if callable(deathrattle):
-                    actions = deathrattle(entity)
-                else:
-                    actions = deathrattle
-                source.game.queue_actions(entity, actions)
-
-                if target.controller.extra_deathrattles:
-                    log.info("Triggering deathrattles for %r again", target)
+                for _ in range(2 if repeat else 1):
+                    actions = (
+                        deathrattle(entity) if callable(deathrattle) else deathrattle
+                    )
                     source.game.queue_actions(entity, actions)
 
 
@@ -1263,6 +1271,10 @@ class Battlecry(TargetedAction):
         else:
             arg = _eval_card(source, arg)[0]
         return [arg]
+
+    @staticmethod
+    def repeat_arcane_spell(source, card, action_name, target):
+        source.game.main_power(source, card.get_actions(action_name), target)
 
     def has_extra_battlecries(self, player, card):
         # Brann Bronzebeard
@@ -1298,6 +1310,19 @@ class Battlecry(TargetedAction):
         source.game.manager.targeted_action(self, source, card, target)
         source.target = target
         source.game.main_power(source, card.get_actions(action_name), target)
+
+        if (
+            card.type == CardType.SPELL
+            and card.spell_school == SpellSchool.ARCANE
+            and player.arcane_spells_cast_twice
+        ):
+            repeat = functools.partial(
+                self.repeat_arcane_spell, source, card, action_name, target
+            )
+            if player.choice:
+                player.choice.choice_callback.append(repeat)
+            else:
+                repeat()
 
         if self.has_extra_battlecries(player, card):
             # Callable scripts may return generators and depend on the state
@@ -1706,6 +1731,8 @@ class Heal(TargetedAction):
         if source.controller.healing_as_damage:
             return source.game.queue_actions(source.controller, [Hit(target, amount)])
 
+        if getattr(target, "cant_be_healed", False):
+            return
         amount = source.get_heal(amount, target)
         amount = min(amount, target.damage)
         if amount:
@@ -1820,6 +1847,34 @@ class FillMana(TargetedAction):
 
     def do(self, source, target, amount):
         target.used_mana = max(0, target.used_mana - amount)
+        source.game.manager.targeted_action(self, source, target, amount)
+
+
+class SpendCorpses(TargetedAction):
+    TARGET = ActionArg()
+    AMOUNT = IntArg()
+
+    def get_targets(self, source):
+        players = []
+        for player in super().get_targets(source):
+            (amount,) = self.get_target_args(source, player)
+            if 0 < amount <= player.corpses:
+                players.append(player)
+        return players
+
+    def do(self, source, target, amount):
+        target.corpses -= amount
+        target.corpses_spent_this_game += amount
+        source.game.manager.targeted_action(self, source, target, amount)
+        return amount
+
+
+class GainCorpses(TargetedAction):
+    TARGET = ActionArg()
+    AMOUNT = IntArg()
+
+    def do(self, source, target, amount):
+        target.corpses += amount
         source.game.manager.targeted_action(self, source, target, amount)
 
 

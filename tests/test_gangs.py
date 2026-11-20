@@ -607,7 +607,7 @@ def test_doppelgangster_copies_are_summons():
 
 def test_devolve_zero_cost_minion_becomes_a_zero_cost_minion():
     """Le wiki : « 0-mana minions will transform into other 0-mana minions, which can include itself »."""
-    game = prepare_empty_game()
+    game = prepare_empty_game(is_standard=False)
     wisp = game.player2.summon(WISP)
     game.player1.give("CFM_696").play()
     assert wisp.zone != Zone.PLAY

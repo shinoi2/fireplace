@@ -136,6 +136,30 @@ class HERO_09dbp(HERO_09bp):
     pass
 
 
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Sally Whitemane)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Redeemer Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp(HERO_09bp):
+    """Lesser Heal (Champion Tyrande)"""
+
+    pass
+
+
+class HERO_09abbp(HERO_09bp):
+    """Lesser Heal (Hedanis)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -268,5 +292,29 @@ class HERO_09dbp2(HERO_09bp2):
 
 class HERO_09dbp2(HERO_09bp2):
     """Heal (Appetizer Anduin)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Sally Whitemane)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Redeemer Tyrande)"""
+
+    pass
+
+
+class HERO_09dbp2(HERO_09bp2):
+    """Heal (Champion Tyrande)"""
+
+    pass
+
+
+class HERO_09abbp2(HERO_09bp2):
+    """Heal (Hedanis)"""
 
     pass

@@ -115,7 +115,7 @@ def test_altimor_two_infusion_stages():
 def test_denathrius_endless_infuse_and_lifesteal():
     game = prepare_empty_game()
     game.player1.give("REV_906")
-    kill_friendly(game, count=3)
+    kill_friendly(game, count=6)
     sire = game.player1.hand[-1]
     assert sire.id == "REV_906t"
     assert sire.data_num_2 == 8
@@ -382,11 +382,11 @@ def test_remornia_keeps_remaining_health_between_forms(buffed):
     remornia.attack(target)
     weapon = game.player1.weapon
     assert weapon.id == "REV_316t"
-    assert (weapon.atk, weapon.durability) == (4 + bonus, 6 + bonus)
+    assert (weapon.atk, weapon.durability) == (5 + bonus, 6 + bonus)
     game.player1.hero.attack(game.player2.hero)
     returned = game.player1.field[0]
     assert returned.id == "REV_316"
-    assert (returned.atk, returned.health) == (4 + bonus, 5 + bonus)
+    assert (returned.atk, returned.health) == (5 + bonus, 5 + bonus)
     assert game.player1.weapon is None
 
 
@@ -965,7 +965,7 @@ def test_sinstone_graveyard_ghost_fixed_stats_include_previously_played_cards():
     location.use()
     ghost = game.player1.field.filter(id="REV_750t2")[0]
     assert (ghost.atk, ghost.health) == (3, 3)
-    assert ghost.stealthed
+    assert not ghost.stealthed
 
 
 def test_meltranix_restricts_opponent_until_their_turn_ends():
@@ -1055,7 +1055,7 @@ def test_identity_theft_preserves_and_continues_denathrius_infuse():
     game = prepare_empty_game()
     game.player2.discard_hand()
     game.player2.give("REV_906")
-    for _ in range(3):
+    for _ in range(6):
         game.player2.summon(WISP).destroy()
     original = game.player2.hand[0]
     assert original.data_num_2 == 8
@@ -1063,7 +1063,7 @@ def test_identity_theft_preserves_and_continues_denathrius_infuse():
     game.player1.choice.choose(game.player1.choice.cards[0])
     copy = game.player1.hand[-1]
     assert copy.data_num_2 == 8
-    kill_friendly(game)
+    kill_friendly(game, count=2)
     copy = game.player1.hand[-1]
     assert copy.data_num_2 == 9
     assert original.data_num_2 == 8

@@ -151,7 +151,7 @@ LOE_061e = buff(+3, +3)
 class LOE_073:
     """Fossilized Devilsaur"""
 
-    powered_up = Find(FRIENDLY_MINIONS + BEAST)
+    powered_up = Find(FRIENDLY_MINIONS + BEAST - SELF)
     play = powered_up & Taunt(SELF)
 
 

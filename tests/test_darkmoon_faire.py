@@ -1086,16 +1086,17 @@ def test_nzoth_god_of_the_deep_one_of_each_type():
     beasts = [game.player1.give(BLOODFEN_RAPTOR).play() for _ in range(2)]
     murloc = game.player1.give("CS2_168").play()
     wisp = game.player1.give(WISP).play()
-    for minion in beasts + [murloc, wisp]:
+    untyped = game.player1.give("CS2_182").play()
+    for minion in beasts + [murloc, wisp, untyped]:
         minion.destroy()
     _refill(game)
     game.player1.give("DMF_002").play()
     ids = sorted(m.id for m in game.player1.field[1:])
-    assert ids == sorted([BLOODFEN_RAPTOR, "CS2_168"])
+    assert ids == sorted([BLOODFEN_RAPTOR, "CS2_168", WISP])
 
 
 def test_keywarden_ivory_spellburst_gives_another_copy():
-    game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE)
+    game = prepare_empty_game(CardClass.MAGE, CardClass.MAGE, is_standard=False)
     game.player1.give("YOP_018").play()
     choice = game.player1.choice
     picked = choice.cards[0]
@@ -1422,7 +1423,7 @@ def test_tent_trasher_cheaper_per_minion_type():
     game.player1.give(BLOODFEN_RAPTOR).play()
     game.player1.give("CS2_168").play()
     game.player1.give(WISP).play()
-    assert trasher.cost == 5 - 2
+    assert trasher.cost == 5 - 3
 
 
 def test_etc_after_a_rush_minion_attacks():

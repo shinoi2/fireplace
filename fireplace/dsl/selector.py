@@ -441,8 +441,13 @@ class RandomSelector(Selector):
 
     def eval(self, entities, source):
         child_entities = self.child.eval(entities, source)
+        count = (
+            self.times.evaluate(source)
+            if isinstance(self.times, LazyValue)
+            else self.times
+        )
         return source.game.random.sample(
-            child_entities, min(len(child_entities), self.times)
+            child_entities, min(len(child_entities), count)
         )
 
     def __mul__(self, other):
@@ -727,6 +732,7 @@ MURLOC = EnumSelector(Race.MURLOC)
 PIRATE = EnumSelector(Race.PIRATE)
 TOTEM = EnumSelector(Race.TOTEM)
 ELEMENTAL = EnumSelector(Race.ELEMENTAL)
+UNDEAD = EnumSelector(Race.UNDEAD)
 NAGA = EnumSelector(Race.NAGA)
 TREANT = FuncSelector(
     lambda entities, src: [

@@ -8,10 +8,11 @@ from . import enums
 
 from .enums import PlayReq
 
-from .cards.utils import SOUL_FRAGMENT
+from .cards.utils import FRIENDLY_UNDEAD_DIED, SOUL_FRAGMENT
 
 TARGETING_PREREQUISITES = (
     PlayReq.REQ_TARGET_TO_PLAY,
+    enums.REQ_TARGET_IF_AVAILABLE_AND_FRIENDLY_UNDEAD_DIED,
     PlayReq.REQ_TARGET_FOR_COMBO,
     PlayReq.REQ_TARGET_IF_AVAILABLE,
     PlayReq.REQ_TARGET_IF_AVAILABLE_AND_DRAGON_IN_HAND,
@@ -78,6 +79,13 @@ def is_valid_target(self, target, requirements=None):
     ):
         return False
 
+    if (
+        target.type == CardType.HERO
+        and self.type == CardType.SPELL
+        and self.controller.spells_cant_target_heroes
+    ):
+        return False
+
     if requirements is None:
         requirements = self.requirements.copy()
 
@@ -94,6 +102,12 @@ def is_valid_target(self, target, requirements=None):
     for req, param in requirements.items():
         if req == enums.REQ_TARGET_IMP:
             if not target.data.tags.get(GameTag.IMP):
+                return False
+        elif req == enums.REQ_TARGET_IF_AVAILABLE_AND_FRIENDLY_UNDEAD_DIED:
+            if not FRIENDLY_UNDEAD_DIED.check(self):
+                return False
+        elif req == PlayReq.REQ_TARGET_IF_AVAILABLE_AND_MIN_MANA_CRYSTAL:
+            if self.controller.max_mana < param:
                 return False
         elif req == PlayReq.REQ_TARGET_SILVER_HAND_RECRUIT:
             if target.id != "CS2_101t":

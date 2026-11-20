@@ -28,7 +28,7 @@ class REV_906:
     """Sire Denathrius"""
 
     # <b><b>Lifesteal</b>.</b> <b>Battlecry:</b> Deal 5 damage amongst enemies.
-    # <b>Endlessly Infuse (1):</b> Deal 1 more.
+    # <b>Endlessly Infuse (2):</b> Deal 1 more.
     def infuse_card(self):
         card = self.controller.card("REV_906t", self)
         card.data_num_2 = self.data_num_2 + 1

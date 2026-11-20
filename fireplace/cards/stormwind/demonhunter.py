@@ -70,7 +70,7 @@ class DED_507:
 class SW_039:
     """Final Showdown"""
 
-    # <b>Questline:</b> Draw 4 cards in one turn. <b>Reward:</b> Reduce the
+    # <b>Questline:</b> Draw 6 cards in one turn. <b>Reward:</b> Reduce the
     # Cost of the cards drawn by (1).
     quest = (
         Draw(CONTROLLER).on(AddProgress(SELF, 1)),

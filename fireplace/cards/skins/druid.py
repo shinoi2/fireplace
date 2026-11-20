@@ -154,6 +154,24 @@ class HERO_06ebp(HERO_06bp):
     pass
 
 
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Hamuul Runeblade)"""
+
+    pass
+
+
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Dreamgrove Lunara)"""
+
+    pass
+
+
+class HERO_06ebp(HERO_06bp):
+    """Shapeshift (Flowerchild Lunara)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -304,5 +322,23 @@ class HERO_06ebp2(HERO_06bp2):
 
 class HERO_06ebp2(HERO_06bp2):
     """Dire Shapeshift (Epicurean Elise)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Hamuul Runeblade)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Dreamgrove Lunara)"""
+
+    pass
+
+
+class HERO_06ebp2(HERO_06bp2):
+    """Dire Shapeshift (Flowerchild Lunara)"""
 
     pass

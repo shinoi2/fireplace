@@ -4,11 +4,23 @@ from utils import *
 from utils import _empty_mulligan
 
 
-def _brawl_game(game_class, deck1=(), deck2=(), hero1=None, hero2=None, mana=10):
+def _brawl_game(
+    game_class, deck1=(), deck2=(), hero1=None, hero2=None, mana=10, *, is_standard=True
+):
     """A game of a Tavern Brawl (a Game subclass of fireplace.brawls), started,
     mulligan kept, both players at `mana` mana."""
-    player1 = Player("Player1", list(deck1), hero1 or CardClass.MAGE.default_hero)
-    player2 = Player("Player2", list(deck2), hero2 or CardClass.WARRIOR.default_hero)
+    player1 = Player(
+        "Player1",
+        list(deck1),
+        hero1 or CardClass.MAGE.default_hero,
+        is_standard=is_standard,
+    )
+    player2 = Player(
+        "Player2",
+        list(deck2),
+        hero2 or CardClass.WARRIOR.default_hero,
+        is_standard=is_standard,
+    )
     player1.cant_fatigue = not deck1
     player2.cant_fatigue = not deck2
     game = game_class(players=(player1, player2))
@@ -22,7 +34,7 @@ def _brawl_game(game_class, deck1=(), deck2=(), hero1=None, hero2=None, mana=10)
 def test_great_summoner_brawl():
     # "When you cast a spell, a random minion of the same cost is summoned for you!"
     # (a summoned minion may summon more: Kolkar Pack Runner, after the spell)
-    game = _brawl_game(GreatSummonerBrawl)
+    game = _brawl_game(GreatSummonerBrawl, is_standard=False)
     game.player1.give(MOONFIRE).play(target=game.player2.hero)
     assert len(game.player1.field) >= 1
     assert game.player1.field[0].cost == 0

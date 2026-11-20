@@ -534,13 +534,13 @@ def test_grand_crusader():
 
     def pick_card(picker, source):
         pool = picker.find_cards(source)
-        assert "BT_009" in pool
+        assert "WC_033" in pool
         assert all(
             fireplace.cards.db[card_id].collectible
             and CardClass.PALADIN in fireplace.cards.db[card_id].classes
             for card_id in pool
         )
-        return ["BT_009"]
+        return ["WC_033"]
 
     with mock(RandomCollectible, pick_card):
         crusader.play()

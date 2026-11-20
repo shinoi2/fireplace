@@ -142,6 +142,24 @@ class HERO_01dbp(HERO_01bp):
     pass
 
 
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Annhylde, Deathcaller)"""
+
+    pass
+
+
+class HERO_01aabp(HERO_01bp):
+    """Armor Up! (Varian Wrynn)"""
+
+    pass
+
+
+class HERO_01dbp(HERO_01bp):
+    """Armor Up! (Rocker Rokara)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -280,5 +298,23 @@ class HERO_01dbp2(HERO_01bp2):
 
 class HERO_01dbp2(HERO_01bp2):
     """Tank Up! (Goulash Garrosh)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Annhylde, Deathcaller)"""
+
+    pass
+
+
+class HERO_01aabp2(HERO_01bp2):
+    """Tank Up! (Varian Wrynn)"""
+
+    pass
+
+
+class HERO_01dbp2(HERO_01bp2):
+    """Tank Up! (Rocker Rokara)"""
 
     pass

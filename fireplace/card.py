@@ -1,6 +1,6 @@
 import re
 from itertools import chain
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from hearthstone.enums import (
     CardClass,
@@ -33,6 +33,12 @@ if TYPE_CHECKING:
 THE_COIN = "GAME_005"
 
 
+class Runes(NamedTuple):
+    blood: int
+    frost: int
+    unholy: int
+
+
 def Card(id):
     data = cards.db[id]
     subclass = {
@@ -62,6 +68,24 @@ def Card(id):
 class BaseCard(BaseEntity):
     Manager = CardManager
     delayed_destruction = False
+    leaves_no_corpse = False
+    lifesteal_damage = False
+
+    @property
+    def cost_blood(self):
+        return self.data.cost_blood
+
+    @property
+    def cost_frost(self):
+        return self.data.cost_frost
+
+    @property
+    def cost_unholy(self):
+        return self.data.cost_unholy
+
+    @property
+    def runes(self):
+        return Runes(self.cost_blood, self.cost_frost, self.cost_unholy)
 
     def __init__(self, data: "cardxml.CardXML"):
         self.data = data
@@ -320,6 +344,7 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
     corrupt = boolean_property("corrupt")
     corrupted = boolean_property("corrupted")
     card_costs_health = boolean_property("card_costs_health")
+    card_costs_armor = boolean_property("card_costs_armor")
     casts_when_drawn = boolean_property("casts_when_drawn")
     cant_draw_during_mulligan = boolean_property("cant_draw_during_mulligan")
     choose_both = boolean_property("choose_both")
@@ -498,6 +523,11 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
             for card in self.choose_cards:
                 if card.is_playable():
                     return True
+            return False
+
+        if self.controller.corpses < self.requirements.get(
+            PlayReq.REQ_MINIMUM_CORPSES, 0
+        ):
             return False
 
         if PlayReq.REQ_TARGET_TO_PLAY in self.requirements:
@@ -696,6 +726,9 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
             if PlayReq.REQ_TARGET_FOR_COMBO in self.requirements:
                 return True
 
+        if PlayReq.REQ_BATTLECRY_WITHOUT_TARGET in self.requirements:
+            return False
+
         for req in TARGETING_PREREQUISITES:
             if req in self.requirements:
                 if (
@@ -713,6 +746,8 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
         if self.has_combo and PlayReq.REQ_TARGET_FOR_COMBO in self.requirements:
             if self.controller.combo:
                 return bool(self.play_targets)
+        if enums.REQ_TARGET_IF_AVAILABLE_AND_FRIENDLY_UNDEAD_DIED in self.requirements:
+            return bool(self.play_targets)
         if PlayReq.REQ_TARGET_IF_AVAILABLE in self.requirements:
             return bool(self.play_targets)
         if (
@@ -871,7 +906,10 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
 
     @property
     def play_targets(self):
-        candidates = list(self.game.characters)
+        if self.data.tags.get(GameTag.CAN_TARGET_CARDS_IN_HAND):
+            candidates = list(self.controller.hand)
+        else:
+            candidates = list(self.game.characters)
         if PlayReq.REQ_LOCATION_TARGET in self.requirements:
             candidates = [
                 card
@@ -887,10 +925,12 @@ class PlayableCard(BaseCard, Entity, TargetableByAuras):
 
 
 class LiveEntity(PlayableCard, Entity):
+    extra_granted_deathrattles = boolean_property("extra_granted_deathrattles")
     has_deathrattle = boolean_property("has_deathrattle")
     secret_deathrattle = int_property("secret_deathrattle")
     atk = int_property("atk")
     cant_be_damaged = boolean_property("cant_be_damaged")
+    cant_be_healed = boolean_property("cant_be_healed")
     heavily_armored = boolean_property("heavily_armored")
     immune_while_attacking = boolean_property("immune_while_attacking")
     incoming_damage_adjustment = int_property("incoming_damage_adjustment")
@@ -1128,8 +1168,18 @@ class Character(LiveEntity):
                 Race.BEAST,
                 Race.PIRATE,
                 Race.TOTEM,
+                Race.UNDEAD,
+                Race.QUILBOAR,
+                Race.NAGA,
             ]
-        return [self.race]
+        return list(
+            dict.fromkeys(
+                [
+                    self.race,
+                    *(race for race in self.data.races if race != self.data.race),
+                ]
+            )
+        )
 
     @property
     def should_exit_combat(self):
@@ -1284,6 +1334,7 @@ class Minion(Character):
     mark_of_evil = boolean_property("mark_of_evil")
 
     silenceable_attributes = (
+        "extra_granted_deathrattles",
         "always_wins_brawls",
         "aura",
         "cant_attack",
@@ -1518,6 +1569,7 @@ class Minion(Character):
 
 
 class Spell(PlayableCard):
+    spellpower = int_property("spellpower")
     spelltype = enums.SpellType.INVALID
     twinspell = boolean_property("twinspell")
 

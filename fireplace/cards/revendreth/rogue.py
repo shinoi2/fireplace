@@ -133,7 +133,7 @@ class MAW_019:
 class REV_750:
     """Sinstone Graveyard"""
 
-    # [x]Summon a @/@ <b>Stealthed</b> Ghost. <i>(Has +1/+1 for each other card
+    # [x]Summon a @/@ Ghost. <i>(Has +1/+1 for each other card
     # you played this turn!)</i>
     activate = Summon(CONTROLLER, "REV_750t2").then(
         SetStats(

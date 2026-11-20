@@ -160,6 +160,18 @@ class HERO_04fbp(HERO_04bp):
     pass
 
 
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Fallen Yrel)"""
+
+    pass
+
+
+class HERO_04fbp(HERO_04bp):
+    """Reinforce (Fanboy Leeroy)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -316,5 +328,17 @@ class HERO_04fbp2(HERO_04bp2):
 
 class HERO_04fbp2(HERO_04bp2):
     """The Silver Hand (Fishy Finley)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Fallen Yrel)"""
+
+    pass
+
+
+class HERO_04fbp2(HERO_04bp2):
+    """The Silver Hand (Fanboy Leeroy)"""
 
     pass

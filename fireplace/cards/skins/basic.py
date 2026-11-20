@@ -95,6 +95,13 @@ class HERO_10bp:
 HERO_10bpe = buff(atk=1)
 
 
+class HERO_11bp:
+    """Ghoul Charge (The Lich King)"""
+
+    requirements = {PlayReq.REQ_NUM_MINION_SLOTS: 1}
+    activate = Summon(CONTROLLER, "HERO_11bpt")
+
+
 ##
 # Upgraded Hero Powers
 
@@ -199,3 +206,17 @@ class HERO_10bp2:
 
 
 HERO_10pe2 = buff(atk=2)
+
+
+class HERO_11bpt:
+    events = OWN_TURN_END.on(Destroy(SELF))
+
+
+class HERO_11bp2t(HERO_11bpt):
+    pass
+
+
+class HERO_11bp2:
+    """Ghoul Frenzy (The Lich King)"""
+
+    activate = Summon(CONTROLLER, "HERO_11bp2t")

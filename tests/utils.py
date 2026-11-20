@@ -148,15 +148,17 @@ def prepare_game(*args, **kwargs):
     return game
 
 
-def prepare_empty_game(class1=None, class2=None, game_class=BaseTestGame):
+def prepare_empty_game(
+    class1=None, class2=None, game_class=BaseTestGame, *, is_standard=True
+):
     log.info("Initializing a new game with empty decks")
     if class1 is None:
         class1 = _random_class()
     if class2 is None:
         class2 = _random_class()
-    player1 = Player("Player1", [], class1.default_hero)
+    player1 = Player("Player1", [], class1.default_hero, is_standard=is_standard)
     player1.cant_fatigue = True
-    player2 = Player("Player2", [], class2.default_hero)
+    player2 = Player("Player2", [], class2.default_hero, is_standard=is_standard)
     player2.cant_fatigue = True
     game = game_class(players=(player1, player2))
     game.start()

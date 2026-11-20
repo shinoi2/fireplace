@@ -25,7 +25,7 @@ class ICC_314t1e:
 
 
 class ICC_314t2:
-    """Army of the Dead"""
+    """Army of the Frozen Throne"""
 
     play = (Mill(CONTROLLER) * 5).then(
         Find(MINION + Mill.CARD) & Summon(CONTROLLER, Mill.CARD)

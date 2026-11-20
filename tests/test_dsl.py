@@ -121,7 +121,7 @@ def test_selector_subclasses_resolve_morphs_when_inheriting_or_overriding_eval()
 def test_self_selector_follows_repeated_infuse_transformations():
     game = prepare_empty_game()
     original = game.player1.give("REV_906")
-    for _ in range(3):
+    for _ in range(6):
         game.player1.summon(WISP).destroy()
     latest = game.player1.hand[-1]
 

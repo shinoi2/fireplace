@@ -20,6 +20,7 @@ from .actions import (
     Fatigue,
     Give,
     Hit,
+    LoseArmor,
     SpendMana,
     Steal,
     Summon,
@@ -50,6 +51,8 @@ if TYPE_CHECKING:
 
 class Player(Entity, TargetableByAuras):
     Manager = PlayerManager
+    arcane_spells_cast_twice = slot_property("arcane_spells_cast_twice")
+    spells_cant_target_heroes = slot_property("spells_cant_target_heroes")
     all_targets_random = slot_property("all_targets_random")
     cant_overload = slot_property("cant_overload")
     choose_both = slot_property("choose_both")
@@ -81,11 +84,24 @@ class Player(Entity, TargetableByAuras):
     cant_reveal_secrets = slot_property("cant_reveal_secrets")
     type = CardType.PLAYER
 
-    def __init__(self, name, deck: list[str], hero: str, is_standard=True):
+    def __init__(
+        self,
+        name,
+        deck: list[str],
+        hero: str,
+        is_standard=True,
+        *,
+        sideboards: dict[str, list[str]] | None = None,
+    ):
         self.game: Game = None
         self.opponent: Player = None
         self.first_player: bool = False
         self.starting_deck = deck
+        if sideboards is None:
+            sideboards = getattr(deck, "sideboards", {})
+        self.starting_sideboards = {
+            owner: tuple(cards) for owner, cards in sideboards.items()
+        }
         self.starting_hero = hero
         self.data = None
         self.name = name
@@ -94,6 +110,9 @@ class Player(Entity, TargetableByAuras):
         self.is_standard = is_standard
         super().__init__()
         self.deck = Deck()
+        self.sideboards = {
+            owner: list(cards) for owner, cards in self.starting_sideboards.items()
+        }
         self.hand = CardList["PlayableCard"]()
         self.field = CardList["Minion | Location"]()
         self.graveyard = CardList["PlayableCard"]()
@@ -105,6 +124,8 @@ class Player(Entity, TargetableByAuras):
         self.max_deck_size = 60
         self.cant_draw = False
         self.cant_fatigue = False
+        self.corpses = 0
+        self.corpses_spent_this_game = 0
         self.combo = False
         self.fatigue_counter = 0
         self.last_card_played = None
@@ -170,8 +191,32 @@ class Player(Entity, TargetableByAuras):
         # Most decks contain 30 cards, but cards such as Prince Renathal can change this.
         deck_size = 30
         card_count = defaultdict(int)
-        for card in self.starting_deck:
-            card_id = card if isinstance(card, str) else card.id
+        cost_blood = 0
+        cost_frost = 0
+        cost_unholy = 0
+        deck_ids = [
+            card if isinstance(card, str) else card.id for card in self.starting_deck
+        ]
+        if any(card_id not in db for card_id in deck_ids):
+            return False
+        sideboard_owners = {
+            card_id: db[card_id]
+            for card_id in deck_ids
+            if db[card_id].tags.get(GameTag.MAX_SIDEBOARD_CARDS)
+        }
+        if self.starting_sideboards.keys() != sideboard_owners.keys():
+            return False
+        for owner, cards in self.starting_sideboards.items():
+            tags = sideboard_owners[owner].tags
+            maximum = tags[GameTag.MAX_SIDEBOARD_CARDS]
+            minimum = tags.get(GameTag.MIN_SIDEBOARD_CARDS, maximum)
+            if not minimum <= len(cards) <= maximum:
+                return False
+        sideboard_ids = chain.from_iterable(self.starting_sideboards.values())
+        for card_id, in_sideboard in chain(
+            ((card_id, False) for card_id in deck_ids),
+            ((card_id, True) for card_id in sideboard_ids),
+        ):
             if card_id not in db:
                 return False
             cardxml = db[card_id]
@@ -182,6 +227,22 @@ class Player(Entity, TargetableByAuras):
                 if dbf_id < cardxml.dbf_id and dbf_id in db.dbf:
                     card_id = db.dbf[dbf_id]
             if not cardxml.collectible:
+                return False
+            if in_sideboard and (
+                (self.is_standard and not cardxml.is_standard)
+                or cardxml.type
+                not in (
+                    CardType.MINION,
+                    CardType.SPELL,
+                    CardType.WEAPON,
+                    CardType.HERO,
+                    CardType.LOCATION,
+                )
+                or cardxml.card_set == CardSet.HERO_SKINS
+                or cardxml.tags.get(GameTag.START_OF_GAME)
+                or cardxml.tags.get(GameTag.GALAKROND_HERO_CARD)
+                or card_id in ("SW_050", "BOT_914", "DAL_800")
+            ):
                 return False
 
             # A normal card may appear twice; legendary cards may appear only once.
@@ -198,13 +259,22 @@ class Player(Entity, TargetableByAuras):
                 if cardxml.card_class not in [hero_classes, CardClass.NEUTRAL]:
                     return False
 
+            # Deathknight three runes
+            cost_blood = max(cost_blood, cardxml.cost_blood)
+            cost_frost = max(cost_frost, cardxml.cost_frost)
+            cost_unholy = max(cost_unholy, cardxml.cost_unholy)
+
             # Only one card may change the deck size, and all such cards must agree.
-            if GameTag.DECK_RULE_MOD_DECK_SIZE in db[card_id].tags:
+            if not in_sideboard and GameTag.DECK_RULE_MOD_DECK_SIZE in cardxml.tags:
                 new_deck_size = cardxml.tags[GameTag.DECK_RULE_MOD_DECK_SIZE]
                 if deck_size != new_deck_size:
                     if deck_size != 30:
                         return False
                     deck_size = new_deck_size
+
+        if cost_blood + cost_frost + cost_unholy > 3:
+            return False
+
         if len(self.starting_deck) != deck_size:
             return False
 
@@ -495,6 +565,12 @@ class Player(Entity, TargetableByAuras):
             card = self.card(id, zone=Zone.DECK)
             if self.is_standard and not card.is_standard:
                 self.is_standard = False
+        if self.is_standard and any(
+            not db[card_id].is_standard
+            for cards in self.starting_sideboards.values()
+            for card_id in cards
+        ):
+            self.is_standard = False
         self.starting_deck = CardList(self.deck[:])
         self.mulligan_shuffle_deck()
         self.cthun = self.card("OG_280")
@@ -522,7 +598,7 @@ class Player(Entity, TargetableByAuras):
         }
         if getattr(spell, "spell_school", SpellSchool.NONE) in spell_school_power_map:
             amount += spell_school_power_map[spell.spell_school]
-        amount += self.spellpower
+        amount += self.spellpower + getattr(spell, "spellpower", 0)
         amount <<= self.controller.spellpower_double
         return amount
 
@@ -557,6 +633,8 @@ class Player(Entity, TargetableByAuras):
         """
         if self.spells_cost_health and card.type == CardType.SPELL:
             return self.hero.health > card.cost
+        if card.card_costs_armor:
+            return self.hero.armor >= card.cost
         if card.card_costs_health:
             return self.hero.health > card.cost
         return self.mana >= card.cost
@@ -569,6 +647,9 @@ class Player(Entity, TargetableByAuras):
         if self.spells_cost_health and source.type == CardType.SPELL:
             self.log("%s spells cost %i health", self, amount)
             self.game.queue_actions(self, [Hit(self.hero, amount)])
+            return amount
+        if getattr(source, "card_costs_armor", False):
+            self.game.queue_actions(source, [LoseArmor(self.hero, amount)])
             return amount
         if getattr(source, "card_costs_health", False):
             self.log("%s cards cost %i health", source, amount)

@@ -190,6 +190,24 @@ class HERO_08aebp(HERO_08bp):
     pass
 
 
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Runemage Khadgar)"""
+
+    pass
+
+
+class HERO_08albp(HERO_08bp):
+    """Fireblast (Saraad)"""
+
+    pass
+
+
+class HERO_08fbp(HERO_08bp):
+    """Fireblast (Mixqueen Azshara)"""
+
+    pass
+
+
 ##
 # Upgraded Hero Powers
 
@@ -376,5 +394,23 @@ class HERO_08fbp2(HERO_08bp2):
 
 class HERO_08aebp2(HERO_08bp2):
     """Fireblast Rank 2 (Cookin' Reno)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Runemage Khadgar)"""
+
+    pass
+
+
+class HERO_08albp2(HERO_08bp2):
+    """Fireblast Rank 2 (Saraad)"""
+
+    pass
+
+
+class HERO_08fbp2(HERO_08bp2):
+    """Fireblast Rank 2 (Mixqueen Azshara)"""
 
     pass
